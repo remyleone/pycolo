@@ -18,7 +18,7 @@ import sys, os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 
-# -- General configuration -----------------------------------------------------
+# -- General configuration ----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = '1.0'
@@ -40,8 +40,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'pycolo'
-copyright = u'2012, Rémy Léone'
+project = 'pycolo'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -66,7 +65,7 @@ release = '0.0.1'
 # directories to ignore when looking for source files.
 exclude_patterns = ['_build']
 
-# The reST default role (used for this markup: `text`) to use for all documents.
+# The reST default role (used for this markup: `text`) to use for all documents
 #default_role = None
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
@@ -87,7 +86,7 @@ pygments_style = 'sphinx'
 #modindex_common_prefix = []
 
 
-# -- Options for HTML output ---------------------------------------------------
+# -- Options for HTML output --------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
@@ -181,10 +180,10 @@ latex_elements = {
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title, author, documentclass [howto/manual]).
+# (source start file, target name, title, author, documentclass [howto/manual])
 latex_documents = [
-  ('index', 'pycolo.tex', u'pycolo Documentation',
-   u'Rémy Léone', 'manual'),
+  ('index', 'pycolo.tex', 'pycolo Documentation',
+   'Rémy Léone', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -208,27 +207,27 @@ latex_documents = [
 #latex_domain_indices = True
 
 
-# -- Options for manual page output --------------------------------------------
+# -- Options for manual page output -------------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'pycolo', u'pycolo Documentation',
-     [u'Rémy Léone'], 1)
+    ('index', 'pycolo', 'pycolo Documentation',
+     ['Rémy Léone'], 1)
 ]
 
 # If true, show URL addresses after external links.
 #man_show_urls = False
 
 
-# -- Options for Texinfo output ------------------------------------------------
+# -- Options for Texinfo output -----------------------------------------------
 
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'pycolo', u'pycolo Documentation',
-   u'Rémy Léone', 'pycolo', 'One line description of project.',
+  ('index', 'pycolo', 'pycolo Documentation',
+   'Rémy Léone', 'pycolo', 'One line description of project.',
    'Miscellaneous'),
 ]
 
@@ -242,13 +241,13 @@ texinfo_documents = [
 #texinfo_show_urls = 'footnote'
 
 
-# -- Options for Epub output ---------------------------------------------------
+# -- Options for Epub output --------------------------------------------
 
 # Bibliographic Dublin Core info.
-epub_title = u'pycolo'
-epub_author = u'Rémy Léone'
-epub_publisher = u'Rémy Léone'
-epub_copyright = u'2012, Rémy Léone'
+epub_title = 'pycolo'
+epub_author = 'Rémy Léone'
+epub_publisher = 'Rémy Léone'
+epub_copyright = '2012, Rémy Léone'
 
 # The language of the text. It defaults to the language option
 # or en if the language is not set.
