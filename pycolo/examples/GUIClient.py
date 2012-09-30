@@ -1,73 +1,36 @@
-#!/usr/bin/env python
-""" generated source for module GUIClient """
-# package: ch.ethz.inf.vs.californium.examples
 import java.awt.BorderLayout
-
 import java.awt.Dimension
-
 import java.awt.GridLayout
-
 import java.awt.event.ActionEvent
-
 import java.awt.event.ActionListener
-
 import java.util.ArrayList
-
-import java.util.List
-
 import java.util.Scanner
-
 import java.util.StringTokenizer
-
 import java.util.regex.Pattern
-
 import javax.swing.BoxLayout
-
 import javax.swing.DefaultComboBoxModel
-
 import javax.swing.JButton
-
 import javax.swing.JComboBox
-
 import javax.swing.JFrame
-
 import javax.swing.JPanel
-
 import javax.swing.JScrollPane
-
 import javax.swing.JSplitPane
-
 import javax.swing.JTextArea
-
 import javax.swing.JTree
-
 import javax.swing.SwingUtilities
-
 import javax.swing.UIManager
-
 import javax.swing.border.EmptyBorder
-
 import javax.swing.border.TitledBorder
-
 import javax.swing.event.TreeSelectionEvent
-
 import javax.swing.event.TreeSelectionListener
-
 import javax.swing.tree.DefaultMutableTreeNode
-
 import javax.swing.tree.DefaultTreeModel
-
 import javax.swing.tree.TreePath
-
 import ch.ethz.inf.vs.californium.coap
 
-# 
-#  * A CoAP Client to communicate with other CoAP resources.
-#  * 
-#  * @author Martin Lanter
-#  
+
 class GUIClient(JPanel):
-    """ generated source for class GUIClient """
+    """ A CoAP Client to communicate with other CoAP resources. """
     serialVersionUID = -8656652459991661071L
     DEFAULT_URI = "coap://localhost:5683"
     TESTSERVER_URI = "coap://vs0.inf.ethz.ch:5683"
@@ -141,24 +104,24 @@ class GUIClient(JPanel):
         panelE = JPanel(BorderLayout())
         panelE.setBorder(TitledBorder("Resources"))
         panelE.add(scrRes, BorderLayout.CENTER)
-        setLayout(BorderLayout())
+        self.setLayout(BorderLayout())
         splCE = JSplitPane(JSplitPane.HORIZONTAL_SPLIT)
         splCE.setContinuousLayout(True)
         splCE.setResizeWeight(0.5)
         splCE.setLeftComponent(panelE)
         splCE.setRightComponent(splReqRes)
-        add(splCE)
-        self.treRes.addTreeSelectionListener(TreeSelectionListener())
-        discover()
+        self.add(splCE)
+        self.treRes.addTreeSelectionListener(self.TreeSelectionListener())
+        self.discover()
 
     def discover(self):
         """ generated source for method discover """
         self.dmtRes.removeAllChildren()
         self.dtmRes.reload()
-        request = GETRequest()
-        request.setURI(self.COAP_PROTOCOL + getHost() + "/.well-known/core")
-        request.registerResponseHandler(ResponseHandler())
-        execute(request)
+        request = self.GETRequest()
+        request.setURI(self.COAP_PROTOCOL + self.getHost() + "/.well-known/core")
+        request.registerResponseHandler(self.ResponseHandler())
+        self.execute(request)
 
     def populateTree(self, ress):
         """ generated source for method populateTree """
@@ -170,7 +133,7 @@ class GUIClient(JPanel):
                 cur = n
                 i += 1
         self.dmtRes.removeAllChildren()
-        addNodes(self.dmtRes, root)
+        self.addNodes(self.dmtRes, root)
         self.dtmRes.reload()
         i = 0
         while i < self.treRes.getRowCount():
@@ -180,8 +143,8 @@ class GUIClient(JPanel):
     def addNodes(self, parent, node):
         """ generated source for method addNodes """
         for n in node.children:
-            parent.add(dmt)
-            self.addNodes(dmt, n)
+            parent.add(self.dmt)
+            self.addNodes(self.dmt, n)
 
     class Node(object):
         """ generated source for class Node """
@@ -253,4 +216,3 @@ class GUIClient(JPanel):
 if __name__ == '__main__':
     import sys
     GUIClient.main(sys.argv)
-

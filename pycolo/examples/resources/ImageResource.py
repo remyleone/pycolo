@@ -99,7 +99,7 @@ class ImageResource(LocalResource):
         filename = "data/image/"
         ct = MediaTypeRegistry.IMAGE_PNG
         #  content negotiation
-        if (ct = MediaTypeRegistry.contentNegotiation(ct, self.supported, request.getOptions(OptionNumberRegistry.ACCEPT))) == MediaTypeRegistry.UNDEFINED:
+        if (ct=MediaTypeRegistry.contentNegotiation(ct, self.supported, request.getOptions(OptionNumberRegistry.ACCEPT))) == MediaTypeRegistry.UNDEFINED:
             request.respond(CodeRegistry.RESP_NOT_ACCEPTABLE, "Accept GIF, JPEG, PNG, or TIFF")
             return
         filename += "image." + MediaTypeRegistry.toFileExtension(ct)
@@ -111,7 +111,7 @@ class ImageResource(LocalResource):
         # get length of file
         fileLength = int(len(file_))
         fileIn = None
-        fileData = [None]*fileLength
+        fileData = [None] * fileLength
         try:
             # open input stream from file
             fileIn = FileInputStream(file_)

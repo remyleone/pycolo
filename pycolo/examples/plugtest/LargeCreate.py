@@ -79,7 +79,7 @@ class LargeCreate(LocalResource):
     # 	 * Convenience function to store data contained in a 
     # 	 * PUT/POST-Request. Notifies observing endpoints about
     # 	 * the change of its contents.
-    # 	 
+    #
     # 
     # 	private synchronized void storeData(Request request) {
     #  set payload and content type

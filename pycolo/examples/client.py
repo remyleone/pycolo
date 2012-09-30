@@ -1,7 +1,6 @@
 # coding=utf-8
 
 import java.net.URI
-import logging
 
 #  * This class implements a simple CoAP client for testing purposes. Usage:
 #  * <p>
@@ -43,12 +42,9 @@ class ExampleClient():
     ERR_RESPONSE_FAILED = 6
     ERR_BAD_LINK_FORMAT = 7
 
-    # 
-    #      * Main method of this client.
-    #      
     @classmethod
     def main(cls, args):
-        """ generated source for method main """
+        """ Main method of this client. """
         #  initialize parameters
         method = None
         uri = None
@@ -110,7 +106,6 @@ class ExampleClient():
         request.setToken(TokenManager.getInstance().acquireToken())
         #  enable response queue in order to use blocking I/O
         request.enableResponseQueue(True)
-        # 
         request.prettyPrint()
         #  execute request
         try:
@@ -163,31 +158,30 @@ class ExampleClient():
     #      
     @classmethod
     def printInfo(cls):
-        """ generated source for method printInfo """
-        print "Californium (Cf) Example Client"
-        print "(c) 2012, Institute for Pervasive Computing, ETH Zurich"
-        print 
-        print "Usage: " + ExampleClient.__class__.getSimpleName() + " [-l] METHOD URI [PAYLOAD]"
-        print "  METHOD  : {GET, POST, PUT, DELETE, DISCOVER, OBSERVE}"
-        print "  URI     : The CoAP URI of the remote endpoint or resource"
-        print "  PAYLOAD : The data to send with the request"
-        print "Options:"
-        print "  -l      : Loop for multiple responses"
-        print "           (automatic for OBSERVE and separate responses)"
-        print 
-        print "Examples:"
-        print "  ExampleClient DISCOVER coap://localhost"
-        print
-        var = "  ExampleClient POST coap://vs0.inf.ethz.ch:5683/storage my data"
+        help = """
+        Californium (Cf) Example Client"
+        (c) 2012, Institute for Pervasive Computing, ETH Zurich
 
-    # 
-    #      * Instantiates a new request based on a string describing a method.
-    #      * 
-    #      * @return A new request object, or null if method not recognized
-    #      
+        Usage:ExampleClient.__class__.getSimpleName()+[-l] METHOD URI [PAYLOAD]
+          METHOD  : {GET, POST, PUT, DELETE, DISCOVER, OBSERVE}
+          URI     : The CoAP URI of the remote endpoint or resource
+          PAYLOAD : The data to send with the request
+         Options:
+           -l      : Loop for multiple responses
+                    (automatic for OBSERVE and separate responses)
+        Examples:
+        ---------
+        ExampleClient DISCOVER coap://localhost
+        ExampleClient POST coap://vs0.inf.ethz.ch:5683/storage my data
+        """
+        print(help)
+
     @classmethod
     def newRequest(cls, method):
-        """ generated source for method newRequest """
+        """
+        Instantiates a new request based on a string describing a method.
+        @return A new request object, or null if method not recognized
+        """
         if method == "GET":
             return GETRequest()
         elif method == "POST":

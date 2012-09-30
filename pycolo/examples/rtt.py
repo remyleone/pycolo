@@ -2,8 +2,6 @@
 import java.net.URI
 import java.net.URISyntaxException
 
-import logging
-
 
 class RTTClient(object):
     """ generated source for class RTTClient """

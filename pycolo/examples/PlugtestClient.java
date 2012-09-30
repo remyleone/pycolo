@@ -60,7 +60,7 @@ import ch.ethz.inf.vs.californium.util.Log;
  * @author Francesco Corazza
  */
 public class PlugtestClient {
-	
+
 	protected static final int PLUGTEST_BLOCK_SIZE = 64;
 
 	/** The server uri. */
@@ -71,7 +71,7 @@ public class PlugtestClient {
 
 	/** The test list. */
 	protected List<String> testsToRun = new ArrayList<String>();
-	
+
 	/** The test summary. */
 	protected List<String> summary = new ArrayList<String>();
 
@@ -108,10 +108,10 @@ public class PlugtestClient {
 	 *            the test names
 	 */
 	public void instantiateTests(String... testNames) {
-		
+
 		testsToRun = Arrays.asList( (testNames==null || testNames.length==0) ? this.testMap.keySet().toArray(testNames) : testNames);
 		Collections.sort(testsToRun);
-		
+
 		try {
 			// iterate for each chosen test
 			for (String testString : testsToRun) {
@@ -131,20 +131,20 @@ public class PlugtestClient {
 					System.err.println("constructors.length == 0");
 					System.exit(-1);
 				}
-				
+
 				// inner class: first argument (this) is the enclosing instance
 				@SuppressWarnings("unused")
-				TestClientAbstract testClient = (TestClientAbstract) constructors[0].newInstance(this, serverURI);
+					TestClientAbstract testClient = (TestClientAbstract) constructors[0].newInstance(this, serverURI);
 			}
-			
+
 			waitForTests();
-			
+
 			// summary
 			System.out.println("\n==== SUMMARY ====");
 			for (String result : summary) {
 				System.out.println(result);
 			}
-			
+
 		} catch (InstantiationException e) {
 			System.err.println("Reflection error");
 			e.printStackTrace();
@@ -165,21 +165,21 @@ public class PlugtestClient {
 			e.printStackTrace();
 		}
 	}
-  /*	
-	public synchronized void waitForTests() throws InterruptedException {
+	/*	
+		public synchronized void waitForTests() throws InterruptedException {
 		while (summary.size()<testsToRun.size()) {
-			wait();
+		wait();
 		}
-	}
-	
-	public synchronized void tickOffTest() {
+		}
+
+		public synchronized void tickOffTest() {
 		notify();
-	}
-	
-	public synchronized void addSummaryEntry(String entry) {
+		}
+
+		public synchronized void addSummaryEntry(String entry) {
 		summary.add(entry);
-	}
-  */
+		}
+	 */
 	/**
 	 * Main entry point.
 	 * 
@@ -204,10 +204,10 @@ public class PlugtestClient {
 			}
 			System.exit(-1);
 		}
-		
+
 		Log.setLevel(Level.WARNING);
 		Log.init();
-		
+
 		// default block size
 		Communicator.setupTransfer(PLUGTEST_BLOCK_SIZE);
 
@@ -230,7 +230,7 @@ public class PlugtestClient {
 
 		/** The verbose. */
 		protected boolean verbose = false;
-		
+
 		/** Use synchronous or asynchronous requests. Sync recommended due to single threaded servers and slow resources. */
 		protected boolean sync = true;
 
@@ -274,59 +274,59 @@ public class PlugtestClient {
 		 * @param payload
 		 *            the payload
 		 */
-    /*
-		protected synchronized void executeRequest(Request request, String serverURI, String resourceUri) {
-			if (serverURI == null || serverURI.isEmpty()) {
-				System.err.println("serverURI == null || serverURI.isEmpty()");
-				throw new IllegalArgumentException("serverURI == null || serverURI.isEmpty()");
-			}
-			
-			// defensive check for slash
-			if (!serverURI.endsWith("/") && !resourceUri.startsWith("/")) {
-				resourceUri = "/" + resourceUri;
-			}
+		/*
+		   protected synchronized void executeRequest(Request request, String serverURI, String resourceUri) {
+		   if (serverURI == null || serverURI.isEmpty()) {
+		   System.err.println("serverURI == null || serverURI.isEmpty()");
+		   throw new IllegalArgumentException("serverURI == null || serverURI.isEmpty()");
+		   }
 
-			URI uri = null;
-			try {
-				uri = new URI(serverURI + resourceUri);
-			} catch (URISyntaxException use) {
-				System.err.println("Invalid URI: " + use.getMessage());
-				// TODO
-			}
-
-			request.setURI(uri);
-			if (request.requiresToken()) {
-				request.setToken(TokenManager.getInstance().acquireToken());
-			}
-			
-			request.registerResponseHandler(new TestResponseHandler());
-
-			// enable response queue for synchronous I/O
-			if (sync) {
-				request.enableResponseQueue(true);
-			}
-
-			// print request info
-			if (verbose) {
-				System.out.println("Request for test " + this.testName + " sent");
-				request.prettyPrint();
-			}
-
-			// execute the request
-			try {
-				request.execute();
-				if (sync) {
-					request.receiveResponse();
-				}
-			} catch (IOException e) {
-				System.err.println("Failed to execute request: " + e.getMessage());
-				System.exit(-1);
-			} catch (InterruptedException e) {
-				System.err.println("Interupted during receive: " + e.getMessage());
-				System.exit(-1);
-			}
+		// defensive check for slash
+		if (!serverURI.endsWith("/") && !resourceUri.startsWith("/")) {
+		resourceUri = "/" + resourceUri;
 		}
-    */
+
+		URI uri = null;
+		try {
+		uri = new URI(serverURI + resourceUri);
+		} catch (URISyntaxException use) {
+		System.err.println("Invalid URI: " + use.getMessage());
+		// TODO
+		}
+
+		request.setURI(uri);
+		if (request.requiresToken()) {
+		request.setToken(TokenManager.getInstance().acquireToken());
+		}
+
+		request.registerResponseHandler(new TestResponseHandler());
+
+		// enable response queue for synchronous I/O
+		if (sync) {
+		request.enableResponseQueue(true);
+		}
+
+		// print request info
+		if (verbose) {
+		System.out.println("Request for test " + this.testName + " sent");
+		request.prettyPrint();
+		}
+
+		// execute the request
+		try {
+		request.execute();
+		if (sync) {
+		request.receiveResponse();
+		}
+		} catch (IOException e) {
+		System.err.println("Failed to execute request: " + e.getMessage());
+		System.exit(-1);
+		} catch (InterruptedException e) {
+		System.err.println("Interupted during receive: " + e.getMessage());
+		System.exit(-1);
+		}
+		}
+		 */
 		/**
 		 * The Class TestResponseHandler.
 		 */
@@ -336,36 +336,36 @@ public class PlugtestClient {
 			 * @see ch.ethz.inf.vs.californium.coap.ResponseHandler#handleResponse(ch.ethz.inf.vs.californium.coap.Response)
 			 */
 			@Override
-			public void handleResponse(Response response) {
+				public void handleResponse(Response response) {
 
-				System.out.println();
-				System.out.println("**** TEST: " + testName + " ****");
+					System.out.println();
+					System.out.println("**** TEST: " + testName + " ****");
 
-				// checking the response
-				if (response!=null) {
+					// checking the response
+					if (response!=null) {
 
-					// print response info
-					if (verbose) {
-						System.out.println("Response received");
-						System.out.println("Time elapsed (ms): "
-								+ response.getRTT());
-						response.prettyPrint();
+						// print response info
+						if (verbose) {
+							System.out.println("Response received");
+							System.out.println("Time elapsed (ms): "
+									+ response.getRTT());
+							response.prettyPrint();
+						}
+
+						System.out.println("**** BEGIN CHECK ****");
+
+						if (checkResponse(response.getRequest(), response)) {
+							System.out.println("**** TEST PASSED ****");
+							addSummaryEntry(testName + ": PASSED");
+						} else {
+							System.out.println("**** TEST FAILED ****");
+							addSummaryEntry(testName + ": FAILED");
+						}
+
+						tickOffTest();
 					}
-					
-					System.out.println("**** BEGIN CHECK ****");
 
-					if (checkResponse(response.getRequest(), response)) {
-						System.out.println("**** TEST PASSED ****");
-						addSummaryEntry(testName + ": PASSED");
-					} else {
-						System.out.println("**** TEST FAILED ****");
-						addSummaryEntry(testName + ": FAILED");
-					}
-					
-					tickOffTest();
 				}
-				
-			}
 		}
 
 		/**
@@ -470,7 +470,7 @@ public class PlugtestClient {
 		 */
 		protected boolean hasObserve(Response response, boolean invert) {
 			boolean success = response.hasOption(OptionNumberRegistry.OBSERVE);
-			
+
 			// invert to check for not having the option
 			success ^= invert;
 
@@ -487,24 +487,24 @@ public class PlugtestClient {
 		protected boolean hasObserve(Response response) {
 			return hasObserve(response, false);
 		}
-		
+
 		protected boolean checkOption(Option expextedOption, Option actualOption) {
 			boolean success = actualOption!=null && expextedOption.getOptionNumber()==actualOption.getOptionNumber();
-			
+
 			if (!success) {
 				System.out.printf("FAIL: Missing option nr %d\n", expextedOption.getOptionNumber());
 			} else {
-				
+
 				// raw value byte array can be different, although value is the same 
 				success &= expextedOption.toString().equals(actualOption.toString());
-				
+
 				if (!success) {
 					System.out.printf("FAIL: Expected %s, but was %s\n", expextedOption.toString(), actualOption.toString());
 				} else {
 					System.out.printf("PASS: Correct option (%s)\n", actualOption.toString());
 				}
 			}
-			
+
 			return success;
 		}
 
@@ -516,11 +516,11 @@ public class PlugtestClient {
 		 * @return true, if successful
 		 */
 		protected boolean checkToken(Option expextedOption, Option actualOption) {
-			
+
 			boolean success = true;
-			
+
 			if (expextedOption.equals(new Option(TokenManager.emptyToken, OptionNumberRegistry.TOKEN))) {
-				
+
 				success = actualOption==null;
 
 				if (!success) {
@@ -528,11 +528,11 @@ public class PlugtestClient {
 				} else {
 					System.out.println("PASS: Correct empty token");
 				}
-				
+
 				return success;
-				
+
 			} else {
-				
+
 				success = actualOption.getRawValue().length <=8;
 				success &= actualOption.getRawValue().length >= 1;
 
@@ -541,7 +541,7 @@ public class PlugtestClient {
 					System.out.printf("FAIL: Expected token %s, but %s has illeagal length\n", expextedOption, actualOption);
 					return success;
 				}
-				
+
 				success &= expextedOption.toString().equals(actualOption.toString());
 
 				if (!success) {
@@ -549,11 +549,11 @@ public class PlugtestClient {
 				} else {
 					System.out.printf("PASS: Correct token (%s)\n", actualOption);
 				}
-				
+
 				return success;
 			}
 		}
-		
+
 		/**
 		 * Check discovery.
 		 * 
@@ -564,26 +564,26 @@ public class PlugtestClient {
 		 * @return true, if successful
 		 */
 		protected boolean checkDiscovery(String expextedAttribute, String actualDiscovery) {
-			
+
 			Resource res = RemoteResource.newRoot(actualDiscovery);
 
 			List<Option> query = new ArrayList<Option>();
 			query.add(new Option(expextedAttribute, OptionNumberRegistry.URI_QUERY));
-			
+
 			boolean success = true;
-			
+
 			for (Resource sub : res.getSubResources()) {
 				success &= LinkFormat.matches(sub, query);
-				
+
 				if (!success) {
 					System.out.printf("FAIL: Expected %s, but was %s\n", expextedAttribute, LinkFormat.serialize(sub, null, false));
 				}
 			}
-			
+
 			if (success) {
 				System.out.println("PASS: Correct Link Format filtering");
 			}
-			
+
 			return success;
 		}
 
@@ -599,7 +599,7 @@ public class PlugtestClient {
 
 		public static final String RESOURCE_URI = "/test";
 		public static final int EXPECTED_RESPONSE_CODE = 69;
-		
+
 		public CC01(String serverURI) {
 			super(CC01.class.getSimpleName());
 
@@ -1128,20 +1128,20 @@ public class PlugtestClient {
 
 		protected boolean checkResponse(Request request, Response response) {
 			boolean success = response.hasOption(OptionNumberRegistry.BLOCK2);
-			
+
 
 			if (!success) {
 				System.out.println("FAIL: no Block2 option");
 			} else {
 				// get actual number of blocks for check
 				int maxNUM = ((BlockOption)response.getFirstOption(OptionNumberRegistry.BLOCK2)).getNUM();
-	
+
 				success &= checkType(Message.messageType.ACK, response.getType());
 				success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
 				success &= checkOption(
-									   new BlockOption(OptionNumberRegistry.BLOCK2, maxNUM, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false),
-									   response.getFirstOption(OptionNumberRegistry.BLOCK2)
-									  );
+						new BlockOption(OptionNumberRegistry.BLOCK2, maxNUM, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false),
+						response.getFirstOption(OptionNumberRegistry.BLOCK2)
+						);
 				success &= hasContentType(response);
 			}
 			return success;
@@ -1170,19 +1170,19 @@ public class PlugtestClient {
 
 		protected boolean checkResponse(Request request, Response response) {
 			boolean success = response.hasOption(OptionNumberRegistry.BLOCK2);
-			
+
 			if (!success) {
 				System.out.println("FAIL: no Block2 option");
 			} else {
 				// get actual number of blocks for check
 				int maxNUM = ((BlockOption)response.getFirstOption(OptionNumberRegistry.BLOCK2)).getNUM();
-	
+
 				success &= checkType(Message.messageType.ACK, response.getType());
 				success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
 				success &= checkOption(
-									   new BlockOption(OptionNumberRegistry.BLOCK2, maxNUM, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false),
-									   response.getFirstOption(OptionNumberRegistry.BLOCK2)
-									  );
+						new BlockOption(OptionNumberRegistry.BLOCK2, maxNUM, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false),
+						response.getFirstOption(OptionNumberRegistry.BLOCK2)
+						);
 				success &= hasContentType(response);
 			}
 			return success;
@@ -1205,7 +1205,7 @@ public class PlugtestClient {
 
 			// create the request
 			Request request = new Request(CodeRegistry.METHOD_PUT, true);
-			
+
 			// create payload
 			StringBuilder builder = new StringBuilder();
 			for (int i=0; i<20; ++i) {
@@ -1215,26 +1215,26 @@ public class PlugtestClient {
 				builder.append('\n');
 			}
 			request.setPayload(builder.toString(), MediaTypeRegistry.TEXT_PLAIN);
-			
+
 			// set the parameters and execute the request
 			executeRequest(request, serverURI, RESOURCE_URI);
 		}
 
 		protected boolean checkResponse(Request request, Response response) {
 			boolean success = response.hasOption(OptionNumberRegistry.BLOCK1);
-			
+
 			if (!success) {
 				System.out.println("FAIL: no Block1 option");
 			} else {
 				// get actual number of blocks for check
 				int maxNUM = ((BlockOption)response.getFirstOption(OptionNumberRegistry.BLOCK1)).getNUM();
-	
+
 				success &= checkType(Message.messageType.ACK, response.getType());
 				success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
 				success &= checkOption(
-									   new BlockOption(OptionNumberRegistry.BLOCK1, maxNUM, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false),
-									   response.getFirstOption(OptionNumberRegistry.BLOCK1)
-									  );
+						new BlockOption(OptionNumberRegistry.BLOCK1, maxNUM, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false),
+						response.getFirstOption(OptionNumberRegistry.BLOCK1)
+						);
 			}
 
 			return success;
@@ -1257,7 +1257,7 @@ public class PlugtestClient {
 
 			// create the request
 			Request request = new Request(CodeRegistry.METHOD_POST, true);
-			
+
 			// create payload
 			StringBuilder builder = new StringBuilder();
 			for (int i=0; i<20; ++i) {
@@ -1267,26 +1267,26 @@ public class PlugtestClient {
 				builder.append('\n');
 			}
 			request.setPayload(builder.toString(), MediaTypeRegistry.TEXT_PLAIN);
-			
+
 			// set the parameters and execute the request
 			executeRequest(request, serverURI, RESOURCE_URI);
 		}
 
 		protected boolean checkResponse(Request request, Response response) {
 			boolean success = response.hasOption(OptionNumberRegistry.BLOCK1);
-			
+
 			if (!success) {
 				System.out.println("FAIL: no Block1 option");
 			} else {
 				// get actual number of blocks for check
 				int maxNUM = ((BlockOption)response.getFirstOption(OptionNumberRegistry.BLOCK1)).getNUM();
-	
+
 				success &= checkType(Message.messageType.ACK, response.getType());
 				success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
 				success &= checkOption(
-									   new BlockOption(OptionNumberRegistry.BLOCK1, maxNUM, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false),
-									   response.getFirstOption(OptionNumberRegistry.BLOCK1)
-									  );
+						new BlockOption(OptionNumberRegistry.BLOCK1, maxNUM, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false),
+						response.getFirstOption(OptionNumberRegistry.BLOCK1)
+						);
 				success &= hasLocation(response);
 			}
 
@@ -1328,307 +1328,307 @@ public class PlugtestClient {
 			return success;
 		}
 		/*
-		@Override
-		protected synchronized void executeRequest(Request request, String serverURI, String resourceUri) {
-			if (serverURI == null || serverURI.isEmpty()) {
-				throw new IllegalArgumentException("serverURI == null || serverURI.isEmpty()");
-			}
-			
-			// defensive check for slash
-			if (!serverURI.endsWith("/") && !resourceUri.startsWith("/")) {
-				resourceUri = "/" + resourceUri;
-			}
+		   @Override
+		   protected synchronized void executeRequest(Request request, String serverURI, String resourceUri) {
+		   if (serverURI == null || serverURI.isEmpty()) {
+		   throw new IllegalArgumentException("serverURI == null || serverURI.isEmpty()");
+		   }
 
-			URI uri = null;
-			try {
-				uri = new URI(serverURI + resourceUri);
-			} catch (URISyntaxException use) {
-				throw new IllegalArgumentException("Invalid URI: " + use.getMessage());
-			}
-
-			request.setURI(uri);
-			if (request.requiresToken()) {
-				request.setToken(TokenManager.getInstance().acquireToken());
-			}
-
-			// enable response queue for synchronous I/O
-			request.enableResponseQueue(true);
-			
-			// for observing
-			int observeLoop = 5;
-
-			// print request info
-			if (verbose) {
-				System.out.println("Request for test " + this.testName + " sent");
-				request.prettyPrint();
-			}
-
-			// execute the request
-			try {
-				Response response = null;
-				boolean success = true;
-				
-				request.execute();
-				
-				System.out.println();
-				System.out.println("**** TEST: " + testName + " ****");
-				System.out.println("**** BEGIN CHECK ****");
-					
-				// receive multiple responses
-				for (int l=0; l<observeLoop; ++l) {
-					response = request.receiveResponse();
-
-					// checking the response
-					if (response != null) {
-						
-						// print response info
-						if (verbose) {
-							System.out.println("Response received");
-							System.out.println("Time elapsed (ms): " + response.getRTT());
-							response.prettyPrint();
-						}
-
-						success &= checkResponse(response.getRequest(), response);
-						
-						if (!hasObserve(response)) {
-							break;
-						}
-					}
-				}
-				
-				// TD_COAP_OBS_02: Stop resource observation
-				request.removeOptions(OptionNumberRegistry.OBSERVE);
-				request.setMID(-1);
-				request.execute();
-				response = request.receiveResponse();
-
-				success &= hasObserve(response, true);
-
-				if (success) {
-					System.out.println("**** TEST PASSED ****");
-					addSummaryEntry(testName + ": PASSED");
-				} else {
-					System.out.println("**** TEST FAILED ****");
-					addSummaryEntry(testName + ": FAILED");
-				}
-
-				tickOffTest();
-				
-			} catch (IOException e) {
-				System.err.println("Failed to execute request: " + e.getMessage());
-				System.exit(-1);
-			} catch (InterruptedException e) {
-				System.err.println("Interupted during receive: " + e.getMessage());
-				System.exit(-1);
-			}
+		// defensive check for slash
+		if (!serverURI.endsWith("/") && !resourceUri.startsWith("/")) {
+		resourceUri = "/" + resourceUri;
 		}
-	}*/
-	
-	/**
-	 * TD_COAP_OBS_03:
-	 * Client detection of deregistration (Max-Age).
-	 * TD_COAP_OBS_05:
-	 * Server detection of deregistration (explicit RST).
-	 * 
-	 * @author Matthias Kovatsch
+
+		URI uri = null;
+		try {
+		uri = new URI(serverURI + resourceUri);
+		} catch (URISyntaxException use) {
+		throw new IllegalArgumentException("Invalid URI: " + use.getMessage());
+		}
+
+		request.setURI(uri);
+		if (request.requiresToken()) {
+		request.setToken(TokenManager.getInstance().acquireToken());
+		}
+
+		// enable response queue for synchronous I/O
+		request.enableResponseQueue(true);
+
+		// for observing
+		int observeLoop = 5;
+
+		// print request info
+		if (verbose) {
+		System.out.println("Request for test " + this.testName + " sent");
+		request.prettyPrint();
+		}
+
+		// execute the request
+		try {
+		Response response = null;
+		boolean success = true;
+
+		request.execute();
+
+		System.out.println();
+		System.out.println("**** TEST: " + testName + " ****");
+		System.out.println("**** BEGIN CHECK ****");
+
+		// receive multiple responses
+		for (int l=0; l<observeLoop; ++l) {
+		response = request.receiveResponse();
+
+		// checking the response
+		if (response != null) {
+
+		// print response info
+		if (verbose) {
+		System.out.println("Response received");
+		System.out.println("Time elapsed (ms): " + response.getRTT());
+		response.prettyPrint();
+		}
+
+		success &= checkResponse(response.getRequest(), response);
+
+		if (!hasObserve(response)) {
+		break;
+		}
+		}
+		}
+
+		// TD_COAP_OBS_02: Stop resource observation
+		request.removeOptions(OptionNumberRegistry.OBSERVE);
+		request.setMID(-1);
+		request.execute();
+		response = request.receiveResponse();
+
+		success &= hasObserve(response, true);
+
+		if (success) {
+			System.out.println("**** TEST PASSED ****");
+			addSummaryEntry(testName + ": PASSED");
+		} else {
+			System.out.println("**** TEST FAILED ****");
+			addSummaryEntry(testName + ": FAILED");
+		}
+
+		tickOffTest();
+
+	} catch (IOException e) {
+		System.err.println("Failed to execute request: " + e.getMessage());
+		System.exit(-1);
+	} catch (InterruptedException e) {
+		System.err.println("Interupted during receive: " + e.getMessage());
+		System.exit(-1);
+	}
+}
+}*/
+
+/**
+ * TD_COAP_OBS_03:
+ * Client detection of deregistration (Max-Age).
+ * TD_COAP_OBS_05:
+ * Server detection of deregistration (explicit RST).
+ * 
+ * @author Matthias Kovatsch
+ */
+public class CO03_05 extends TestClientAbstract {
+
+	public static final String RESOURCE_URI = "/obs";
+	public static final int EXPECTED_RESPONSE_CODE = 69;
+
+	private Timer timer = new Timer(true);
+
+	/*
+	 * Utility class to provide transaction timeouts
 	 */
-	public class CO03_05 extends TestClientAbstract {
+	private class MaxAgeTask extends TimerTask {
 
-		public static final String RESOURCE_URI = "/obs";
-		public static final int EXPECTED_RESPONSE_CODE = 69;
+		private Request request;
 
-		private Timer timer = new Timer(true);
+		public MaxAgeTask(Request request) {
+			this.request = request;
+		}
 
-		/*
-		 * Utility class to provide transaction timeouts
-		 */
-		private class MaxAgeTask extends TimerTask {
-			
-			private Request request;
-
-			public MaxAgeTask(Request request) {
-				this.request = request;
-			}
-			
-			@Override
+		@Override
 			public void run() {
 				this.request.handleTimeout();
 			}
-		}
+	}
 
-		public CO03_05(String serverURI) {
-			super(CO03_05.class.getSimpleName());
+	public CO03_05(String serverURI) {
+		super(CO03_05.class.getSimpleName());
 
-			// create the request
-			Request request = new Request(CodeRegistry.METHOD_GET, true);
-			// set Observe option
-			request.setOption(new Option(0, OptionNumberRegistry.OBSERVE));
-			// set the parameters and execute the request
-			executeRequest(request, serverURI, RESOURCE_URI);
-		}
+		// create the request
+		Request request = new Request(CodeRegistry.METHOD_GET, true);
+		// set Observe option
+		request.setOption(new Option(0, OptionNumberRegistry.OBSERVE));
+		// set the parameters and execute the request
+		executeRequest(request, serverURI, RESOURCE_URI);
+	}
 
-		protected boolean checkResponse(Request request, Response response) {
-			boolean success = true;
+	protected boolean checkResponse(Request request, Response response) {
+		boolean success = true;
 
-			success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-			success &= hasObserve(response);
-			success &= hasContentType(response);
+		success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
+		success &= hasObserve(response);
+		success &= hasContentType(response);
 
-			return success;
-		}
-	  /*	
+		return success;
+	}
+	/*	
 		@Override
 		protected synchronized void executeRequest(Request request, String serverURI, String resourceUri) {
-			if (serverURI == null || serverURI.isEmpty()) {
-				throw new IllegalArgumentException("serverURI == null || serverURI.isEmpty()");
-			}
-			
-			// defensive check for slash
-			if (!serverURI.endsWith("/") && !resourceUri.startsWith("/")) {
-				resourceUri = "/" + resourceUri;
-			}
-
-			URI uri = null;
-			try {
-				uri = new URI(serverURI + resourceUri);
-			} catch (URISyntaxException use) {
-				throw new IllegalArgumentException("Invalid URI: " + use.getMessage());
-			}
-
-			request.setURI(uri);
-			if (request.requiresToken()) {
-				request.setToken(TokenManager.getInstance().acquireToken());
-			}
-
-			// enable response queue for synchronous I/O
-			if (sync) {
-				request.enableResponseQueue(true);
-			}
-			
-			// for observing
-			int observeLoop = 5;
-
-			// print request info
-			if (verbose) {
-				System.out.println("Request for test " + this.testName + " sent");
-				request.prettyPrint();
-			}
-
-			// execute the request
-			try {
-				Response response = null;
-				boolean success = true;
-				boolean timedOut = false;
-				
-				MaxAgeTask timeout = null;
-				
-				request.execute();
-				
-				System.out.println();
-				System.out.println("**** TEST: " + testName + " ****");
-				System.out.println("**** BEGIN CHECK ****");
-				
-				for (int l=0; l<observeLoop; ++l) {
-					
-					response = request.receiveResponse();
-					
-					// checking the response
-					if (response != null) {
-						
-						if (l>=2 && !timedOut) {
-							System.out.println("+++++++++++++++++++++++");
-							System.out.println("++++ REBOOT SERVER ++++");
-							System.out.println("+++++++++++++++++++++++");
-						}
-						
-						if (timeout!=null) {
-							timeout.cancel();
-							timer.purge();
-						}
-						
-						long time = response.getMaxAge()*1000;
-
-						timeout = new MaxAgeTask(request);
-						timer.schedule(timeout, time+1000);
-						
-						// print response info
-						if (verbose) {
-							System.out.println("Response received");
-							System.out.println("Time elapsed (ms): " + response.getRTT());
-							response.prettyPrint();
-						}
-
-						success &= checkResponse(response.getRequest(), response);
-						
-						if (!hasObserve(response)) {
-							break;
-						}
-						
-					} else {
-						timedOut = true;
-						System.out.println("PASS: Max-Age timed out");
-						request.setMID(-1);
-						request.execute();
-						
-						++observeLoop;
-					}
-				}
-				
-				// RST to cancel
-				response.reject();
-				
-				success &= timedOut;
-
-				if (success) {
-					System.out.println("**** TEST PASSED ****");
-					addSummaryEntry(testName + ": PASSED");
-				} else {
-					System.out.println("**** TEST FAILED ****");
-					addSummaryEntry(testName + ": FAILED");
-				}
-
-				tickOffTest();
-				
-			} catch (IOException e) {
-				System.err.println("Failed to execute request: " + e.getMessage());
-				System.exit(-1);
-			} catch (InterruptedException e) {
-				System.err.println("Interupted during receive: " + e.getMessage());
-				System.exit(-1);
-			}
+		if (serverURI == null || serverURI.isEmpty()) {
+		throw new IllegalArgumentException("serverURI == null || serverURI.isEmpty()");
 		}
+
+// defensive check for slash
+if (!serverURI.endsWith("/") && !resourceUri.startsWith("/")) {
+resourceUri = "/" + resourceUri;
+}
+
+URI uri = null;
+try {
+uri = new URI(serverURI + resourceUri);
+} catch (URISyntaxException use) {
+throw new IllegalArgumentException("Invalid URI: " + use.getMessage());
+}
+
+request.setURI(uri);
+if (request.requiresToken()) {
+request.setToken(TokenManager.getInstance().acquireToken());
+}
+
+// enable response queue for synchronous I/O
+if (sync) {
+request.enableResponseQueue(true);
+}
+
+// for observing
+int observeLoop = 5;
+
+// print request info
+if (verbose) {
+System.out.println("Request for test " + this.testName + " sent");
+request.prettyPrint();
+}
+
+// execute the request
+try {
+Response response = null;
+boolean success = true;
+boolean timedOut = false;
+
+MaxAgeTask timeout = null;
+
+request.execute();
+
+System.out.println();
+System.out.println("**** TEST: " + testName + " ****");
+System.out.println("**** BEGIN CHECK ****");
+
+for (int l=0; l<observeLoop; ++l) {
+
+response = request.receiveResponse();
+
+// checking the response
+if (response != null) {
+
+if (l>=2 && !timedOut) {
+System.out.println("+++++++++++++++++++++++");
+System.out.println("++++ REBOOT SERVER ++++");
+System.out.println("+++++++++++++++++++++++");
+}
+
+if (timeout!=null) {
+timeout.cancel();
+timer.purge();
+}
+
+long time = response.getMaxAge()*1000;
+
+timeout = new MaxAgeTask(request);
+timer.schedule(timeout, time+1000);
+
+// print response info
+if (verbose) {
+	System.out.println("Response received");
+	System.out.println("Time elapsed (ms): " + response.getRTT());
+	response.prettyPrint();
+}
+
+success &= checkResponse(response.getRequest(), response);
+
+if (!hasObserve(response)) {
+	break;
+}
+
+} else {
+	timedOut = true;
+	System.out.println("PASS: Max-Age timed out");
+	request.setMID(-1);
+	request.execute();
+
+	++observeLoop;
+}
+}
+
+// RST to cancel
+response.reject();
+
+success &= timedOut;
+
+if (success) {
+	System.out.println("**** TEST PASSED ****");
+	addSummaryEntry(testName + ": PASSED");
+} else {
+	System.out.println("**** TEST FAILED ****");
+	addSummaryEntry(testName + ": FAILED");
+}
+
+tickOffTest();
+
+} catch (IOException e) {
+	System.err.println("Failed to execute request: " + e.getMessage());
+	System.exit(-1);
+} catch (InterruptedException e) {
+	System.err.println("Interupted during receive: " + e.getMessage());
+	System.exit(-1);
+}
+}
+}
+*/
+/**
+ * TD_COAP_OBS_04:
+ * Server detection of deregistration (client OFF).
+ * 
+ * @author Matthias Kovatsch
+ */
+public class CO04 extends TestClientAbstract {
+
+	public static final String RESOURCE_URI = "/obs";
+	public static final int EXPECTED_RESPONSE_CODE = 69;
+
+	public CO04(String serverURI) {
+		super(CO04.class.getSimpleName());
+
+		// create the request
+		Request request = new Request(CodeRegistry.METHOD_GET, true);
+		// set Observe option
+		request.setOption(new Option(0, OptionNumberRegistry.OBSERVE));
+		// set the parameters and execute the request
+		executeRequest(request, serverURI, RESOURCE_URI);
 	}
-  */
-	/**
-	 * TD_COAP_OBS_04:
-	 * Server detection of deregistration (client OFF).
-	 * 
-	 * @author Matthias Kovatsch
-	 */
-	public class CO04 extends TestClientAbstract {
 
-		public static final String RESOURCE_URI = "/obs";
-		public static final int EXPECTED_RESPONSE_CODE = 69;
+	protected boolean checkResponse(Request request, Response response) {
+		boolean success = true;
 
-		public CO04(String serverURI) {
-			super(CO04.class.getSimpleName());
+		success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
+		success &= hasObserve(response);
+		success &= hasContentType(response);
 
-			// create the request
-			Request request = new Request(CodeRegistry.METHOD_GET, true);
-			// set Observe option
-			request.setOption(new Option(0, OptionNumberRegistry.OBSERVE));
-			// set the parameters and execute the request
-			executeRequest(request, serverURI, RESOURCE_URI);
-		}
-
-		protected boolean checkResponse(Request request, Response response) {
-			boolean success = true;
-
-			success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-			success &= hasObserve(response);
-			success &= hasContentType(response);
-
-			return success;
-		}
+		return success;
 	}
+}
 }

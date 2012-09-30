@@ -1,94 +1,40 @@
-#!/usr/bin/env python
-""" generated source for module IpsoServer """
-# 
-#  * Copyright (c) 2012, Institute for Pervasive Computing, ETH Zurich.
-#  * All rights reserved.
-#  * 
-#  * Redistribution and use in source and binary forms, with or without
-#  * modification, are permitted provided that the following conditions
-#  * are met:
-#  * 1. Redistributions of source code must retain the above copyright
-#  *    notice, this list of conditions and the following disclaimer.
-#  * 2. Redistributions in binary form must reproduce the above copyright
-#  *    notice, this list of conditions and the following disclaimer in the
-#  *    documentation and/or other materials provided with the distribution.
-#  * 3. Neither the name of the Institute nor the names of its contributors
-#  *    may be used to endorse or promote products derived from this software
-#  *    without specific prior written permission.
-#  * 
-#  * THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS "AS IS" AND
-#  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-#  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-#  * ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
-#  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-#  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-#  * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-#  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-#  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-#  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-#  * SUCH DAMAGE.
-#  * 
-#  * This file is part of the Californium (Cf) CoAP framework.
-#  
-# package: ch.ethz.inf.vs.californium.examples
 import java.net.InetAddress
-
 import java.net.SocketException
-
 import java.net.UnknownHostException
-
 import java.util.logging.Level
+import logging
+from pycolo.coap import LinkFormat
+from pycolo.coap import MediaTypeRegistry
+from pycolo.endpoint import LocalEndpoint
 
-import ch.ethz.inf.vs.californium.coap.LinkFormat
 
-import ch.ethz.inf.vs.californium.coap.MediaTypeRegistry
-
-import ch.ethz.inf.vs.californium.coap.POSTRequest
-
-import ch.ethz.inf.vs.californium.coap.Request
-
-import ch.ethz.inf.vs.californium.coap.Response
-
-import ch.ethz.inf.vs.californium.endpoint.LocalEndpoint
-
-import ch.ethz.inf.vs.californium.endpoint.LocalResource
-
-import ch.ethz.inf.vs.californium.examples.ipso
-
-import ch.ethz.inf.vs.californium.util.Log
-
-# 
-#  * The class IpsoServer provides an example of the IPSO Profile specification.
-#  * The server registers its resources at the SensiNode Resource Directory.
-#  * 
-#  * @author Matthias Kovatsch
-#  
 class IpsoServer(LocalEndpoint):
-    """ generated source for class IpsoServer """
+    """
+    The class IpsoServer provides an example of the IPSO Profile specification.
+    The server registers its resources at the SensiNode Resource Directory.
+    """
     #  exit codes for runtime errors
     ERR_INIT_FAILED = 1
 
-    # 
-    # 	 * Constructor for a new PlugtestServer. Call {@code super(...)} to configure
-    # 	 * the port, etc. according to the {@link LocalEndpoint} constructors.
-    # 	 * <p>
-    # 	 * Add all initial {@link LocalResource}s here.
-    # 	 
     def __init__(self):
-        """ generated source for method __init__ """
+        """
+        Constructor for a new PlugtestServer.Call to configure
+        the port, etc. according to the {@link LocalEndpoint} constructors.
+        Add all initial {@link LocalResource}s here.
+        """
         super(IpsoServer, self).__init__()
         #  add resources to the server
-        addResource(DeviceName())
-        addResource(DeviceManufacturer())
-        addResource(DeviceModel())
-        addResource(DeviceSerial())
-        addResource(DeviceBattery())
-        addResource(PowerInstantaneous())
-        addResource(PowerCumulative())
-        addResource(PowerRelay())
-        addResource(PowerDimmer())
+        self.addResource(DeviceName())
+        self.addResource(DeviceManufacturer())
+        self.addResource(DeviceModel())
+        self.addResource(DeviceSerial())
+        self.addResource(DeviceBattery())
+        self.addResource(PowerInstantaneous())
+        self.addResource(PowerCumulative())
+        self.addResource(PowerRelay())
+        self.addResource(PowerDimmer())
 
-    #  Logging /////////////////////////////////////////////////////////////////
+    #  Logging ////////////////////////////////////////////////////////////////
     def handleRequest(self, request):
         """ generated source for method handleRequest """
         #  Add additional handling like special logging here.
@@ -100,11 +46,9 @@ class IpsoServer(LocalEndpoint):
     @classmethod
     def main(cls, args):
         """ generated source for method main """
-        Log.setLevel(Level.INFO)
-        Log.init()
         #  create server
         try:
-            System.out.printf(IpsoServer.__class__.getSimpleName() + " listening on port %d.\n", server.port())
+            logging.info(IpsoServer.__class__.getSimpleName() + " listening on port %d.\n", server.port())
             #  specific handling for this request
             #  here: response received, output a pretty-print
             #  RD location
@@ -126,7 +70,7 @@ class IpsoServer(LocalEndpoint):
             register.setURI(rd + "?h=Cf-" + hostname)
             register.setPayload(LinkFormat.serialize(server.getRootResource(), None, True), MediaTypeRegistry.APPLICATION_LINK_FORMAT)
             try:
-                print "Registering at " + rd + " as Cf-" + hostname
+                print("Registering at " + rd + " as Cf-" + hostname)
                 register.execute()
             except Exception as e:
                 System.err.println("Failed to execute request: " + e.getMessage())
@@ -139,4 +83,3 @@ class IpsoServer(LocalEndpoint):
 if __name__ == '__main__':
     import sys
     IpsoServer.main(sys.argv)
-
