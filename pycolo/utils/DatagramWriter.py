@@ -1,4 +1,5 @@
 # coding=utf-8
+import logging
 import java.io.ByteArrayOutputStream
 
 
@@ -11,10 +12,10 @@ class DatagramWriter(object):
     def __init__(self):
         """ Initializes a new BitWriter object """
         #  initialize underlying byte stream
-        byteStream = ByteArrayOutputStream()
+        self.byteStream = ByteArrayOutputStream()
         #  initialize bit buffer
-        currentByte = 0
-        currentBitIndex = Byte.SIZE - 1
+        self.currentByte = 0
+        self.currentBitIndex = Byte.SIZE - 1
 
     def write(self, data, numBits):
         """
@@ -23,7 +24,7 @@ class DatagramWriter(object):
         @param numBits The number of bits to write
         """
         if numBits < 32 and data >= (1 << numBits):
-            System.out.printf("[%s] Warning: Truncating value %d to %d-bit integer\n", getClass().__name__, data, numBits)
+            logging.info("[%s] Warning: Truncating value %d to %d-bit integer\n", getClass().__name__, data, numBits)
         i = numBits - 1
         while i >= 0:
             #  test bit
@@ -37,13 +38,13 @@ class DatagramWriter(object):
                 writeCurrentByte()
             i -= 1
 
-    def writeBytes(self, bytes):
+    def writeBytes(self, b):
         """
         Writes a sequence of bytes to the stream
         @param bytes The sequence of bytes to write
         """
         #  check if anything to do at all
-        if bytes == None:
+        if b == None:
             return
         #  are there bits left to write in buffer?
         if currentBitIndex < Byte.SIZE - 1:
@@ -73,8 +74,8 @@ class DatagramWriter(object):
         """ Writes pending bits to the stream """
         if currentBitIndex < Byte.SIZE - 1:
             byteStream.write(currentByte)
-            currentByte = 0
-            currentBitIndex = Byte.SIZE - 1
+            self.currentByte = 0
+            self.currentBitIndex = Byte.SIZE - 1
 
     byteStream = ByteArrayOutputStream()
     currentByte = int()
