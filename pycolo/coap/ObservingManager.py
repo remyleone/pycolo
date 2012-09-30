@@ -5,8 +5,6 @@ import logging
 from pycolo.coap import Message
 from pycolo.layers import TransactionLayer
 
-import util.Properties
-
 
 class ObservingManager(object):
     """
@@ -68,16 +66,16 @@ class ObservingManager(object):
                 self.LOG.info("Refreshing observing relationship: {:s}".format(resource.getPath()))
             else:
                 self.intervalByResource.put(resource.getPath(), check)
-            for observer in resourceObservers.values():
+            for self.observer in resourceObservers.values():
                 #  check
                 if check <= 0:
-                    request.setType(messageType.CON)
+                    self.request.setType(self.messageType.CON)
                 else:
-                    request.setType(messageType.NON)
+                    self.request.setType(self.messageType.NON)
                 #  execute
-                resource.performGET(request)
-                prepareResponse(request)
-                request.sendResponse()
+                resource.performGET(self.request)
+                self.prepareResponse(self.request)
+                self.request.sendResponse()
 
     def prepareResponse(self, request):
         """ generated source for method prepareResponse """
@@ -86,9 +84,9 @@ class ObservingManager(object):
             request.getResponse().setMID(TransactionLayer.nextMessageID())
         #  16-bit second counter
         secs = int(((System.currentTimeMillis() - request.startTime) / 1000)) & 0xFFFF
-        request.getResponse().setOption(Option(secs, OptionNumberRegistry.OBSERVE))
+        request.getResponse().setOption(self.Option(secs, self.OptionNumberRegistry.OBSERVE))
         #  store MID for RST matching
-        updateLastMID(request.getPeerAddress().__str__(), request.getUriPath(), request.getResponse().getMID())
+        self.updateLastMID(request.getPeerAddress().__str__(), request.getUriPath(), request.getResponse().getMID())
 
 
     # 	public synchronized void addObserver(GETRequest request, LocalResource resource) {
@@ -125,7 +123,6 @@ class ObservingManager(object):
     # 			LOG.info(String.format("Terminated all observing relationships for client: %s", clientID));
     # 		}
     # 	}
-
     @overloaded
     def removeObserver(self, clientID, resource):
         """
@@ -159,9 +156,9 @@ class ObservingManager(object):
                     break
         if toRemove != None:
             #  FIXME Inconsistent state check
-            if resourceObservers == None:
-                logging.severe("FIXME: ObservingManager has clientObservee, but no resourceObservers ({:s} @ {:s})".format(clientID, toRemove.resourcePath))
-            if resourceObservers.remove(clientID) != None and clientObservees.remove(toRemove.resourcePath) != None:
+            if self.resourceObservers == None:
+                logging.critical("FIXME: ObservingManager has clientObservee, but no resourceObservers ({:s} @ {:s})".format(clientID, toRemove.resourcePath))
+            if self.resourceObservers.remove(clientID) != None and clientObservees.remove(toRemove.resourcePath) != None:
                 logging.info("Terminated observing relationship by RST: {:s} @ {:s}".format(clientID, toRemove.resourcePath))
                 return
         self.LOG.warning("Cannot find observing relationship by MID: {:s}|{:d}".format(clientID, mid))
@@ -172,8 +169,8 @@ class ObservingManager(object):
     def updateLastMID(self, clientID, path, mid):
         clientObservees = self.observersByClient.get(clientID)
         if clientObservees != None:
-            if toUpdate != None:
-                toUpdate.lastMID = mid
+            if self.toUpdate != None:
+                self.toUpdate.lastMID = mid
                 self.LOG.finer("Updated last MID for observing relationship: {:s} @ {:s}".format(clientID, toUpdate.resourcePath))
                 return
         logging.warning("Cannot find observing relationship to update MID: {:s} @ {:s}".format(clientID, path))

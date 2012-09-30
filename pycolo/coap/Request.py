@@ -9,7 +9,6 @@ import java.util.concurrent.LinkedBlockingQueue
 from pycolo.coap import Message
 
 
-
 class Request(Message):
     """
     The Class Request describes the functionality of a CoAP Request as a subclass

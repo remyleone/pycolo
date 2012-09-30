@@ -75,15 +75,13 @@ class CodeRegistry():
         return (code_ >= 0) and (code_ <= 255)
         #  allow unknown custom codes
 
-    #
-    #      * Returns the response class of a code
-    #      *
-    #      * @param code the code to check
-    #      * @return The response class of the code
-    #
     @classmethod
     def responseClass(cls, code_):
-        """ generated source for method responseClass """
+        """
+        Returns the response class of a code
+        @param code the code to check
+        @return The response class of the code
+        """
         return (code_ >> 5) & 0x7
 
     @classmethod

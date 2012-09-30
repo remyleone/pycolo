@@ -2,8 +2,8 @@
 import java.io.UnsupportedEncodingException
 import java.nio.ByteBuffer
 
-
 from pycolo.coap.OptionNumberRegistry import OptionNumberRegistry
+
 
 class Option(object):
     """ This class describes the functionality of the CoAP header options. """
@@ -16,34 +16,29 @@ class Option(object):
     #  The raw data of the option.
     value = ByteBuffer()
 
-    #  Constructors ///////////////////////////////////////////////////////////
-    #
-    # 	 * This is a constructor for a new option with a given number.
-    # 	 *
-    # 	 * @param nr the option number
-    # 	 * @return A new option with a given number based on a byte array
-    #
     @overloaded
     def __init__(self, nr):
-        """ generated source for method __init__ """
-        setOptionNumber(nr)
+        """
+        This is a constructor for a new option with a given number.
+        @param nr the option number
+        @return A new option with a given number based on a byte array
+        """
+        self.setOptionNumber(nr)
 
-    #
-    # 	 * This is a constructor for a new option with a given number, based on a
-    # 	 * given byte array.
-    # 	 *
-    # 	 * @param raw the byte array
-    # 	 * @param nr the option number
-    # 	 * @return A new option with a given number based on a byte array
-    # 	 
     @__init__.register(object, int, int)
     def __init___0(self, raw, nr):
-        """ generated source for method __init___0 """
-        setValue(raw)
-        setOptionNumber(nr)
+        """
+        This is a constructor for a new option with a given number, based on a
+        given byte array.
+        @param raw the byte array
+        @param nr the option number
+        @return A new option with a given number based on a byte array
+        """
+        self.setValue(raw)
+        self.setOptionNumber(nr)
 
     @__init__.register(object, str, int)
-    def __init___1(self, str_, nr):
+    def __init___1(self, s, nr):
         """
         This is a constructor for a new option with a given number, based on a
         given string.
@@ -51,7 +46,7 @@ class Option(object):
         @param nr the option number
         @return A new option with a given number based on a string
         """
-        self.setStringValue(str_)
+        self.setStringValue(s)
         self.setOptionNumber(nr)
 
     @__init__.register(object, int, int)
@@ -182,7 +177,6 @@ class Option(object):
             System.err.println("String conversion error")
         return result
 
-
     def setStringValue(self, str_):
         """
         This method sets the data of the current option based on a string input
@@ -194,18 +188,15 @@ class Option(object):
     def getName(self):
         return str(OptionNumberRegistry.(self.optionNr))
 
-    #
-    # 	 * This method returns the length of the option's data in the ByteBuffer
-    # 	 *
-    # 	 * @return The length of the data stored in the ByteBuffer as number of
-    # 	 * bytes
-    #
     def getLength(self):
-        """ generated source for method getLength """
+        """
+        This method returns the length of the option's data in the ByteBuffer
+        @return The length of the data stored in the ByteBuffer as number of
+        bytes
+        """
         return self.value.capacity() if self.value != None else 0
 
-
-    def equals(self, obj):
+    def __eq__(self, obj):
         """ generated source for method equals """
         if self == obj:
             return True
@@ -282,4 +273,3 @@ class Option(object):
             return self.getLength() == 0
         else:
             return False
-

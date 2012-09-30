@@ -1,15 +1,11 @@
-#!/usr/bin/env python
 # coding=utf-8
-""" generated source for module LinkFormat """
-# package: ch.ethz.inf.vs.californium.coap
+
 import java.util.ArrayList
-
 import java.util.Scanner
-
 import re
-
 from pycolo.endpoint import RemoteResource
 from pycolo.endpoint import Resource
+
 
 class LinkFormat():
     """

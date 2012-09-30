@@ -16,32 +16,32 @@ class BlockOption(Option):
         super(BlockOption, self).__init__(nr)
 
     @__init__.register(object, int, int, int, bool)
-    def __init___0(self, nr, num, szx, m):
+    def __init___0(self, nr):
         super(BlockOption, self).__init__(nr)
 
     def setValue(self, num, szx, m):
-        setIntValue(self.encode(num, szx, m))
+        self.setIntValue(self.encode(num, szx, m))
 
     def getNUM(self):
-        return getIntValue() >> 4
+        return self.getIntValue() >> 4
 
     def setNUM(self, num):
-        self.setValue(num, getSZX(), getM())
+        self.setValue(num, self.getSZX(), self.getM())
 
     def getSZX(self):
-        return getIntValue() & 0x7
+        return self.getIntValue() & 0x7
 
     def setSZX(self, szx):
-        self.setValue(self.getNUM(), szx, getM())
+        self.setValue(self.getNUM(), szx, self.getM())
 
     def getSize(self):
-        return decodeSZX(getIntValue() & 0x7)
+        return self.decodeSZX(self.getIntValue() & 0x7)
 
     def setSize(self, size):
-        self.setValue(self.getNUM(), encodeSZX(size), getM())
+        self.setValue(self.getNUM(), self.encodeSZX(size), self.getM())
 
     def getM(self):
-        return (getIntValue() >> 3 & 0x1) != 0
+        return (self.getIntValue() >> 3 & 0x1) != 0
 
     def setM(self, m):
         self.setValue(self.getNUM(), self.getSZX(), m)
@@ -49,8 +49,8 @@ class BlockOption(Option):
     @classmethod
     def decodeSZX(cls, szx):
         """
-        Decodes a 3-bit SZX value into a block size as specified by 
-        draft-ietf-core-block-03, section-2.1:
+        Decodes a 3-bit SZX value into a block size as specified by
+        draft-IETF-core-block-03, section-2.1:
         0 --> 2^4 = 16 bytes
         ...
         6 --> 2^10 = 1024 bytes
