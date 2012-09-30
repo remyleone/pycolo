@@ -11,7 +11,7 @@ from pycolo.layers import UpperLayer
 class MatchingLayer(UpperLayer):
     """
     This class matches the request/response pairs using the token option. It
-    must be below the {@link TransferLayer}, which requires set buddies for each
+    must be below the TransferLayer, which requires set buddies for each
     message ({@link Response#getRequest()} and {@link Request#getResponse()}).
     """
     #  Members ////////////////////////////////////////////////////////////////

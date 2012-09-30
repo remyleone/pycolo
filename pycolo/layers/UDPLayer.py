@@ -1,4 +1,5 @@
 # coding=utf-8
+import logging
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.SocketException
@@ -52,11 +53,11 @@ class UDPLayer(Layer):
                 try:
                     self.socket.receive(datagram)
                 except IOException as e:
-                    logging.severe("Could not receive datagram: " + e.getMessage())
+                    logging.critical("Could not receive datagram: " + e.getMessage())
                     e.printStackTrace()
-                    continue 
+                    continue
                 #  TODO: Dispatch to worker thread
-                datagramReceived(datagram)
+                self.datagramReceived(self.datagram)
 
     #  Constructors ////////////////////////////////////////////////////////////////
     # 
@@ -125,49 +126,49 @@ class UDPLayer(Layer):
             #  get current time
             #  extract message data from datagram
             #  create new message from the received data
-            if msg != None:
+            if self.msg != None:
                 #  remember when this message was received
-                msg.setTimestamp(timestamp)
-                msg.setPeerAddress(EndpointAddress(datagram.getAddress(), datagram.getPort()))
+                self.msg.setTimestamp(timestamp)
+                self.msg.setPeerAddress(EndpointAddress(datagram.getAddress(), datagram.getPort()))
                 if datagram.getLength() > Properties.std.getInt("RX_BUFFER_SIZE"):
-                    LOG.info("Marking large datagram for blockwise transfer: {:s}".format(msg.key()))
-                    msg.requiresBlockwise(True)
+                    logging.info("Marking large datagram for blockwise transfer: {:s}".format(msg.key()))
+                    self.msg.requiresBlockwise(True)
                 #  protect against unknown exceptions
                 try:
                     #  call receive handler
                     receiveMessage(msg)
                 except Exception as e:
-                    builder.append("Crash: ")
-                    builder.append(e.getMessage())
-                    builder.append('\n')
-                    builder.append("                    ")
-                    builder.append("Stacktrace for ")
-                    builder.append(e.__class__.__name__)
-                    builder.append(":\n")
+                    self.builder.append("Crash: ")
+                    self.builder.append(e.getMessage())
+                    self.builder.append('\n')
+                    self.builder.append("                    ")
+                    self.builder.append("Stacktrace for ")
+                    self.builder.append(e.__class__.__name__)
+                    self.builder.append(":\n")
                     for elem in e.getStackTrace():
-                        builder.append("                    ")
-                        builder.append(elem.getClassName())
-                        builder.append('.')
-                        builder.append(elem.getMethodName())
-                        builder.append('(')
-                        builder.append(elem.getFileName())
-                        builder.append(':')
-                        builder.append(elem.getLineNumber())
-                        builder.append(")\n")
-                    LOG.severe(builder.__str__())
+                        self.builder.append("                    ")
+                        self.builder.append(elem.getClassName())
+                        self.builder.append('.')
+                        self.builder.append(elem.getMethodName())
+                        self.builder.append('(')
+                        self.builder.append(elem.getFileName())
+                        self.builder.append(':')
+                        self.builder.append(elem.getLineNumber())
+                        self.builder.append(")\n")
+                    logging.critical(self.builder.__str__())
             else:
-                LOG.severe("Illeagal datagram received:\n" + data.__str__())
+                logging.critical("Illeagal datagram received:\n" + data.__str__())
         else:
-            LOG.info("Dropped empty datagram from: {:s}:{:d}".format(datagram.getAddress().getHostName(), datagram.getPort()))
+            logging.info("Dropped empty datagram from: {:s}:{:d}".format(datagram.getAddress().getHostName(), datagram.getPort()))
 
-    #  Queries /////////////////////////////////////////////////////////////////////
-    # 
+    #  Queries ////////////////////////////////////////////////////////////////
+    #
     # 	 * Checks whether the listener thread persists after the main thread
     # 	 * terminates
-    # 	 * 
+    # 	 *
     # 	 * @return True if the listener thread stays alive after the main thread
     # 	 * terminates. This is useful for e.g. server applications
-    # 	 
+    #
     def isDaemon(self):
         """ generated source for method isDaemon """
         return self.receiverThread.isDaemon()
@@ -178,13 +179,13 @@ class UDPLayer(Layer):
 
     def getStats(self):
         """ generated source for method getStats """
-        stats = StringBuilder()
+        stats = str()
         stats.append("UDP port: ")
         stats.append(self.getPort())
         stats.append('\n')
         stats.append("Messages sent:     ")
-        stats.append(numMessagesSent)
+        stats.append(self.numMessagesSent)
         stats.append('\n')
         stats.append("Messages received: ")
-        stats.append(numMessagesReceived)
+        stats.append(self.numMessagesReceived)
         return stats.__str__()

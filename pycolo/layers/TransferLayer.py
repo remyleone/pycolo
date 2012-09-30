@@ -5,7 +5,6 @@ import logging
 from pycolo.coap import BlockOption
 from pycolo.coap import CodeRegistry
 from pycolo.coap import Message
-from pycolo.coap import Option
 from pycolo.coap.OptionNumberRegistry import OptionNumberRegistry
 from pycolo.coap import Request
 from pycolo.coap import Response
@@ -276,4 +275,3 @@ class TransferLayer(UpperLayer):
         stats.append("Messages received: ")
         stats.append(numMessagesReceived)
         return stats.__str__()
-
