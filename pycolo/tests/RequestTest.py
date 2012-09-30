@@ -14,14 +14,14 @@ class RequestTest(unittest.TestCase):
         """ generated source for class RespondTask """
         def __init__(self, request, response):
             """ generated source for method __init__ """
-            super(RespondTask, self).__init__()
+            super(self.RespondTask, self).__init__()
             self.request = request
             self.response = response
 
         def run(self):
             """ generated source for method run """
-            request.respond(response)
-            request.sendResponse()
+            self.request.respond(self.response)
+            self.request.sendResponse()
 
         request = Request()
         response = Response()

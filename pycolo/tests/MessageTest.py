@@ -51,7 +51,7 @@ class MessageTest(unittest.TestCase):
         #  msg.addOption(new Option ("c".getBytes(), 212));
         data = msg.toByteArray()
         try:
-            System.out.printf("Testing getHexString(): 0x%s (%d)\n", getHexString(data),)
+            logging.info("Testing getHexString(): 0x%s (%d)\n", getHexString(data),)
         except Exception as e:
             #  TODO Auto-generated catch block
             e.printStackTrace()
