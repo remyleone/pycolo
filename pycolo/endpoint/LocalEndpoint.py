@@ -8,6 +8,7 @@ from pycolo.coap.OptionNumberRegistry import OptionNumberRegistry
 from pycolo.coap import PUTRequest
 from pycolo.coap import Response
 from pycolo.endpoint import Endpoint
+from pycolo import DEFAULT_PORT
 
 
 class LocalEndpoint(Endpoint):
@@ -68,7 +69,7 @@ class LocalEndpoint(Endpoint):
     def __init___2(self):
         """ generated source for method __init___2 """
         super(LocalEndpoint, self).__init__()
-        self.__init__(Properties.std.getInt("DEFAULT_PORT"))
+        self.__init__(DEFAULT_PORT)
 
     def execute(self, request):
         """ generated source for method execute """
@@ -122,7 +123,7 @@ class LocalEndpoint(Endpoint):
             newIdentifier = path.substring(parentIdentifier.lastIndexOf('/') + 1)
             parentIdentifier = parentIdentifier.substring(0, parentIdentifier.lastIndexOf('/'))
             if not parent
-            =getResource(parentIdentifier)) == var = None
+ = getResource(parentIdentifier)) == var = None
             :
                 break
         parent.createSubResource(request, newIdentifier)

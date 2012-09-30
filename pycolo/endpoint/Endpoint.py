@@ -1,11 +1,10 @@
 # coding=utf-8
-import logging
 
 from pycolo.coap import Communicator
 from pycolo.coap import Message
 from pycolo.coap import MessageHandler
 from pycolo.coap import MessageReceiver
-from pycolo.coap import Request
+from pycolo.endpoint import Resource
 
 
 class Endpoint(MessageReceiver, MessageHandler):
@@ -30,5 +29,3 @@ class Endpoint(MessageReceiver, MessageHandler):
     def port(self):
         """ generated source for method port """
         return Communicator.getInstance().port()
-
-Endpoint.LOG = Logger.getLogger(Endpoint.__class__.__name__)

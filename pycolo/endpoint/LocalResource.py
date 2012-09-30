@@ -19,13 +19,13 @@ class LocalResource(Resource):
     a default implementation in this class that responds with
     "4.05 Method Not Allowed."
      """
-    #  Constructors ////////////////////////////////////////////////////////////
+
     @overloaded
-    def __init__(self, resourceIdentifier, hidden):
+    def __init__(self, hidden):
         super(LocalResource, self).__init__(hidden)
 
     @__init__.register(object, str)
-    def __init___0(self, resourceIdentifier):
+    def __init___0(self):
         super(LocalResource, self).__init__(False)
 
     def changed(self):
@@ -52,7 +52,7 @@ class LocalResource(Resource):
         """ generated source for method performDELETE """
         request.respond(CodeRegistry.RESP_METHOD_NOT_ALLOWED)
 
-    def createSubResource(self, request, newIdentifier):
+    def createSubResource(self, request):
         """
         Generally forbid the creation of new sub-resources.
         Override and define checks to allow creation.

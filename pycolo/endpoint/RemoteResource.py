@@ -1,5 +1,6 @@
 # coding=utf-8
 from pycolo.coap import LinkFormat
+from pycolo.endpoint import Resource
 
 
 class RemoteResource(Resource):
@@ -18,21 +19,16 @@ class RemoteResource(Resource):
         return LinkFormat.parse(linkFormat)
 
     def createSubResource(self, request, newIdentifier):
-        """ generated source for method createSubResource """
-        #  TODO Auto-generated method stub
+        pass
 
     def performDELETE(self, request):
-        """ generated source for method performDELETE """
-        #  TODO Auto-generated method stub
+        pass
 
     def performGET(self, request):
-        """ generated source for method performGET """
-        #  TODO Auto-generated method stub
+        pass
 
     def performPOST(self, request):
-        """ generated source for method performPOST """
-        #  TODO Auto-generated method stub
+        pass
 
     def performPUT(self, request):
-        """ generated source for method performPUT """
-        #  TODO Auto-generated method stub
+        pass
