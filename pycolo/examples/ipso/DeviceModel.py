@@ -1,6 +1,6 @@
 # coding=utf-8
 from pycolo.coap import CodeRegistry
-from pycolo.coap.MediaTypeRegistry import MediaTypeRegistry
+from pycolo.coap import mediaTypeRegistry
 from pycolo.endpoint import LocalResource
 
 
@@ -16,4 +16,5 @@ class DeviceModel(LocalResource):
     def performGET(self, request):
         """ generated source for method performGET """
         #  complete the request
-        request.respond(CodeRegistry.RESP_CONTENT, "Californium", MediaTypeRegistry.TEXT_PLAIN)
+        request.respond(CodeRegistry.RESP_CONTENT, \
+                        "Californium", mediaTypeRegistry["TEXT_PLAIN"])

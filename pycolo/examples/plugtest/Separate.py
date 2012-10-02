@@ -1,7 +1,6 @@
 # coding=utf-8
 
 from pycolo.coap.CodeRegistry import CodeRegistry
-from pycolo.coap import MediaTypeRegistry
 from pycolo.coap import Response
 from pycolo.endpoint import LocalResource
 
@@ -26,12 +25,17 @@ class Separate(LocalResource):
         #  do the time-consuming computation
         try:
             Thread.sleep(1000)
-        except InterruptedException as e:
-            pass
-        #  create response
-        response = Response(CodeRegistry.RESP_CONTENT)
+        except Exception as e:
+            e.stacktrace()
+
+        response = Response(CodeRegistry.RESP_CONTENT)  # create response
         #  set payload
-        response.setPayload("Type: {:d} ({:s})\nCode: {:d} ({:s})\nMID: {:d}".format(request.getType().ordinal(), request.typeString(), request.getCode(), CodeRegistry.toString(request.getCode()), request.getMID()))
+        response.payload = "Type: {:d} ({:s})\nCode: {:d} ({:s})\nMID: {:d}" % \
+            request.type.ordinal(), \
+            request.typeString(), \
+            request.code, \
+            CodeRegistry.(request.code), \
+            request.getMID()))
         response.setContentType(MediaTypeRegistry.TEXT_PLAIN)
         #  complete the request
         request.respond(response)

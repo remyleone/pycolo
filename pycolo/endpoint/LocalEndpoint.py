@@ -65,7 +65,6 @@ class LocalEndpoint(Endpoint):
         self.__init__(port, 0)
         #  let TransferLayer decide default
 
-    @__init__.register(object)
     def __init___2(self):
         """ generated source for method __init___2 """
         super(LocalEndpoint, self).__init__()
@@ -79,7 +78,7 @@ class LocalEndpoint(Endpoint):
             #  lookup resource
             #  check if resource available
             if resource != None:
-                LOG.info("Dispatching execution: {:s}".format(resourcePath))
+                logging.info("Dispatching execution: {:s}".format(resourcePath))
                 #  invoke request handler of the resource
                 request.dispatch(resource)
                 #  check if resource did generate a response
@@ -99,19 +98,17 @@ class LocalEndpoint(Endpoint):
                 self.createByPUT(request)
             else:
                 #  resource does not exist
-                LOG.info("Cannot find resource: {:s}".format(resourcePath))
+                logging.info("Cannot find resource: {:s}".format(resourcePath))
                 request.respond(CodeRegistry.RESP_NOT_FOUND)
                 request.sendResponse()
 
-    #
-    # 	 * Delegates a {@link PUTRequest} for a non-existing resource to the
-    # 	 * {@link LocalResource#createSubResource(Request, String)} method of the
-    # 	 * first existing resource up the path.
-    # 	 *
-    # 	 * @param request - the PUT request
-    #
     def createByPUT(self, request):
-        """ generated source for method createByPUT """
+        """
+        Delegates a {@link PUTRequest} for a non-existing resource to the
+        {@link LocalResource#createSubResource(Request, String)} method of the
+        first existing resource up the path.
+        @param request - the PUT request
+        """
         path = request.getUriPath()
         #  always starts with "/"
         #  find existing parent up the path

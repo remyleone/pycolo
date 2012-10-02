@@ -1,19 +1,15 @@
 # coding=utf-8
-#import java.util.Timer
-#import java.util.TimerTask
+
 import unittest
 
-from pycolo.coap import GETRequest
 from pycolo.coap import Request
 from pycolo.coap import Response
 
 
 class RequestTest(unittest.TestCase):
 
-    class RespondTask(TimerTask):
-        """ generated source for class RespondTask """
+    class RespondTask():
         def __init__(self, request, response):
-            """ generated source for method __init__ """
             super(self.RespondTask, self).__init__()
             self.request = request
             self.response = response
@@ -27,7 +23,6 @@ class RequestTest(unittest.TestCase):
         response = Response()
 
     handledResponse = Response()
-    timer = Timer()
 
     def testRespond(self):
         """ generated source for method testRespond """

@@ -1,11 +1,7 @@
 # coding=utf-8
-from abc import ABCMeta
 
 
-class MessageReceiver(object):
-    """ generated source for interface MessageReceiver """
-    __metaclass__ = ABCMeta
+class MessageReceiver:
 
-    @abstractmethod
     def receiveMessage(self, msg):
-        """ generated source for method receiveMessage """
+        raise "Not implemented yet"

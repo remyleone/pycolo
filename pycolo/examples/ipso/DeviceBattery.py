@@ -3,9 +3,8 @@
 #import java.util.TimerTask
 
 import random
-
 from pycolo.coap.CodeRegistry import CodeRegistry
-from pycolo.coap.MediaTypeRegistry import MediaTypeRegistry
+from pycolo.coap import mediaTypeRegistry
 from pycolo.endpoint import LocalResource
 
 
@@ -16,7 +15,7 @@ class DeviceBattery(LocalResource):
     def __init__(self):
         """ generated source for method __init__ """
         super(DeviceBattery, self).__init__("dev/bat")
-        self.setTitle("Battery")
+        self.title = "Battery"
         self.setResourceType("ipso:dev-bat")
         #  second rt not supported by current SensiNode RD demo
         # setResourceType("ucum:V");
@@ -32,9 +31,13 @@ class DeviceBattery(LocalResource):
             """ generated source for method run """
             self.power -= 0.001 * random.SystemRandom()
             #  Call changed to notify subscribers
-            changed()
+            self.changed()
 
     def performGET(self, request):
-        """ generated source for method performGET """
+        """
+         TODO: Strange call
+        """
         #  complete the request
-        request.respond(CodeRegistry.RESP_CONTENT, Double.toString(Math.round(self.power * 1000) / 1000), MediaTypeRegistry.TEXT_PLAIN)
+        request.respond(CodeRegistry.RESP_CONTENT, \
+                        self.power * 1000 / 1000, \
+                        mediaTypeRegistry["TEXT_PLAIN"])

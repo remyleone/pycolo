@@ -1,64 +1,35 @@
 # coding=utf-8
-import java.io.UnsupportedEncodingException
-import java.nio.ByteBuffer
 
+import logging
 from pycolo.coap.OptionNumberRegistry import OptionNumberRegistry
 
 
-class Option(object):
-    """ This class describes the functionality of the CoAP header options. """
+class Option:
+    """
+    This class describes the functionality of the CoAP header options.
+    """
     DEFAULT_MAX_AGE = 60
-
-    #  Attributes /////////////////////////////////////////////////////////////
-    #  The option number defining the option type.
-    optionNr = int()
+    optionNr = int()   # The option number defining the option type.
 
     #  The raw data of the option.
     value = ByteBuffer()
 
-    @overloaded
-    def __init__(self, nr):
-        """
-        This is a constructor for a new option with a given number.
-        @param nr the option number
-        @return A new option with a given number based on a byte array
-        """
-        self.setOptionNumber(nr)
-
-    @__init__.register(object, int, int)
-    def __init___0(self, raw, nr):
-        """
-        This is a constructor for a new option with a given number, based on a
-        given byte array.
-        @param raw the byte array
-        @param nr the option number
-        @return A new option with a given number based on a byte array
-        """
-        self.setValue(raw)
-        self.setOptionNumber(nr)
-
-    @__init__.register(object, str, int)
-    def __init___1(self, s, nr):
+    def __init___(self, s, nr):
         """
         This is a constructor for a new option with a given number, based on a
         given string.
         @param str the string
+        @param val the integer value
+        @param raw the byte array
         @param nr the option number
+        @return A new option with a given number based on a byte array
         @return A new option with a given number based on a string
+        @return A new option with a given number based on a integer value
         """
         self.setStringValue(s)
         self.setOptionNumber(nr)
-
-    @__init__.register(object, int, int)
-    def __init___2(self, val, nr):
-        """
-        This is a constructor for a new option with a given number, based on a
-        given integer value.
-        @param val the integer value
-        @param nr the option number
-        @return A new option with a given number based on a integer value
-        """
         self.setIntValue(val)
+        self.setValue(raw)
         self.setOptionNumber(nr)
 
     @classmethod
@@ -92,18 +63,13 @@ class Option(object):
 
     @classmethod
     def join(cls, options, delimiter):
-        """ generated source for method join """
-        if options != None:
+        if options:
             for opt in options:
                 builder.append(delimiter)
                 builder.append(opt.getStringValue())
             return builder.__str__()
         else:
             return ""
-
-    def getOptionNumber(self):
-        """ This method returns the option number of the current option """
-        return self.optionNr
 
     def setOptionNumber(self, nr):
         """ This method sets the number of the current option. """
@@ -174,7 +140,7 @@ class Option(object):
         try:
             result = str(self.value.array(), "UTF8")
         except UnsupportedEncodingException as e:
-            System.err.println("String conversion error")
+            logging.critical("String conversion error")
         return result
 
     def setStringValue(self, str_):
@@ -184,9 +150,6 @@ class Option(object):
         current option.
         """
         self.value = ByteBuffer.wrap(str_.getBytes())
-
-    def getName(self):
-        return str(OptionNumberRegistry.(self.optionNr))
 
     def getLength(self):
         """
@@ -217,7 +180,7 @@ class Option(object):
     @classmethod
     def hex(cls, data):
         """ generated source for method hex """
-        if data != None and len(data):
+        if data:
             while len(data):
                 builder.append("{:02X}".format((0xFF & data[i])))
                 if i < len(data):

@@ -1,6 +1,7 @@
 # coding=utf-8
 
 import logging
+import socket
 from pycolo.endpoint import LocalEndpoint
 
 
@@ -39,10 +40,10 @@ class PlugtestServer(LocalEndpoint):
         """ generated source for method main """
         #  create server
         try:
-            System.out.printf(PlugtestServer.__class__.getSimpleName() + " listening on port %d.\n", server.port())
-        except SocketException as e:
+            logging.info(PlugtestServer.__class__.getSimpleName() + " listening on port %d.\n", server.port())
+        except socket.error as e:
             logging.critical("Failed to create " + PlugtestServer.__class__.getSimpleName() + ": %s\n", e.getMessage())
-            System.exit(cls.ERR_INIT_FAILED)
+            sys.exit(cls.ERR_INIT_FAILED)
 
 
 if __name__ == '__main__':

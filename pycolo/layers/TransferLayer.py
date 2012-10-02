@@ -4,26 +4,24 @@ import logging
 
 from pycolo.coap import BlockOption
 from pycolo.coap import CodeRegistry
-from pycolo.coap import Message
 from pycolo.coap.OptionNumberRegistry import OptionNumberRegistry
 from pycolo.coap import Request
 from pycolo.coap import Response
 from pycolo.coap import Message
-from pycolo.utils import Properties
 
 
 class TransferLayer(UpperLayer):
     """
-#  * The class TransferLayer provides support for
-#  * <a href="http://tools.ietf.org/html/draft-ietf-core-block">blockwise transfers</a>.
-#  * <p>
-#  * {@link #doSendMessage(Message)} and {@link #doReceiveMessage(Message)} do not
-#  * distinguish between clients and server directly, but rather between incoming
-#  * and outgoing transfers. This saves duplicate code, but introduces rather
-#  * confusing Request/Response checks at various places.<br/>
-#  * TODO: Explore alternative designs.
+    The class TransferLayer provides support for
+    <http://tools.ietf.org/html/draft-ietf-core-block">blockwise transfers
+
+    {@link #doSendMessage(Message)} and {@link #doReceiveMessage(Message)} do
+    not distinguish between clients and server directly, but rather between
+    incoming and outgoing transfers. This saves duplicate code, but introduces
+    rather confusing Request/Response checks at various places.
+    TODO: Explore alternative designs.
     """
-    class TransferContext(object):
+    class TransferContext:
         """ generated source for class TransferContext """
         cache = Message()
         uriPath = str()
@@ -62,7 +60,6 @@ class TransferLayer(UpperLayer):
         else:
             self.defaultSZX = -1
 
-    @__init__.register(object)
     def __init___0(self):
         """ generated source for method __init___0 """
         super(TransferLayer, self).__init__()
@@ -106,28 +103,28 @@ class TransferLayer(UpperLayer):
             if blockOut != None:
                 blockOut.setNUM(blockOut.getNUM() + 1)
         else:
-            LOG.warning("Unknown message type received: {:s}".format(msg.key()))
+            logging.warning("Unknown message type received: {:s}".format(msg.key()))
             return
         if blockIn == None and msg.requiresBlockwise():
             blockIn = BlockOption(OptionNumberRegistry.BLOCK1, 0, self.defaultSZX, True)
-            handleIncomingPayload(msg, blockIn)
+            self.handleIncomingPayload(msg, blockIn)
             return
         elif blockIn != None:
-            handleIncomingPayload(msg, blockIn)
+            self.handleIncomingPayload(msg, blockIn)
             return
         elif blockOut != None:
-            LOG.finer("Received demand for next block: {:s} | {:s}".format(msg.sequenceKey(), blockOut))
+            logging.info("Received demand for next block: {:s} | {:s}".format(msg.sequenceKey(), blockOut))
             if self.transfer:
                 if isinstance(msg, (Request,)) and not msg.getUriPath() == transfer.uriPath:
                     self.outgoing.remove(msg.sequenceKey())
-                    LOG.fine("Freed blockwise transfer by client token reuse: {:s}".format(msg.sequenceKey()))
+                    logging.info("Freed blockwise transfer by client token reuse: {:s}".format(msg.sequenceKey()))
                 else:
                     if isinstance(msg, (Request,)):
                         self.transfer.cache.setMID(msg.getMID())
                     if next != None:
                         try:
                             logging.info("Sending next block: {:s} | {:s}".format(next.sequenceKey(), blockOut))
-                            sendMessageOverLowerLayer(next)
+                            self.sendMessageOverLowerLayer(next)
                         except IOException as e:
                             logging.critical("Failed to send block response: {:s}".format(e.getMessage()))
                         if not self.respBlock.getM() and isinstance(msg, (Request,)):
@@ -136,10 +133,10 @@ class TransferLayer(UpperLayer):
                         return
                     elif isinstance(msg, (Response,)) and not blockOut.getM():
                         self.outgoing.remove(msg.sequenceKey())
-                        LOG.fine("Freed blockwise upload by completion: {:s}".format(msg.sequenceKey()))
+                        logging.info("Freed blockwise upload by completion: {:s}".format(msg.sequenceKey()))
                         msg.setRequest(self.transfer.cache)
                     else:
-                        LOG.warning("Rejecting out-of-scope demand for cached transfer (freed): {:s} | {:s}, {:d} bytes available".format(msg.sequenceKey(), blockOut, transfer.cache.payloadSize()))
+                        logging.warning("Rejecting out-of-scope demand for cached transfer (freed): {:s} | {:s}, {:d} bytes available".format(msg.sequenceKey(), blockOut, transfer.cache.payloadSize()))
                         self.outgoing.remove(msg.sequenceKey())
                         self.handleOutOfScopeError(msg.newReply(True))
                         return
@@ -164,21 +161,21 @@ class TransferLayer(UpperLayer):
                 transfer.cache.setMID(msg.getMID())
                 logging.info("Received next block:  {:s} | {:s}".format(msg.sequenceKey(), blockOpt))
             else:
-                LOG.info("Dropping wrong block: {:s} | {:s}".format(msg.sequenceKey(), blockOpt))
+                logging.info("Dropping wrong block: {:s} | {:s}".format(msg.sequenceKey(), blockOpt))
         elif blockOpt.getNUM() == 0 and msg.payloadSize() > 0:
             if msg.payloadSize() > blockOpt.getSize():
                 blockOpt.setNUM(newNUM - 1)
                 msg.setPayload(Arrays.copyOf(msg.getPayload(), newNUM))
             transfer = self.TransferContext(msg)
             self.incoming.put(msg.sequenceKey(), transfer)
-            LOG.fine("Incoming blockwise transfer: {:s} | {:s}".format(msg.sequenceKey(), blockOpt))
+            logging.info("Incoming blockwise transfer: {:s} | {:s}".format(msg.sequenceKey(), blockOpt))
         else:
-            LOG.info("Rejecting out-of-order block: {:s} | {:s}".format(msg.sequenceKey(), blockOpt))
-            handleIncompleteError(msg.newReply(True))
+            logging.info("Rejecting out-of-order block: {:s} | {:s}".format(msg.sequenceKey(), blockOpt))
+            self.handleIncompleteError(msg.newReply(True))
             return
         if blockOpt.getM():
-            if demandSZX > self.defaultSZX:
-                demandNUM = demandSZX / self.defaultSZX * demandNUM
+            if self.demandSZX > self.defaultSZX:
+                demandNUM = self.demandSZX / self.defaultSZX * self.demandNUM
                 demandSZX = self.defaultSZX
             if isinstance(msg, (Response,)):
                 reply = Request(CodeRegistry.METHOD_GET, not msg.isNonConfirmable())
@@ -186,26 +183,26 @@ class TransferLayer(UpperLayer):
                 demandNUM += 1
             elif isinstance(msg, (Request,)):
                 reply = Response(CodeRegistry.RESP_VALID)
-                reply.setType(messageType.ACK if msg.isConfirmable() else messageType.NON)
+                reply.setType(self.messageType.ACK if msg.isConfirmable() else self.messageType.NON)
                 reply.setPeerAddress(msg.getPeerAddress())
                 if msg.isConfirmable():
                     reply.setMID(msg.getMID())
             else:
-                LOG.severe("Unsupported message type: {:s}".format(msg.key()))
+                logging.critical("Unsupported message type: {:s}".format(msg.key()))
                 return
             reply.setOption(msg.getFirstOption(OptionNumberRegistry.TOKEN))
             reply.setOption(next)
             try:
-                LOG.fine("Demanding next block: {:s} | {:s}".format(reply.sequenceKey(), next))
+                logging.info("Demanding next block: {:s} | {:s}".format(reply.sequenceKey(), next))
                 sendMessageOverLowerLayer(reply)
             except IOException as e:
-                LOG.severe("Failed to request block: {:s}".format(e.getMessage()))
+                logging.critical("Failed to request block: {:s}".format(e.getMessage()))
             transfer.current = blockOpt
         else:
             transfer.cache.setOption(blockOpt)
-            LOG.fine("Finished blockwise transfer: {:s}".format(msg.sequenceKey()))
+            logging.info("Finished blockwise transfer: {:s}".format(msg.sequenceKey()))
             self.incoming.remove(msg.sequenceKey())
-            deliverMessage(transfer.cache)
+            self.deliverMessage(transfer.cache)
 
     def handleOutOfScopeError(self, resp):
         """ generated source for method handleOutOfScopeError """
@@ -214,7 +211,7 @@ class TransferLayer(UpperLayer):
         try:
             sendMessageOverLowerLayer(resp)
         except IOException as e:
-            LOG.severe("Failed to send error message: {:s}".format(e.getMessage()))
+            logging.critical("Failed to send error message: {:s}".format(e.getMessage()))
 
     def handleIncompleteError(self, resp):
         """ generated source for method handleIncompleteError """
@@ -223,7 +220,7 @@ class TransferLayer(UpperLayer):
         try:
             sendMessageOverLowerLayer(resp)
         except IOException as e:
-            LOG.severe("Failed to send error message: {:s}".format(e.getMessage()))
+            logging.critical("Failed to send error message: {:s}".format(e.getMessage()))
 
     @classmethod
     def getBlock(cls, msg, num, szx):
@@ -258,20 +255,22 @@ class TransferLayer(UpperLayer):
             return None
 
     def getStats(self):
-        """ generated source for method getStats """
-        stats = StringBuilder()
-        stats.append("Default block size: ")
-        stats.append(BlockOption.decodeSZX(self.defaultSZX))
-        stats.append('\n')
-        stats.append("Outgoing cache size: ")
-        stats.append(len(self.outgoing))
-        stats.append('\n')
-        stats.append("Incoming cache size: ")
-        stats.append(len(self.incoming))
-        stats.append('\n')
-        stats.append("Messages sent:     ")
-        stats.append(numMessagesSent)
-        stats.append('\n')
-        stats.append("Messages received: ")
-        stats.append(numMessagesReceived)
+        """
+        TODO: JSON
+        """
+        stats = ""
+        stats.join("Default block size: ")
+        stats.join(BlockOption.decodeSZX(self.defaultSZX))
+        stats.join('\n')
+        stats.join("Outgoing cache size: ")
+        stats.join(len(self.outgoing))
+        stats.join('\n')
+        stats.join("Incoming cache size: ")
+        stats.join(len(self.incoming))
+        stats.join('\n')
+        stats.join("Messages sent:     ")
+        stats.join(numMessagesSent)
+        stats.join('\n')
+        stats.join("Messages received: ")
+        stats.join(numMessagesReceived)
         return stats.__str__()

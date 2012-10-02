@@ -1,15 +1,10 @@
 # coding=utf-8
-from abc import ABCMeta
 
 
-class MessageHandler(object):
-    """ generated source for interface MessageHandler """
-    __metaclass__ = ABCMeta
+class MessageHandler:
 
-    @abstractmethod
     def handleRequest(self, request):
-        """ generated source for method handleRequest """
+        raise "Not implemented yet"
 
-    @abstractmethod
     def handleResponse(self, response):
-        """ generated source for method handleResponse """
+        raise "Not implemented yet"

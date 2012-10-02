@@ -25,8 +25,8 @@ class LinkFormat():
         """ generated source for method serialize """
         linkFormat = StringBuilder()
         #  skip hidden and empty root in recursive mode, always skip non-matching resources
-        if (not resource.isHidden() and (not resource.__name__ == "") or not recursive) and matches(resource, query):
-            cls.LOG.finer("Serializing resource link: " + resource.getPath())
+        if (not resource.hidden and (not resource.__name__ == "") or not recursive) and matches(resource, query):
+            logging.info("Serializing resource link: " + resource.getPath())
             linkFormat.append("<")
             linkFormat.append(resource.getPath())
             linkFormat.append(">")
@@ -57,11 +57,11 @@ class LinkFormat():
         while path = scanner.findInLine("</[^>]*>")) != var = None:
             #  Trim <...>
             path = path.substring(1, 1 - len(path))
-            cls.LOG.finer("Parsing link resource: {:s}".format(path))
+            logging.info("Parsing link resource: {:s}".format(path))
             #  Retrieve specified resource, create if necessary
             #  Read link format attributes
             while scanner.findWithinHorizon(LinkFormat.DELIMITER, 1) == None and attr
-        =LinkAttribute.parse(scanner)) != var = None
+ = LinkAttribute.parse(scanner)) != var = None
         :
                 addAttribute(resource.getAttributes(), attr)
             root.add(resource)
@@ -88,14 +88,14 @@ class LinkFormat():
                 if
         var = attrib.__name__ == add.__name__
         :
-                    cls.LOG.finest("Found existing singleton attribute: {:s}".format(attrib.__name__))
+                    logging.info("Found existing singleton attribute: {:s}".format(attrib.__name__))
                     return False
         #  special rules
         if add.__name__ == "ct" and add.getIntValue() < 0:
             return False
         if add.__name__ == "sz" and add.getIntValue() < 0:
             return False
-        cls.LOG.finest("Added resource attribute: {:s} ({:s})".format(add.__name__, add.getValue()))
+        logging.info("Added resource attribute: {:s} ({:s})".format(add.__name__, add.value))
         return attributes.add(add)
 
     @classmethod

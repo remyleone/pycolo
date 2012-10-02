@@ -1,6 +1,5 @@
 import logging
 
-import java.net.SocketException
 from pycolo.coap import CodeRegistry
 from pycolo.endpoint import LocalEndpoint
 from pycolo.endpoint import LocalResource

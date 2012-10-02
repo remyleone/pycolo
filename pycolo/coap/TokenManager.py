@@ -6,7 +6,6 @@ class TokenManager:
     The TokenManager stores all tokens currently used in transfers. New
     transfers can acquire unique tokens from the manager.
     """
-    
     // the empty token, used as default value
     public static final byte[] emptyToken = new byte[0];
     
@@ -48,11 +47,11 @@ class TokenManager:
 
         + +this.currentToken;
         
-        LOG.fine("Token value: " + currentToken);
-        
+        logging.info("Token value: ", currentToken);
+
         long temp = this.currentToken;
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream(OptionNumberRegistry.TOKEN_LEN);  
-        
+
         while (temp > 0 && byteStream.size() < OptionNumberRegistry.TOKEN_LEN) {
             byteStream.write((int)(temp & 0xff));
             temp >>>= 8;
@@ -102,7 +101,7 @@ class TokenManager:
     public synchronized void releaseToken(byte[] token) {
         
         if (! acquiredTokens.remove(token)) {
-            LOG.warning(String.format("Token to release is not acquired: %s\n", Option.hex(token)));
+            logging.warning(String.format("Token to release is not acquired: %s\n", Option.hex(token)));
         }
     }
     * / 

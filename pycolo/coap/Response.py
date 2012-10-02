@@ -42,7 +42,7 @@ class Response(Message):
 
     def payloadAppended(self, block):
         """ generated source for method payloadAppended """
-        if request != None:
+        if request:
             request.responsePayloadAppended(self, block)
 
     def handleBy(self, handler):

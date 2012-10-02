@@ -3,9 +3,6 @@
 #import java.nio.ByteOrder
 import unittest
 
-from pycolo.utils import DatagramReader
-from pycolo.utils import DatagramWriter
-
 
 class DatagramReadWriteTest(unittest.TestCase):
     """
@@ -14,7 +11,6 @@ class DatagramReadWriteTest(unittest.TestCase):
     """
     def test32BitInt(self):
         intIn = 0x87654321
-        writer = DatagramWriter()
         writer.write(intIn, 32)
         reader = DatagramReader(writer.toByteArray())
         intOut = reader.read(32)

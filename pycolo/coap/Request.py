@@ -217,7 +217,7 @@ class Request(Message):
         #  enqueue response
         if self.responseQueueEnabled():
             if not self.responseQueue.offer(response):
-                print("ERROR: Failed to enqueue response to request")
+                logging.critical("ERROR: Failed to enqueue response to request")
         #  notify response handlers
         if self.responseHandlers != None:
             for handler in responseHandlers:

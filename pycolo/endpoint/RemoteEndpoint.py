@@ -1,8 +1,10 @@
 # coding=utf-8
-from urllib.parse import urlparse
-
+from httplib2 import URI
 from pycolo.coap import Communicator
 from pycolo.endpoint import Endpoint
+from urllib.parse import urlparse
+import logging
+
 
 
 class RemoteEndpoint(Endpoint):
@@ -15,7 +17,7 @@ class RemoteEndpoint(Endpoint):
         try:
             return RemoteEndpoint(URI(uri))
         except URISyntaxException as e:
-            System.out.printf("[%s] Failed to create RemoteEndpoint from URI: %s\n", "JCoAP", e.getMessage())
+            logging.info("[%s] Failed to create RemoteEndpoint from URI: %s\n", "JCoAP", e.getMessage())
             return None
 
     def __init__(self, uri):

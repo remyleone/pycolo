@@ -1,6 +1,6 @@
 # coding=utf-8
 from pycolo.coap.CodeRegistry import CodeRegistry
-from pycolo.coap.MediaTypeRegistry import MediaTypeRegistry
+from pycolo import mediaTypeRegistry
 from pycolo.endpoint import LocalResource
 
 
@@ -10,21 +10,23 @@ class DeviceName(LocalResource):
 
     def __init__(self):
         """ generated source for method __init__ """
-        super(DeviceName, self).__init__("dev/n")
-        self.setTitle("Name")
-        self.setResourceType("ipso:dev-n")
-        self.setInterfaceDescription("core#p")
+        self.title = "Name"
+        self.resourceType = "ipso:dev-n"
+        self.interfaceDescription = "core#p"
+        self.address = "dev/n"
 
     def performGET(self, request):
         """ generated source for method performGET """
         #  complete the request
-        request.respond(CodeRegistry.RESP_CONTENT, self.name, MediaTypeRegistry.TEXT_PLAIN)
+        request.respond(CodeRegistry.RESP_CONTENT, \
+                        self.name, \
+                        mediaTypeRegistry["TEXT_PLAIN"])
 
     def performPUT(self, request):
         """ generated source for method performPUT """
-        if request.getContentType() != MediaTypeRegistry.TEXT_PLAIN:
+        if request.contentType != mediaTypeRegistry["TEXT_PLAIN"]:
             request.respond(CodeRegistry.RESP_BAD_REQUEST, "text/plain only")
             return
-        self.name = request.getPayloadString()
+        self.name = request.payload
         #  complete the request
         request.respond(CodeRegistry.RESP_CHANGED)

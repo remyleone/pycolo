@@ -63,16 +63,16 @@ class CodeRegistry():
 
     @classmethod
     def isRequest(cls, code_):
-        return (code_ >= 1) and (code_ <= 31)
+        return 1 <= code_ <= 31
 
     @classmethod
     def isResponse(cls, code_):
-        return (code_ >= 64) and (code_ <= 191)
+        return 64 <= code_ <= 191
 
     @classmethod
     def isValid(cls, code_):
         #return (code >= 0) && (code <= 31)) || ((code >= 64) && (code <= 191)
-        return (code_ >= 0) and (code_ <= 255)
+        return 0 <= code_ <= 255
         #  allow unknown custom codes
 
     @classmethod

@@ -73,4 +73,5 @@ class BlockOption(Option):
         return 0 <= szx <= 6
 
     def __str__(self):
-        return "NUM: {:d}, SZX: {:d} ({:d} bytes), M: %b".format(self.getNUM(), self.getSZX(), self.getSize(), self.getM())
+        return "NUM: {:d}, SZX: {:d} ({:d} bytes), M: %b" % self.getNUM(), \
+             self.SZX, self.size, self.M

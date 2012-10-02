@@ -3,7 +3,7 @@
 from pycolo.coap import CodeRegistry
 from pycolo.coap import MediaTypeRegistry
 from pycolo.endpoint import LocalResource
-
+from pycolo import mediaTypeRegistry
 
 class DeviceSerial(LocalResource):
     """ This resource implements a part of the IPSO profile. """
@@ -17,5 +17,4 @@ class DeviceSerial(LocalResource):
     def performGET(self, request):
         """ generated source for method performGET """
         #  complete the request
-        request.respond(CodeRegistry.RESP_CONTENT, "4711", MediaTypeRegistry.TEXT_PLAIN)
-
+        request.respond(CodeRegistry.RESP_CONTENT, "4711", mediaTypeRegistry["TEXT_PLAIN"])

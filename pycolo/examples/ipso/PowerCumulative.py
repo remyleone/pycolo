@@ -5,7 +5,7 @@
 import random
 
 from pycolo.coap.CodeRegistry import CodeRegistry
-from pycolo.coap.MediaTypeRegistry import MediaTypeRegistry
+from pycolo import mediaTypeRegistry
 from pycolo.endpoint import LocalResource
 
 
@@ -33,7 +33,7 @@ class PowerCumulative(LocalResource):
             if PowerRelay.getRelay():
                 self.power += Math.round(10 * random.SystemRandom() * (PowerDimmer.getDimmer() / 100))
                 #  Call changed to notify subscribers
-                changed()
+                self.changed()
 
     def performGET(self, request):
         """ generated source for method performGET """

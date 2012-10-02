@@ -1,7 +1,7 @@
 # coding=utf-8
 from pycolo.coap import CodeRegistry
 from pycolo.coap import LinkFormat
-from pycolo.coap.MediaTypeRegistry import MediaTypeRegistry
+from pycolo.coap import mediaTypeRegistry
 from pycolo.coap.OptionNumberRegistry import OptionNumberRegistry
 from pycolo.coap import Response
 from pycolo.endpoint import LocalResource
@@ -9,11 +9,9 @@ from pycolo.endpoint import LocalResource
 
 class DiscoveryResource(LocalResource):
     """ This class implements the CoAP /.well-known/core resource. """
-    #  Constants //////////////////////////////////////////////////////////////
     #  The default resource identifier for resource discovery. 
     DEFAULT_IDENTIFIER = ".well-known/core"
 
-    #  Attributes /////////////////////////////////////////////////////////////
     #  The root resource of the endpoint used for recursive Link-Format generation. 
     root = Resource()
 

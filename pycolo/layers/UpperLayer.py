@@ -1,5 +1,6 @@
 # coding=utf-8
-from pycolo.coap import Message
+
+import logging
 from pycolo.layers import Layer
 
 
@@ -11,7 +12,7 @@ class UpperLayer(Layer):
         if self.lowerLayer != None:
             self.lowerLayer.sendMessage(msg)
         else:
-            print("[%s] ERROR: No lower layer present", self.getClass().__name__)
+            logging.critical("[%s] ERROR: No lower layer present", self.getClass().__name__)
 
     def setLowerLayer(self, layer):
         """ generated source for method setLowerLayer """

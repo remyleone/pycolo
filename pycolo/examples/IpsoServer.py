@@ -1,11 +1,18 @@
-import java.net.InetAddress
-import java.net.SocketException
-import java.net.UnknownHostException
-import java.util.logging.Level
+# coding=utf-8
+
 import logging
 from pycolo.coap import LinkFormat
-from pycolo.coap import MediaTypeRegistry
+from pycolo.coap import mediaTypeRegistry
 from pycolo.endpoint import LocalEndpoint
+from .ipso import DeviceName
+from .ipso import DeviceManufacturer
+from .ipso import DeviceModel
+from .ipso import DeviceSerial
+from .ipso import DeviceBattery
+from .ipso import PowerInstantaneous
+from .ipso import PowerCumulative
+from .ipso import PowerRelay
+from .ipso import PowerDimmer
 
 
 class IpsoServer(LocalEndpoint):
@@ -55,13 +62,13 @@ class IpsoServer(LocalEndpoint):
             if args[0].startsWith("coap://") and len(args):
                 rd = args[0]
             else:
-                print "Hint: You can give the RD URI as first argument."
-                print "Fallback to SensiNode RD"
+                logging.info("Hint: You can give the RD URI as first argument.")
+                logging.info("Fallback to SensiNode RD")
             if args[1].matches("[A-Za-z0-9-_]+") and len(args):
                 hostname = args[1]
             else:
-                print "Hint: You can give an alphanumeric (plus '-' and '_') string as second argument to specify a custom hostname."
-                print "Fallback to hostname"
+                logging.info("Hint: You can give an alphanumeric (plus '-' and '_') string as second argument to specify a custom hostname.")
+                logging.info("Fallback to hostname")
                 try:
                     hostname = InetAddress.getLocalHost().getHostName()
                 except UnknownHostException as e1:
@@ -73,13 +80,8 @@ class IpsoServer(LocalEndpoint):
                 print("Registering at " + rd + " as Cf-" + hostname)
                 register.execute()
             except Exception as e:
-                System.err.println("Failed to execute request: " + e.getMessage())
-                System.exit(cls.ERR_INIT_FAILED)
+                logging.critical("Failed to execute request: " + e.getMessage())
+                sys.exit(cls.ERR_INIT_FAILED)
         except SocketException as e:
-            System.err.printf("Failed to create " + IpsoServer.__class__.getSimpleName() + ": %s\n", e.getMessage())
-            System.exit(cls.ERR_INIT_FAILED)
-
-
-if __name__ == '__main__':
-    import sys
-    IpsoServer.main(sys.argv)
+            logging.critical("Failed to create " + IpsoServer.__class__.getSimpleName() + ": %s\n", e.getMessage())
+            sys.exit(cls.ERR_INIT_FAILED)

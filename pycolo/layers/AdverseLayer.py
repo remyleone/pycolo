@@ -1,7 +1,6 @@
 # coding=utf-8
 import random
 import logging
-from pycolo.coap import Message
 from pycolo.layers import UpperLayer
 
 
@@ -18,7 +17,6 @@ class AdverseLayer(UpperLayer):
         self.txPacketLossProbability = txPacketLossProbability
         self.rxPacketLossProbability = rxPacketLossProbability
 
-    @__init__.register(object)
     def __init___0(self):
         """ generated source for method __init___0 """
         super(AdverseLayer, self).__init__()
@@ -29,7 +27,7 @@ class AdverseLayer(UpperLayer):
         if random.SystemRandom() >= self.txPacketLossProbability:
             self.sendMessageOverLowerLayer(msg)
         else:
-            logging.info("[%s] Outgoing message dropped: %s\n", self.getClass().__name__, msg.key())
+            logging.info("[%s] Outgoing message dropped: %s\n" % self.getClass().__name__, msg.key())
 
     def doReceiveMessage(self, msg):
         """ generated source for method doReceiveMessage """

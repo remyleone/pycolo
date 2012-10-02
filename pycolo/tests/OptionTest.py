@@ -65,3 +65,6 @@ class OptionTest(unittest.TestCase):
             result += int().toString((b[i] & 0xff) + 0x100, 16).substring(1)
             i += 1
         return result
+
+if __name__ == '__main__':
+    unittest.main()

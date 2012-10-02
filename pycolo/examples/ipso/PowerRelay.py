@@ -1,6 +1,6 @@
 # coding=utf-8
 from pycolo.coap.CodeRegistry import CodeRegistry
-from pycolo.coap.MediaTypeRegistry import MediaTypeRegistry
+from pycolo import mediaTypeRegistry
 from pycolo.endpoint import LocalResource
 
 
@@ -24,11 +24,13 @@ class PowerRelay(LocalResource):
     def performGET(self, request):
         """ generated source for method performGET """
         #  complete the request
-        request.respond(CodeRegistry.RESP_CONTENT, "1" if self.on else "0", MediaTypeRegistry.TEXT_PLAIN)
+        request.respond(CodeRegistry.RESP_CONTENT, \
+                        "1" if self.on else "0", \
+                        mediaTypeRegistry["TEXT_PLAIN"])
 
     def performPUT(self, request):
         """ generated source for method performPUT """
-        if request.getContentType() != MediaTypeRegistry.TEXT_PLAIN:
+        if request.contentType != mediaTypeRegistry["TEXT_PLAIN"]:
             request.respond(CodeRegistry.RESP_BAD_REQUEST, "text/plain only")
             return
         pl = request.getPayloadString()
@@ -41,7 +43,8 @@ class PowerRelay(LocalResource):
                 return
             self.on = False
         else:
-            request.respond(CodeRegistry.RESP_BAD_REQUEST, "use true/false or 1/0")
+            request.respond(CodeRegistry.RESP_BAD_REQUEST, \
+                            "use true/false or 1/0")
             return
         #  complete the request
         request.respond(CodeRegistry.RESP_CHANGED)

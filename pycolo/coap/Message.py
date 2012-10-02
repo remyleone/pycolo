@@ -1,6 +1,5 @@
 # coding=utf-8
 
-from pycolo.layers import UpperLayer
 import logging
 
 
@@ -40,15 +39,14 @@ class Message:
     # are set to one
     OPTIONLENGTH_EXTENDED_BITS = 8
 
-    
-     # The message's type which can have the following values:
-     # 
-     # 0: Confirmable
-     # 1: Non-Confirmable
-     # 2: Acknowledgment
-     # 3: Reset
-     
-    messageType = (CON, NON, ACK, RST)
+    # The message's type which can have the following values:
+    #
+    # 0: Confirmable (CON)
+    # 1: Non-Confirmable (NON)
+    # 2: Acknowledgment (ACK)
+    # 3: Reset (RST)
+
+    messageType = None
 
     # maximum option delta that can be encoded without using fencepost options
     MAX_OPTIONDELTA = (1 << OPTIONDELTA_BITS) - 1
@@ -69,53 +67,38 @@ class Message:
     # The message type (CON, NON, ACK, or RST).
     type = None
 
-    /**
-     * The message code:
-     * 
-     *      0: Empty
-     *   1-31: Request
-     * 64-191: Response
-     */
+    # Message code :
+    # 0: Empty
+    # 1-31: Request
+    # 64-191: Response
     code = 0
 
     # The message ID. Set according to request or handled by
     # {@link ch.ethz.inf.vs.californium.layers.TransactionLayer} when -1.
-    private int messageID = -1
+    messageID = -1
 
     # The list of header options set for the message.
     optionMap = dict()
 
     # A time stamp associated with the message.
-    private long timestamp = -1
+    timestamp = None
 
-    private int retransmissioned = 0
+    retransmissioned = 0
 
     # indicates if the message requires a token
     # this is required to handle implicit empty tokens (default value)
     requiresToken = True
     requiresBlockwise = False
 
-    def getTypeByValue(numeric):
-        """
-        Converts a numeric type value into the messageType enum.
-        @param numeric the type value
-        """
-        switch (numeric) {
-            case 0:
-                return messageType.CON;
-            case 1:
-                return messageType.NON;
-            case 2:
-                return messageType.ACK;
-            case 3:
-                return messageType.RST;
-            default:
-                return messageType.CON;
-        }
-    }
+    msgType = {
+            "CON" : 0,
+            "NON" : 1,
+            "ACK" : 2,
+            "RST" : 3,
+            "default" : 0
+            }
 
-
-    def __init__(address, type, code, mid, payload):
+    def __init__(self, address, msgType, code, mid, payload):
         """
         Constructor for a new CoAP message
         @param uri the URI of the CoAP message
@@ -123,36 +106,32 @@ class Message:
         @param payload the payload of the CoAP message
         @param code the code of the CoAP message (See class CodeRegistry)
         """
-        this.setURI(address);
-        this.type = type;
-        this.code = code;
-        this.messageID = mid;
-        this.payload = payload;
-    }
+        self.URI = address
+        self.msgType = msgType
+        self.code = code
+        self.messageID = mid
+        self.payload = payload
 
-    def toByteArray():
+    def dump(self):
         """
         Encodes the message into its raw binary representation
         as specified in draft-ietf-core-coap-05, section 3.1
         @return A byte array containing the CoAP encoding of the message
         """
 
-        # create datagram writer to encode options
-        DatagramWriter optWriter = new DatagramWriter()
-
-        int optionCount = 0
-        int lastOptionNumber = 0
-        for opt in self.getOptions():
+        optionCount = 0
+        lastOptionNumber = 0
+        for opt in self.options:
 
             # do not encode options with default values
             if opt.isDefaultValue():
                 continue
 
             # calculate option delta
-            int optionDelta = opt.getOptionNumber() - lastOptionNumber
+            optionDelta = opt.optionNumber - lastOptionNumber
 
             # ensure that option delta value can be encoded correctly
-            while optionDelta > MAX_OPTIONDELTA:
+            while optionDelta > self.MAX_OPTIONDELTA:
 
                 # option delta is too large to be encoded:
                 # add fencepost options in order to reduce the option delta
@@ -178,7 +157,7 @@ class Message:
 
                 # fencepost have an empty value
                 optWriter.write(0, OPTIONLENGTH_BASE_BITS)
-                #System.out.printf("DEBUG: %d\n", fencepostDelta);
+                logging.debug("DEBUG: %d\n", fencepostDelta)
 
                 # increment option count
                 ++optionCount
@@ -220,7 +199,7 @@ class Message:
             ++optionCount;
 
             # update last option number
-            lastOptionNumber = opt.getOptionNumber();
+            lastOptionNumber = opt.optionNumber
         }
 
         # create datagram writer to encode message data
@@ -243,7 +222,7 @@ class Message:
         # return encoded message
         return writer.toByteArray()
 
-    def fromByteArray(byte[] byteArray):
+    def load(byte[] byteArray):
         """
         Decodes the message from the its binary representation
         as specified in draft-ietf-core-coap-05, section 3.1
@@ -275,7 +254,7 @@ class Message:
             msg = CodeRegistry.getMessageClass(code).newInstance();
         catch (e):
             logging.severe("Cannot instantiate Message class %d", code,\
-						 e.getMessage()))
+                         e.getMessage()))
             return None
 
         msg.version = version;
@@ -295,7 +274,7 @@ class Message:
             int optionDelta = datagram.read(OPTIONDELTA_BITS);
 
             currentOption += optionDelta;
-            #System.out.printf("DEBUG MSG: %d\n", optionDelta);
+            logging.debug("DEBUG MSG: %d\n" % optionDelta)
             if OptionNumberRegistry.isFencepost(currentOption):
 
                 #Read number of options
@@ -421,20 +400,7 @@ class Message:
         """
         pass
 
-    def getVersion():
-        """
-        This function returns the version of this CoAP message.
-        @return the version
-        """
-        return this.version
 
-    def getCode():
-        """
-        This function returns the code of this CoAP message (method or status
-        code).
-        @return the current code
-        """
-        return this.code
 
     def getMID():
         """
@@ -555,23 +521,16 @@ class Message:
     def setLocationPath(locationPath):
         setOptions(Option.split(OptionNumberRegistry.LOCATION_PATH, locationPath, "/"))
 
-    def getPayload():
-        """
-        This function returns the payload of this CoAP message as byte array.
-        @return the payload
-        """
-        return this.payload
-
     def getPayloadString():
         """
         This function returns the payload of this CoAP message as String.
         @return the payload
         """
-        try {
-            return payload != null ? new String(payload, "UTF-8") : null;
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return null;
+        try:
+            return payload != null ? new String(payload, "UTF-8") : null
+        except Exception e:
+            e.printStackTrace()
+            return None
         }
     }
 
@@ -590,27 +549,20 @@ class Message:
      */ 
     public synchronized void appendPayload(byte[] block) {
 
-        if (block != null) {
-            if (payload != null) {
-                byte[] oldPayload = payload;
+        if block:
+            if payload:
+                byte[] oldPayload = payload
                 payload = new byte[oldPayload.length + block.length];
                 System.arraycopy(oldPayload, 0, payload, 0,
                     oldPayload.length);
                 System.arraycopy(block, 0, payload, oldPayload.length,
                     block.length);
-                
-            } else {
-                
-                payload = block.clone();
-            }
-            
+            else:
+                payload = block.clone()
             # wake up threads waiting in readPayload()
-            notifyAll();
-            
+            notifyAll()
             # call notification method
             payloadAppended(block);
-        }        
-    }
 
     def setPayload(String payload):
         self.setPayload(payload, MediaTypeRegistry.UNDEFINED)
@@ -620,7 +572,7 @@ class Message:
             try:
                 # set internal byte array
                 self.setPayload(payload.getBytes("UTF-8"))
-            catch(UnsupportedEncodingException e):
+            except UnsupportedEncodingException e:
                 e.printStackTrace()
                 return
 
@@ -670,21 +622,6 @@ class Message:
         """
         return this.type
 
-    def setType(messageType msgType):
-        """
-        This method sets the type of this CoAP message (CON, NON, ACK, or RST).
-        @param msgType the type for the message
-        """
-        this.type = msgType;
-
-    def setCode(code):
-        """
-        This method sets the code of this CoAP message (method or status code).
-        @param code the message code to set to
-        """
-        this.code = code
-
-
     def addOption(option):
         """
         This method adds an option to the list of options of this CoAP message.
@@ -694,7 +631,7 @@ class Message:
         if not option:
             raise("Error")
 
-        int optionNumber = option.getOptionNumber();
+        int optionNumber = option.optionNumber
         List < Option > list = optionMap.get(optionNumber);
 
         if (list == null) {
@@ -737,7 +674,7 @@ class Message:
         # check important to allow convenient setting of options that might
         # be null (e.g., Token)
         if option:
-            removeOptions(option.getOptionNumber())
+            removeOptions(option.optionNumber)
             addOption(option)
 
     def setOptions(options):
@@ -746,8 +683,8 @@ class Message:
         @param option the list of the options
         """
         for option in options:
-            removeOptions(option.getOptionNumber());
-        addOptions(options);
+            removeOptions(option.optionNumber)
+        addOptions(options)
 
     def addOptions(options):
         """
@@ -848,9 +785,6 @@ class Message:
     def requiresToken(value):
         requiresToken = value
 
-    def requiresBlockwise():
-        return requiresBlockwise
-
     def requiresBlockwise(value):
         requiresBlockwise = value
 
@@ -882,7 +816,7 @@ class Message:
         }
         return null
 
-    def prettyPrint():
+    def __str__():
         String kind = "MESSAGE ";
         if (this instanceof Request) {
             kind = "REQUEST ";
@@ -891,7 +825,7 @@ class Message:
         }
         logging.info("==[ CoAP %s ]=================================\n", kind)
 
-        List < Option > options = getOptions();
+        options = self.options
 
         logging.info("Address: %s\n", peerAddress.toString());
         logging.info("MID    : %d\n", messageID);
@@ -900,7 +834,7 @@ class Message:
         logging.info("Options: %d\n", options.size());
         for opt in options:
             logging.info("  * %s: %s (%d Bytes)\n",
-                opt.getName(), opt.toString(), opt.getLength()
+                opt.name, str(opt), len(opt)
             )
 
         logging.info("Payload: %d Bytes\n", payloadSize());

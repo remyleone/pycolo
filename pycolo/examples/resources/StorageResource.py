@@ -1,37 +1,6 @@
-#!/usr/bin/env python
-""" generated source for module StorageResource """
-# 
-#  * Copyright (c) 2012, Institute for Pervasive Computing, ETH Zurich.
-#  * All rights reserved.
-#  * 
-#  * Redistribution and use in source and binary forms, with or without
-#  * modification, are permitted provided that the following conditions
-#  * are met:
-#  * 1. Redistributions of source code must retain the above copyright
-#  *    notice, this list of conditions and the following disclaimer.
-#  * 2. Redistributions in binary form must reproduce the above copyright
-#  *    notice, this list of conditions and the following disclaimer in the
-#  *    documentation and/or other materials provided with the distribution.
-#  * 3. Neither the name of the Institute nor the names of its contributors
-#  *    may be used to endorse or promote products derived from this software
-#  *    without specific prior written permission.
-#  * 
-#  * THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS "AS IS" AND
-#  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-#  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-#  * ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
-#  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-#  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-#  * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-#  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-#  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-#  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-#  * SUCH DAMAGE.
-#  * 
-#  * This file is part of the Californium (Cf) CoAP framework.
-#  
-# package: ch.ethz.inf.vs.californium.examples.resources
-import java.util.logging.Logger
+# coding=utf-8
+
+import logging
 
 import ch.ethz.inf.vs.californium.coap.CodeRegistry
 
@@ -87,9 +56,9 @@ class StorageResource(LocalResource):
     def __init___0(self, resourceIdentifier):
         """ generated source for method __init___0 """
         super(StorageResource, self).__init__(resourceIdentifier)
-        setTitle("PUT your data here or POST new resources!")
+        self.title = "PUT your data here or POST new resources!"
         setResourceType("Storage")
-        isObservable(True)
+        self.observable = True
 
     #  REST Operations /////////////////////////////////////////////////////////
     # 
@@ -125,29 +94,27 @@ class StorageResource(LocalResource):
         #  complete the request
         request.respond(CodeRegistry.RESP_CHANGED)
 
-    # 
-    # 	 * POSTs a new sub-resource to this resource.
-    # 	 * The name of the new sub-resource is retrieved from the request
-    # 	 * payload.
-    # 	 
     def performPOST(self, request):
-        """ generated source for method performPOST """
+        """
+        POSTs a new sub-resource to this resource.
+        The name of the new sub-resource is retrieved from the request
+        payload.
+        """
         #  get request payload as a string
-        payload = request.getPayloadString()
+        payload = request.payload
         #  check if valid Uri-Path specified
-        if payload != None and not payload.isEmpty():
-            createSubResource(request, payload)
+        if payload:
+            self.createSubResource(request, payload)
         else:
             #  complete the request
             request.respond(CodeRegistry.RESP_BAD_REQUEST, "Payload must contain Uri-Path for new sub-resource.")
 
-    # 
-    # 	 * Creates a new sub-resource with the given identifier in this resource.
-    # 	 * Added checks for resource creation.
-    # 	 
     def createSubResource(self, request, newIdentifier):
-        """ generated source for method createSubResource """
-        if isinstance(request, (PUTRequest, )):
+        """
+        Creates a new sub-resource with the given identifier in this resource.
+        Added checks for resource creation.
+        """
+        if isinstance(request, (PUTRequest,)):
             request.respond(CodeRegistry.RESP_FORBIDDEN, "PUT restricted to exiting resources")
             return
         #  omit leading and trailing slashes
@@ -174,31 +141,30 @@ class StorageResource(LocalResource):
             if keyValue[0] == "rt" and len(keyValue):
                 newRtAttribute = keyValue[1]
                 continue 
-        if getResource(newIdentifier) == None:
+        if self.getResource(newIdentifier) == None:
             if newRtAttribute != None:
-                resource.setResourceType(newRtAttribute)
-            add(resource)
-            resource.storeData(request)
-            response.setLocationPath(resource.getPath())
+                self.resource.setResourceType(newRtAttribute)
+            self.add(self.resource)
+            self.resource.storeData(request)
+            self.response.setLocationPath(resource.getPath())
             request.respond(response)
         else:
             request.respond(CodeRegistry.RESP_INTERNAL_SERVER_ERROR, "Trying to create existing resource")
-            Logger.getAnonymousLogger().severe("Cannot create sub resource: {:s}/[{:s}] already exists".format(self.getPath(), newIdentifier))
+            logging.critical("Cannot create sub resource: {:s}/[{:s}] already exists".format(self.getPath(), newIdentifier))
 
     def performDELETE(self, request):
         """ generated source for method performDELETE """
-        if isinstance(parent, (StorageResource, )):
-            remove()
+        if isinstance(parent, (StorageResource,)):
+            self.remove()
             request.respond(CodeRegistry.RESP_DELETED)
         else:
             request.respond(CodeRegistry.RESP_FORBIDDEN, "Root storage resource cannot be deleted")
 
     def storeData(self, request):
         """ generated source for method storeData """
-        data = request.getPayload()
-        clearAttribute(LinkFormat.CONTENT_TYPE)
-        setContentTypeCode(request.getContentType())
-        changed()
+        data = request.payload
+        self.clearAttribute(LinkFormat.CONTENT_TYPE)
+        self.setContentTypeCode(request.getContentType())
+        self.changed()
 
     data = []
-

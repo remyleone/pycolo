@@ -1,33 +1,22 @@
 # coding=utf-8
-
-import java.io.IOException
-import java.net.URI
-import java.net.URISyntaxException
-import java.net.UnknownHostException
+import logging
+import sys
 
 
-#  * This class implements a simple CoAP client for testing purposes. Usage:
-#  * <p>
-#  * {@code java -jar SampleClient.jar [-l] METHOD URI [PAYLOAD]}
-#  * <ul>
-#  * <li>METHOD: {GET, POST, PUT, DELETE, DISCOVER, OBSERVE}
-#  * <li>URI: The URI to the remote endpoint or resource}
-#  * <li>PAYLOAD: The data to send with the request}
-#  * </ul>
-#  * Options:
-#  * <ul>
-#  * <li>-l: Loop for multiple responses}
-#  * </ul>
-#  * Examples:
-#  * <ul>
-#  * <li>{@code SampleClient DISCOVER coap://localhost}
-#  * <li>{@code SampleClient POST coap://someServer.org:5683 my data}
-#  * </ul>
-#  *  
-#  * @author Dominique Im Obersteg, Daniel Pauli, and Matthias Kovatsch
-
-class ExampleClient(object):
-    """ generated source for class ExampleClient """
+class ExampleClient:
+    """
+    This class implements a simple CoAP client for testing purposes.
+    Usage: ExampleClient.__class__.getSimpleName() [-l] METHOD URI [PAYLOAD]
+    METHOD  : {GET, POST, PUT, DELETE, DISCOVER, OBSERVE}
+    URI     : The CoAP URI of the remote endpoint or resource
+    PAYLOAD : The data to send with the request
+    Options:
+    -l      : Loop for multiple responses
+    (automatic for OBSERVE and separate responses)
+    Examples:
+    ExampleClient DISCOVER coap://localhost
+    ExampleClient POST coap://vs0.inf.ethz.ch:5683/storage my data
+    """
     #  resource URI path used for discovery
     DISCOVERY_RESOURCE = "/.well-known/core"
 
@@ -55,10 +44,8 @@ class ExampleClient(object):
         loop = False
         #  display help if no parameters specified
         if len(args):
-            self.printInfo()
+            print(__doc__)
             return
-        Log.setLevel(Level.ALL)
-        Log.init()
         #  input parameters
         idx = 0
         for arg in args:
@@ -66,7 +53,7 @@ class ExampleClient(object):
                 if arg == "-l":
                     loop = True
                 else:
-                    print "Unrecognized option: " + arg
+                    logging.info("Unrecognized option: " + arg)
             else:
                 if idx == cls.IDX_METHOD:
                     method = arg.toUpperCase()
@@ -74,25 +61,25 @@ class ExampleClient(object):
                     try:
                         uri = URI(arg)
                     except URISyntaxException as e:
-                        System.err.println("Failed to parse URI: " + e.getMessage())
-                        System.exit(cls.ERR_BAD_URI)
+                        logging.critical("Failed to parse URI: " + e.getMessage())
+                        sys.exit(cls.ERR_BAD_URI)
                 elif idx == cls.IDX_PAYLOAD:
                     payload = arg
                 else:
-                    print "Unexpected argument: " + arg
+                    logging.info("Unexpected argument: " + arg)
                 idx += 1
         #  check if mandatory parameters specified
         if method == None:
-            System.err.println("Method not specified")
-            System.exit(cls.ERR_MISSING_METHOD)
+            logging.critical("Method not specified")
+            sys.exit(cls.ERR_MISSING_METHOD)
         if uri == None:
-            System.err.println("URI not specified")
-            System.exit(cls.ERR_MISSING_URI)
+            logging.critical("URI not specified")
+            sys.exit(cls.ERR_MISSING_URI)
         #  create request according to specified method
         request = newRequest(method)
         if request == None:
-            System.err.println("Unknown method: " + method)
-            System.exit(cls.ERR_UNKNOWN_METHOD)
+            logging.critical("Unknown method: " + method)
+            sys.exit(cls.ERR_UNKNOWN_METHOD)
         if method == "OBSERVE":
             request.setOption(Option(0, OptionNumberRegistry.OBSERVE))
             loop = True
@@ -102,27 +89,27 @@ class ExampleClient(object):
             try:
                 uri = URI(uri.getScheme(), uri.getAuthority(), cls.DISCOVERY_RESOURCE, uri.getQuery())
             except URISyntaxException as e:
-                System.err.println("Failed to parse URI: " + e.getMessage())
-                System.exit(cls.ERR_BAD_URI)
-        request.setURI(uri)
-        request.setPayload(payload)
+                logging.critical("Failed to parse URI: " + e.getMessage())
+                sys.exit(cls.ERR_BAD_URI)
+        request.uri = uri
+        request.payload = payload
         request.setToken(TokenManager.getInstance().acquireToken())
         #  enable response queue in order to use blocking I/O
         request.enableResponseQueue(True)
-        # 
-        request.prettyPrint()
+
+        str(request)
         #  execute request
         try:
             request.execute()
             #  loop for receiving multiple responses
             while True:
                 #  receive response
-                print "Receiving response..."
+                logging.info("Receiving response...")
                 try:
                     response = request.receiveResponse()
                 except InterruptedException as e:
-                    System.err.println("Failed to receive response: " + e.getMessage())
-                    System.exit(cls.ERR_RESPONSE_FAILED)
+                    logging.critical("Failed to receive response: " + e.getMessage())
+                    sys.exit(cls.ERR_RESPONSE_FAILED)
                 #  output response
                 if response != None:
                     response.prettyPrint()
@@ -130,61 +117,37 @@ class ExampleClient(object):
                     #  check of response contains resources
                     if response.getContentType() == MediaTypeRegistry.APPLICATION_LINK_FORMAT:
                         #  create resource three from link format
-                        if root != None:
+                        if root:
                             #  output discovered resources
                             print "\nDiscovered resources:"
                             root.prettyPrint()
                         else:
-                            System.err.println("Failed to parse link format")
-                            System.exit(cls.ERR_BAD_LINK_FORMAT)
+                            logging.critical("Failed to parse link format")
+                            sys.exit(cls.ERR_BAD_LINK_FORMAT)
                     else:
                         #  check if link format was expected by client
                         if method == "DISCOVER":
                             print "Server error: Link format not specified"
                 else:
                     #  no response received	
-                    System.err.println("Request timed out")
+                    logging.critical("Request timed out")
                     break
                 if not ((loop)):
                     break
         except UnknownHostException as e:
-            System.err.println("Unknown host: " + e.getMessage())
-            System.exit(cls.ERR_REQUEST_FAILED)
+            logging.critical("Unknown host: " + e.getMessage())
+            sys.exit(cls.ERR_REQUEST_FAILED)
         except IOException as e:
-            System.err.println("Failed to execute request: " + e.getMessage())
-            System.exit(cls.ERR_REQUEST_FAILED)
-        #  finish
-        print 
+            logging.critical("Failed to execute request: " + e.getMessage())
+            sys.exit(cls.ERR_REQUEST_FAILED)
 
-    # 
-    # 	 * Outputs user guide of this program.
-    # 	 
-    @classmethod
-    def printInfo(cls):
-        """ generated source for method printInfo """
-        print "Californium (Cf) Example Client"
-        print "(c) 2012, Institute for Pervasive Computing, ETH Zurich"
-        print 
-        print "Usage: " + ExampleClient.__class__.getSimpleName() + " [-l] METHOD URI [PAYLOAD]"
-        print "  METHOD  : {GET, POST, PUT, DELETE, DISCOVER, OBSERVE}"
-        print "  URI     : The CoAP URI of the remote endpoint or resource"
-        print "  PAYLOAD : The data to send with the request"
-        print "Options:"
-        print "  -l      : Loop for multiple responses"
-        print "           (automatic for OBSERVE and separate responses)"
-        print 
-        print "Examples:"
-        print "  ExampleClient DISCOVER coap://localhost"
-        print "  ExampleClient POST coap://vs0.inf.ethz.ch:5683/storage my data"
 
-    # 
-    # 	 * Instantiates a new request based on a string describing a method.
-    # 	 * 
-    # 	 * @return A new request object, or null if method not recognized
-    # 	 
     @classmethod
     def newRequest(cls, method):
-        """ generated source for method newRequest """
+        """
+        Instantiates a new request based on a string describing a method.
+        @return A new request object, or null if method not recognized
+        """
         if method == "GET":
             return GETRequest()
         elif method == "POST":
@@ -202,6 +165,4 @@ class ExampleClient(object):
 
 
 if __name__ == '__main__':
-    import sys
     ExampleClient.main(sys.argv)
-

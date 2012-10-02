@@ -17,7 +17,7 @@ class MatchingLayer(UpperLayer):
     #  Members ////////////////////////////////////////////////////////////////
     pairs = dict()
 
-    class RequestResponsePair(object):
+    class RequestResponsePair:
         """ Entity class to keep state of transfers """
         key = str()
         request = Request()
@@ -26,23 +26,20 @@ class MatchingLayer(UpperLayer):
         """ generated source for method __init__ """
         super(MatchingLayer, self).__init__()
 
-    #  I/O implementation /////////////////////////////////////////////////////
     def doSendMessage(self, msg):
-        """ generated source for method doSendMessage """
         if isinstance(msg, (Request,)):
             self.addOpenRequest(msg)
         self.sendMessageOverLowerLayer(msg)
 
     def doReceiveMessage(self, msg):
-        """ generated source for method doReceiveMessage """
         if isinstance(msg, (Response,)):
             #  check for missing token
-            if self.pair == None and len(self.length):
+            if not self.pair and len(self.length):
                 logging.info("Remote endpoint failed to echo token: {:s}".format(msg.key()))
                 #  TODO try to recover from peerAddress
                 #  let timeout handle the problem
                 return
-            if self.pair != None:
+            if self.pair:
                 #  attach request and response to each other
                 self.response.setRequest(self.pair.request)
                 self.pair.request.setResponse(self.response)
@@ -76,14 +73,8 @@ class MatchingLayer(UpperLayer):
         logging.info("Cleared open request: {:s}".format(exchange.key))
 
     def getStats(self):
-        """ generated source for method getStats """
-        stats = str()
-        stats.append("Open requests: ")
-        stats.append(len(self.pairs))
-        stats.append('\n')
-        stats.append("Messages sent:     ")
-        stats.append(self.numMessagesSent)
-        stats.append('\n')
-        stats.append("Messages received: ")
-        stats.append(self.numMessagesReceived)
-        return stats.__str__()
+        stats = dict()
+        stats["Open requests"] = self.pairs
+        stats["Messages sent"] = self.numMessagesSent
+        stats["Messages received"] = self.numMessagesReceived
+        return str(stats)

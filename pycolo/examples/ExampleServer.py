@@ -50,14 +50,12 @@ class ExampleServer(LocalEndpoint):
     #  Application entry point /////////////////////////////////////////////////
     @classmethod
     def main(cls, args):
-        """ generated source for method main """
-        Log.init()
         #  create server
         try:
             logging.info("ExampleServer listening on port %d.\n", server.port())
         except SocketException as e:
-            System.err.printf("Failed to create SampleServer: %s\n", e.getMessage())
-            System.exit(cls.ERR_INIT_FAILED)
+            logging.critical("Failed to create SampleServer: %s\n", e.getMessage())
+            sys.exit(cls.ERR_INIT_FAILED)
 
 ExampleServer.# 	 * Constructor for a new ExampleServer. Call {@code super(...)} to configure
 

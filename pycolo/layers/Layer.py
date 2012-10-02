@@ -1,7 +1,5 @@
 # coding=utf-8
-import java.util.ArrayList
 
-from pycolo.coap import Message
 from pycolo.coap import MessageReceiver
 
 
@@ -11,54 +9,43 @@ class Layer(MessageReceiver):
     a layered communications stack.
     """
     receivers = list()
-    numMessagesSent = int()
-    numMessagesReceived = int()
+    numMessagesSent = 0
+    numMessagesReceived = 0
 
     def sendMessage(self, msg):
         """ generated source for method sendMessage """
-        if msg != None:
+        if msg:
             self.doSendMessage(msg)
             self.numMessagesSent += 1
 
     def receiveMessage(self, msg):
         """ generated source for method receiveMessage """
-        if msg != None:
+        if msg:
             self.numMessagesReceived += 1
             self.doReceiveMessage(msg)
 
     def doSendMessage(self, msg):
-        """ generated source for method doSendMessage """
+        pass
 
     def doReceiveMessage(self, msg):
-        """ generated source for method doReceiveMessage """
+        pass
 
     def deliverMessage(self, msg):
-        """ generated source for method deliverMessage """
         #  pass message to registered receivers
-        if self.receivers != None:
+        if self.receivers:
             for receiver in self.receivers:
                 receiver.receiveMessage(msg)
 
     def registerReceiver(self, receiver):
-        """ generated source for method registerReceiver """
         #  check for valid receiver
-        if receiver != None and receiver != self:
+        if receiver and receiver != self:
             #  lazy creation of receiver list
-            if self.receivers == None:
-                self.receivers = ArrayList()
+            if not self.receivers:
+                self.receivers = []
             #  add receiver to list
             self.receivers.add(receiver)
 
     def unregisterReceiver(self, receiver):
-        """ generated source for method unregisterReceiver """
         #  remove receiver from list
-        if self.receivers != None:
+        if self.receivers:
             self.receivers.remove(receiver)
-
-    def getNumMessagesSent(self):
-        """ generated source for method getNumMessagesSent """
-        return self.numMessagesSent
-
-    def getNumMessagesReceived(self):
-        """ generated source for method getNumMessagesReceived """
-        return self.numMessagesReceived

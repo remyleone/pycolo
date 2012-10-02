@@ -8,26 +8,21 @@ import java.util.Arrays
 import thread
 
 from pycolo.coap import EndpointAddress
-from pycolo.coap import Message
-from pycolo.coap import Properties
 from pycolo.layers import Layer
 from pycolo.utils import Datagram
 
-#  * The class UDPLayer exchanges CoAP messages with remote endpoints using UDP
-#  * datagrams. It is an unreliable channel and thus datagrams may arrive out of
-#  * order, appear duplicated, or are lost without any notice, especially on lossy
-#  * physical layers.
-#  * <p>
-#  * The UDPLayer is the base layer of the stack, sub-calssing {@link Layer}. Any
-#  * {@link UpperLayer} can be stacked on top, using a {@link ch.ethz.inf.vs.californium.coap.Communicator} as
-#  * stack builder.
-#  * 
-#  * @author Dominique Im Obersteg, Daniel Pauli, and Matthias Kovatsch
-
 
 class UDPLayer(Layer):
-    """ generated source for class UDPLayer """
-    #  Members ////////////////////////////////////////////////////////////////
+    """
+    The class UDPLayer exchanges CoAP messages with remote endpoints using UDP
+    datagrams. It is an unreliable channel and thus datagrams may arrive out of
+    order, appear duplicated, or are lost without any notice, especially on
+    lossy physical layers.
+
+    The UDPLayer is the base layer of the stack, sub-calssing {@link Layer}.
+    Any {@link UpperLayer} can be stacked on top, using a Communicator as
+    stack builder.
+    """
     #  The UDP socket used to send and receive datagrams
     #  TODO Use MulticastSocket
     socket = DatagramSocket()
@@ -54,21 +49,17 @@ class UDPLayer(Layer):
                     self.socket.receive(datagram)
                 except IOException as e:
                     logging.critical("Could not receive datagram: " + e.getMessage())
-                    e.printStackTrace()
                     continue
                 #  TODO: Dispatch to worker thread
                 self.datagramReceived(self.datagram)
 
-    #  Constructors ////////////////////////////////////////////////////////////////
-    # 
-    # 	 * Constructor for a new UDP layer
-    # 	 * 
-    # 	 * @param port The local UDP port to listen for incoming messages
-    # 	 * @param daemon True if receiver thread should terminate with main thread
-    #
     @overloaded
     def __init__(self, port, daemon):
-        """ generated source for method __init__ """
+        """
+        Constructor for a new UDP layer
+        @param port The local UDP port to listen for incoming messages
+        @param daemon True if receiver thread should terminate with main thread
+        """
         super(UDPLayer, self).__init__()
         #  initialize members
         self.socket = DatagramSocket(port)
@@ -78,32 +69,23 @@ class UDPLayer(Layer):
         #  start listening right from the beginning
         self.receiverThread.start()
 
-    # 
-    # 	 * Constructor for a new UDP layer
-    # 	 
-    @__init__.register(object)
     def __init___0(self):
-        """ generated source for method __init___0 """
+        """ Constructor for a new UDP layer """
         super(UDPLayer, self).__init__()
         self.__init__(0, True)
         #  use any available port on the local host machine
 
-    #  Commands ///////////////////////////////////////////////////////////////
-    #
-    # 	 * Decides if the listener thread persists after the main thread terminates
-    # 	 *
-    # 	 * @param on True if the listener thread should stay alive after the main
-    # 	 * thread terminates. This is useful for e.g. server applications
-    # 	 
     def setDaemon(self, on):
-        """ generated source for method setDaemon """
+        """
+        Decides if the listener thread persists after the main thread
+        terminates
+        @param on True if the listener thread should stay alive after the main
+        thread terminates. This is useful for e.g. server applications
+        """
         self.receiverThread.setDaemon(on)
 
-    #  I/O implementation /////////////////////////////////////////////////////
     def doSendMessage(self, msg):
-        """ generated source for method doSendMessage """
-        #  retrieve payload
-        payload = msg.toByteArray()
+        payload = msg.toByteArray()  # retrieve payload
         #  create datagram
         datagram = DatagramPacket(payload, msg.getPeerAddress().getAddress(), msg.getPeerAddress().getPort(),)
         #  remember when this message was sent for the first time
@@ -179,13 +161,8 @@ class UDPLayer(Layer):
 
     def getStats(self):
         """ generated source for method getStats """
-        stats = str()
-        stats.append("UDP port: ")
-        stats.append(self.getPort())
-        stats.append('\n')
-        stats.append("Messages sent:     ")
-        stats.append(self.numMessagesSent)
-        stats.append('\n')
-        stats.append("Messages received: ")
-        stats.append(self.numMessagesReceived)
-        return stats.__str__()
+        stats = dict()
+        stats["UDP port"] = self.port
+        stats["Messages sent"] = self.numMessagesSent
+        stats["Messages received"] = self.numMessagesReceived
+        return str(stats)
