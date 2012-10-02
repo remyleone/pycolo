@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 #
 # pycolo documentation build configuration file, created by
 # sphinx-quickstart on Thu Sep  6 20:36:11 2012.
@@ -181,7 +181,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual])
 latex_documents = [
   ('index', 'pycolo.tex', 'pycolo Documentation',
-   'Rémy Léone', 'manual'),
+   'Remy Leone', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -243,9 +243,9 @@ texinfo_documents = [
 
 # Bibliographic Dublin Core info.
 epub_title = 'pycolo'
-epub_author = 'Rémy Léone'
-epub_publisher = 'Rémy Léone'
-epub_copyright = '2012, Rémy Léone'
+epub_author = 'Remy Leone'
+epub_publisher = 'Remy Leone'
+epub_copyright = '2012, Remy Leone'
 
 # The language of the text. It defaults to the language option
 # or en if the language is not set.
