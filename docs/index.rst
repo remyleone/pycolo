@@ -30,6 +30,30 @@ HTTP. They often come with their own thread pools which can make your own
 worker thread design quite ugly… Plan from the beginning where to dispatch,
 etc.
 
+API Documentation
+-----------------
+
+If you are looking for information on a specific function, class or method,
+this part of the documentation is for you.
+
+.. toctree::
+   :maxdepth: 2
+
+   api
+
+Developer Guide
+---------------
+
+If you want to contribute to the project, this part of the documentation is for
+you.
+
+.. toctree::
+   :maxdepth: 1
+
+   dev/internals
+   dev/todo
+   dev/authors
+
 Indices and tables
 ==================
 
