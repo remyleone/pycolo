@@ -1,9 +1,8 @@
 # coding=utf-8
 
 import logging
+from pycolo import LinkFormat, LinkAttribute
 
-from pycolo.coap import LinkAttribute
-from pycolo.coap.LinkFormat import LinkFormat
 from pycolo.coap import RequestHandler
 
 
