@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-from .pycolo.structures import LookupDict
+from .structures import LookupDict
 
 _codes = {
     #  Constants
@@ -47,7 +47,7 @@ _codes = {
     165: ("RESP_PROXYING_NOT_SUPPORTED", "5.05 Proxying Not Supported"),
 
     #  from draft-IETF-core-block
-    136: ("RESP_REQUEST_ENTITY_INCOMPLETE"),
+    136: ("RESP_REQUEST_ENTITY_INCOMPLETE", "incomplete"),
 }
 
 _mediaCode = {
@@ -93,18 +93,18 @@ _options = {
     11: ("TOKEN", "Token", "token"),
     12: ("ACCEPT", "Accept", "accept"),
     13: ("IF_MATCH", "If-Match"),
-    14: ("FENCEPOST_DIVISOR"),
+    14: ("FENCEPOST_DIVISOR", "fenceport_divisor", "divisor"),
     15: ("URI_QUERY", "Uri-Query"),
     17: ("BLOCK2", "Block2"),
 
     #  draft-IETF-core-block
     19: ("BLOCK1", "Block1"),
     21: ("IF_NONE_MATCH", "If-None-Match"),
-    8: ("TOKEN_LEN")
+    8: ("TOKEN_LEN", "token_len", "tokenLen")  # TODO: Repetition?
 
 }
 
-def isCritical(cls, optionNumber):
+def isCritical(optionNumber):
     """ generated source for method isCritical """
     return (optionNumber & 1) == 1
 
@@ -133,26 +133,26 @@ def isRequest(code):
     """
     return 1 <= code <= 31
 
-def isValid(cls, code_):
+def isValid(code):
     #return (code >= 0) && (code <= 31)) || ((code >= 64) && (code <= 191)
-    return 0 <= code_ <= 255
+    return 0 <= code <= 255
 
-def isResponse(cls, code_):
-    return 64 <= code_ <= 191
+def isResponse(code):
+    return 64 <= code <= 191
 
-def isElective(cls, optionNumber):
+def isElective(optionNumber):
     """ generated source for method isElective """
     return (optionNumber & 1) == 0
 
 
-def responseClass(cls, code_):
+def responseClass(code):
     """
     Returns the response class of a code
     TODO: Check
     :param code: the code to check
     :return: The response class of the code
     """
-    return (code_ >> 5) & 0x7
+    return (code >> 5) & 0x7
 
 
 def _init(d):
