@@ -55,9 +55,10 @@ class OptionTest(unittest.TestCase):
         self.assertTrue(optTwoBytes == optTwoBytesRef)
         self.assertFalse(optTwoBytes == optOneByte)
 
-    @classmethod
     def getHexString(cls, b):
-        """ generated source for method getHexString """
+        """ generated source for method getHexString
+        :param b:
+        """
         result = ""
         i = 0
         while len(b):

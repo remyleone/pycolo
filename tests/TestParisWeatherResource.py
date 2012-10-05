@@ -52,7 +52,9 @@ class ParisWeatherResource(Resource):
         self.weatherXML = rawWeather
 
     def performGET(self, request):
-        """ generated source for method performGET """
+        """ generated source for method performGET
+        :param request:
+        """
         ct = MediaTypeRegistry.TEXT_PLAIN
         if (ct=MediaTypeRegistry.contentNegotiation(ct, self.supported, request.getOptions(OptionNumberRegistry.ACCEPT))) == MediaTypeRegistry.UNDEFINED:
             request.respond(codes.RESP_NOT_ACCEPTABLE, "Supports text/plain and application/xml")

@@ -23,7 +23,6 @@ class ExampleServer(LocalEndpoint):
         the port, etc. according to the {@link LocalEndpoint} constructors.
         Add all initial {@link LocalResource}s here.
         """
-        super(ExampleServer, self).__init__()
         #  add resources to the server
         self.addResource(HelloWorldResource())
         self.addResource(ToUpperResource())
@@ -36,16 +35,23 @@ class ExampleServer(LocalEndpoint):
         self.addResource(CarelessResource())
 
     def handleRequest(self, request):
-        """ generated source for method handleRequest """
+        """ generated source for method handleRequest
+        :param request:
+        """
         #  Add additional handling like special logging here.
         request.prettyPrint()
         #  dispatch to requested resource
         super(ExampleServer, self).handleRequest(request)
 
     #  Application entry point /////////////////////////////////////////////////
-    @classmethod
+
     def main(cls, args):
         #  create server
+        """
+
+        :param cls:
+        :param args:
+        """
         try:
             logging.info("ExampleServer listening on port %d.\n", server.port())
         except SocketException as e:

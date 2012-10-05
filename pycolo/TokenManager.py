@@ -6,8 +6,8 @@ class TokenManager:
     The TokenManager stores all tokens currently used in transfers. New
     transfers can acquire unique tokens from the manager.
     """
-    // the empty token, used as default value
-    public static final byte[] emptyToken = new byte[0]
+    # the empty token, used as default value
+    emptyToken = 0
     
     private static TokenManager singleton = new TokenManager()
 

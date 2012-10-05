@@ -37,7 +37,9 @@ class ImageResource(Resource):
 
     #  REST Operations /////////////////////////////////////////////////////////
     def performGET(self, request):
-        """ generated source for method performGET """
+        """ generated source for method performGET
+        :param request:
+        """
         filename = "data/image/"
         ct = mediaTypeRegistry.IMAGE_PNG
         #  content negotiation

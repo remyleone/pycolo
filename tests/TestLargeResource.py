@@ -1,10 +1,7 @@
 # coding=utf-8
-from pycolo import codes, LocalResource
+from pycolo import codes
 
-from pycolo.coap import GETRequest
-
-
-class LargeResource(LocalResource):
+class LargeResource(Resource):
     """
     This class implements a resource that returns a larger amount of
     data on GET requests in order to test blockwise transfers.
@@ -17,6 +14,7 @@ class LargeResource(LocalResource):
 
     def performGET(self, request):
         """
+        :param request:
         TODO: Cleaning this text
         """
         builder = """

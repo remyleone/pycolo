@@ -111,6 +111,7 @@ class Message:
         self.code = code
         self.messageID = mid
         self.payload = payload
+        self.timestamp = timestamp
 
     def dump(self):
         """
@@ -200,7 +201,6 @@ class Message:
 
             # update last option number
             lastOptionNumber = opt.optionNumber
-        }
 
         # create datagram writer to encode message data
         DatagramWriter writer = new DatagramWriter()
@@ -281,7 +281,7 @@ class Message:
 
             else:
                 #Read option length
-                int length = datagram.read(OPTIONLENGTH_BASE_BITS)
+                length = datagram.read(OPTIONLENGTH_BASE_BITS)
 
                 if (length > MAX_OPTIONLENGTH_BASE):
                     #Read extended option length
@@ -720,20 +720,6 @@ class Message:
         """
         return getOptions().size()
 
-    def getTimestamp():
-        """
-        Returns the timestamp associated with this message.
-        @return The timestamp of the message, in milliseconds
-        """
-        return this.timestamp
-
-    def setTimestamp(timestamp):
-        """
-        Sets the timestamp associated with this message.
-        @param timestamp the new timestamp, in milliseconds
-        """
-        this.timestamp = timestamp
-
     def getRetransmissioned():
         return self.retransmissioned;
 
@@ -769,8 +755,8 @@ class Message:
     def isReset():
         return self.type == messageType.RST
 
-    def isReply():
-        return self.isAcknowledgement() || isReset()
+    def isReply(self):
+        return self.isAcknowledgement() or isReset()
 
     def isEmptyACK():
         return isAcknowledgement() && getCode() == CodeRegistry.EMPTY_MESSAGE
@@ -779,67 +765,32 @@ class Message:
         return getFirstOption(optionNumber) != null
 
     def requiresToken():
-        return requiresToken && this.getCode() != CodeRegistry.EMPTY_MESSAGE;
-
-    def requiresToken(value):
-        requiresToken = value
+        return requiresToken && this.getCode() != CodeRegistry.EMPTY_MESSAGE
 
     def requiresBlockwise(value):
         requiresBlockwise = value
 
-    @Override
+
     def __str__(self):
-        typeStr = "???"
-        if type:
-            switch (type) {
-            case CON     : typeStr = "CON"; break;
-            case NON : typeStr = "NON"; break;
-            case ACK : typeStr = "ACK"; break;
-            case RST           : typeStr = "RST"; break;
-            default              : typeStr = "???"; break;
-        }
-        payloadStr = payload != null ? new String(payload) : null;
-        return str.format("%s: [%s] %s '%s'(%d)",
-            key(), typeStr, CodeRegistry.toString(code),
-            payloadStr, payloadSize());
-
-
-    def typeString():
-        if type:
-            switch (type) {
-            case CON : return "CON";
-            case NON : return "NON";
-            case ACK : return "ACK";
-            case RST : return "RST";
-            default  : return "???";
-        }
-        return null
-
-    def __str__():
         String kind = "MESSAGE ";
         if (this instanceof Request) {
             kind = "REQUEST ";
         } else if (this instanceof Response) {
             kind = "RESPONSE";
         }
-        logging.info("==[ CoAP %s ]=================================\n", kind)
+        logging.info("==[ CoAP %s ]=================================", kind)
 
-        options = self.options
+        info = dict()
+        info["address"] = self.peerAddress
+        info["id"] = self.messageID
+        info["type"] = self.type
+        info["code"] = self.code
+        info["Options Size"] = self.options.size()
+        logging.info(str(info))
+        for opt in self.options:
+            logging.info("%s: %s (%d Bytes)", opt.name, str(opt), len(opt))
 
-        logging.info("Address: %s\n", peerAddress.toString());
-        logging.info("MID    : %d\n", messageID);
-        logging.info("Type   : %s\n", typeString());
-        logging.info("Code   : %s\n", CodeRegistry.toString(code));
-        logging.info("Options: %d\n", options.size());
-        for opt in options:
-            logging.info("  * %s: %s (%d Bytes)\n",
-                opt.name, str(opt), len(opt)
-            )
-
-        logging.info("Payload: %d Bytes\n", payloadSize());
-        if payloadSize() > 0 && MediaTypeRegistry.isPrintable(getContentType()):
-             logging.info("--------------------------------------------------")
-              logging.info(getPayloadString());
+        logging.info("Payload: %d Bytes", self.payloadSize)
+        if payload and isPrintable(self.contentType):
+              logging.info(getPayloadString())
         logging.info("=======================================================")
-    }
-}

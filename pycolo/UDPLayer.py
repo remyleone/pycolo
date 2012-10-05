@@ -52,7 +52,6 @@ class UDPLayer(Layer):
                 #  TODO: Dispatch to worker thread
                 self.datagramReceived(self.datagram)
 
-    @overloaded
     def __init__(self, port, daemon):
         """
         Constructor for a new UDP layer

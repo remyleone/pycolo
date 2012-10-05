@@ -1,10 +1,10 @@
 # coding=utf-8
-from pycolo import LinkFormat, Response, codes, LocalResource
-from pycolo.coap import mediaTypeRegistry
-from pycolo.coap.OptionNumberRegistry import OptionNumberRegistry
+from pycolo import link, Response, codes
+from pycolo.Resource import Resource
+from pycolo.codes import mediaCodes
+from pycolo.codes import options
 
-
-class DiscoveryResource(LocalResource):
+class DiscoveryResource(Resource):
     """ This class implements the CoAP /.well-known/core resource. """
     #  The default resource identifier for resource discovery. 
     DEFAULT_IDENTIFIER = ".well-known/core"
@@ -16,7 +16,7 @@ class DiscoveryResource(LocalResource):
         """ generated source for method __init__ """
         super(DiscoveryResource, self).__init__(True)
         #  hidden
-        setContentTypeCode(MediaTypeRegistry.APPLICATION_LINK_FORMAT)
+        self.contentType(mediaCodes.APPLICATION_LINK_FORMAT)
         self.root = rootResource
 
     def performGET(self, request):
@@ -24,8 +24,8 @@ class DiscoveryResource(LocalResource):
         #  create response
         response = Response(codes.RESP_CONTENT)
         #  get filter query
-        query = request.getOptions(OptionNumberRegistry.URI_QUERY)
+        query = request.getOptions(options.URI_QUERY)
         #  return resources in link-format
-        response.setPayload(LinkFormat.serialize(self.root, query, True), MediaTypeRegistry.APPLICATION_LINK_FORMAT)
+        response.setPayload(link.serialize(self.root, query, True), mediaCodes.APPLICATION_LINK_FORMAT)
         #  complete the request
         request.respond(response)

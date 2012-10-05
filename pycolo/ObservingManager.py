@@ -38,7 +38,6 @@ class ObservingManager:
     checkInterval = OBSERVING_REFRESH_INTERVAL
     intervalByResource = dict()
 
-    @classmethod
     def getInstance(cls):
         """ generated source for method getInstance """
         return cls.singleton
@@ -86,7 +85,7 @@ class ObservingManager:
         self.updateLastMID(request.getPeerAddress().__str__(), request.getUriPath(), request.getResponse().getMID())
 
 
-    # 	public synchronized void addObserver(GETRequest request, LocalResource resource) {
+    # 	public synchronized void addObserver(GETRequest request, resource) {
     # 		ObservingRelationship toAdd = new ObservingRelationship(request);
     #  get clients map for the given resource path
     # 		Map<String, ObservingRelationship> resourceObservers = observersByResource.get(resource.getPath());
@@ -120,7 +119,7 @@ class ObservingManager:
     # 			LOG.info(String.format("Terminated all observing relationships for client: %s", clientID));
     # 		}
     # 	}
-    @overloaded
+
     def removeObserver(self, clientID, resource):
         """
         Remove an observer by missing Observe option in GET.

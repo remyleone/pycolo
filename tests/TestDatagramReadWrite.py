@@ -1,6 +1,5 @@
 # coding=utf-8
-#import java.nio.ByteBuffer
-#import java.nio.ByteOrder
+
 import unittest
 
 
@@ -10,6 +9,9 @@ class DatagramReadWriteTest(unittest.TestCase):
     classes for consistency and correct data format.
     """
     def test32BitInt(self):
+        """
+
+        """
         intIn = 0x87654321
         writer.write(intIn, 32)
         reader = DatagramReader(writer.toByteArray())

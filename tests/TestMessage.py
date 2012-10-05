@@ -23,6 +23,9 @@ class MessageTest(unittest.TestCase):
         self.assertArrayEquals(msg.payload, convMsg.payload)
 
     def testOptionMessage(self):
+        """
+
+        """
         msg = Message()
         msg.code = codes.get
         msg.type = "CON"

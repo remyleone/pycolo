@@ -34,9 +34,10 @@ class ExampleClient:
     ERR_RESPONSE_FAILED = 6
     ERR_BAD_LINK_FORMAT = 7
 
-    @classmethod
     def main(cls, args):
-        """ Main method of this client. """
+        """ Main method of this client.
+        :param args:
+        """
         #  initialize parameters
         method = None
         uri = None
@@ -69,22 +70,22 @@ class ExampleClient:
                     logging.info("Unexpected argument: " + arg)
                 idx += 1
         #  check if mandatory parameters specified
-        if method == None:
+        if method is None:
             logging.critical("Method not specified")
             sys.exit(cls.ERR_MISSING_METHOD)
-        if uri == None:
+        if uri is None:
             logging.critical("URI not specified")
             sys.exit(cls.ERR_MISSING_URI)
         #  create request according to specified method
         request = newRequest(method)
-        if request == None:
+        if request is None:
             logging.critical("Unknown method: " + method)
             sys.exit(cls.ERR_UNKNOWN_METHOD)
         if method == "OBSERVE":
             request.setOption(Option(0, OptionNumberRegistry.OBSERVE))
             loop = True
         #  set request URI
-        if method == "DISCOVER" and (uri.getPath() == None or uri.getPath().isEmpty() or uri.getPath() == "/"):
+        if method == "DISCOVER" and (uri.getPath() is None or uri.getPath().isEmpty() or uri.getPath() == "/"):
             #  add discovery resource path to URI
             try:
                 uri = URI(uri.getScheme(), uri.getAuthority(), cls.DISCOVERY_RESOURCE, uri.getQuery())
@@ -111,15 +112,15 @@ class ExampleClient:
                     logging.critical("Failed to receive response: " + e.getMessage())
                     sys.exit(cls.ERR_RESPONSE_FAILED)
                 #  output response
-                if response != None:
+                if response is not None:
                     response.prettyPrint()
-                    print "Time elapsed (ms): " + response.getRTT()
+                    print("Time elapsed (ms): " + response.getRTT())
                     #  check of response contains resources
                     if response.getContentType() == MediaTypeRegistry.APPLICATION_LINK_FORMAT:
                         #  create resource three from link format
                         if root:
                             #  output discovered resources
-                            print "\nDiscovered resources:"
+                            print("\nDiscovered resources:")
                             root.prettyPrint()
                         else:
                             logging.critical("Failed to parse link format")
@@ -127,7 +128,7 @@ class ExampleClient:
                     else:
                         #  check if link format was expected by client
                         if method == "DISCOVER":
-                            print "Server error: Link format not specified"
+                            print("Server error: Link format not specified")
                 else:
                     #  no response received	
                     logging.critical("Request timed out")
@@ -140,28 +141,6 @@ class ExampleClient:
         except IOException as e:
             logging.critical("Failed to execute request: " + e.getMessage())
             sys.exit(cls.ERR_REQUEST_FAILED)
-
-
-    @classmethod
-    def newRequest(cls, method):
-        """
-        Instantiates a new request based on a string describing a method.
-        @return A new request object, or null if method not recognized
-        """
-        if method == "GET":
-            return GETRequest()
-        elif method == "POST":
-            return POSTRequest()
-        elif method == "PUT":
-            return PUTRequest()
-        elif method == "DELETE":
-            return DELETERequest()
-        elif method == "DISCOVER":
-            return GETRequest()
-        elif method == "OBSERVE":
-            return GETRequest()
-        else:
-            return None
 
 
 if __name__ == '__main__':

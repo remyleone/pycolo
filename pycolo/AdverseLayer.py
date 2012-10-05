@@ -10,7 +10,7 @@ class AdverseLayer(UpperLayer):
     with a given probability in order to test retransmissions between
     MessageLayer and UDPLayer etc.
     """
-    @overloaded
+
     def __init__(self, txPacketLossProbability, rxPacketLossProbability):
         """ generated source for method __init__ """
         super(AdverseLayer, self).__init__()

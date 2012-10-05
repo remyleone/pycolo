@@ -3,6 +3,7 @@
 import logging
 import socket
 import unittest
+import sys
 from pycolo import LocalEndpoint
 
 
@@ -27,18 +28,19 @@ class PlugtestServer(LocalEndpoint):
         self.addResource(LargeCreate())
         self.addResource(Observe())
 
-    #  Logging /////////////////////////////////////////////////////////////////
     def handleRequest(self, request):
-        """ generated source for method handleRequest """
+        """ generated source for method handleRequest
+        :param request:
+        """
         #  Add additional handling like special logging here.
         request.prettyPrint()
         #  dispatch to requested resource
         super(PlugtestServer, self).handleRequest(request)
 
-    #  Application entry point /////////////////////////////////////////////////
-    @classmethod
     def main(cls, args):
-        """ generated source for method main """
+        """ generated source for method main
+        :param args:
+        """
         #  create server
         try:
             logging.info(PlugtestServer.__class__.getSimpleName() + " listening on port %d.\n", server.port())

@@ -1,7 +1,7 @@
 # coding=utf-8
 
 import logging
-from pycolo import Request, Message, Response, codes, BlockOption
+from pycolo import request, Message, Response, codes, BlockOption
 
 from pycolo.coap.OptionNumberRegistry import OptionNumberRegistry
 
@@ -26,7 +26,7 @@ class TransferLayer(UpperLayer):
         #  TODO: timer
         def __init__(self, msg):
             """ generated source for method __init__ """
-            if isinstance(msg, (Request,)):
+            if isinstance(msg, (request,)):
                 self.cache = msg
                 self.uriPath = msg.getUriPath()
                 self.current = msg.getFirstOption(OptionNumberRegistry.BLOCK1)
@@ -42,7 +42,6 @@ class TransferLayer(UpperLayer):
     outgoing = dict()
     defaultSZX = int()
 
-    @overloaded
     def __init__(self, defaultBlockSize):
         """ generated source for method __init__ """
         super(TransferLayer, self).__init__()
@@ -90,7 +89,7 @@ class TransferLayer(UpperLayer):
         """ generated source for method doReceiveMessage """
         blockIn = None
         blockOut = None
-        if isinstance(msg, (Request,)):
+        if isinstance(msg, (request,)):
             blockIn = msg.getFirstOption(OptionNumberRegistry.BLOCK1)
             blockOut = msg.getFirstOption(OptionNumberRegistry.BLOCK2)
         elif isinstance(msg, (Response,)):
@@ -111,11 +110,11 @@ class TransferLayer(UpperLayer):
         elif blockOut != None:
             logging.info("Received demand for next block: {:s} | {:s}".format(msg.sequenceKey(), blockOut))
             if self.transfer:
-                if isinstance(msg, (Request,)) and not msg.getUriPath() == transfer.uriPath:
+                if isinstance(msg, (request,)) and not msg.getUriPath() == transfer.uriPath:
                     self.outgoing.remove(msg.sequenceKey())
                     logging.info("Freed blockwise transfer by client token reuse: {:s}".format(msg.sequenceKey()))
                 else:
-                    if isinstance(msg, (Request,)):
+                    if isinstance(msg, (request,)):
                         self.transfer.cache.setMID(msg.getMID())
                     if next != None:
                         try:
@@ -123,7 +122,7 @@ class TransferLayer(UpperLayer):
                             self.sendMessageOverLowerLayer(next)
                         except IOException as e:
                             logging.critical("Failed to send block response: {:s}".format(e.getMessage()))
-                        if not self.respBlock.getM() and isinstance(msg, (Request,)):
+                        if not self.respBlock.getM() and isinstance(msg, (request,)):
                             self.outgoing.remove(msg.sequenceKey())
                             logging.info("Freed blockwise download by completion: {:s}".format(next.sequenceKey()))
                         return
@@ -174,10 +173,10 @@ class TransferLayer(UpperLayer):
                 demandNUM = self.demandSZX / self.defaultSZX * self.demandNUM
                 demandSZX = self.defaultSZX
             if isinstance(msg, (Response,)):
-                reply = Request(codes.METHOD_GET, not msg.isNonConfirmable())
+                reply = request(codes.METHOD_GET, not msg.isNonConfirmable())
                 reply.setURI("coap://" + msg.getPeerAddress().__str__() + transfer.uriPath)
                 demandNUM += 1
-            elif isinstance(msg, (Request,)):
+            elif isinstance(msg, (request,)):
                 reply = Response(codes.RESP_VALID)
                 reply.setType(self.messageType.ACK if msg.isConfirmable() else self.messageType.NON)
                 reply.setPeerAddress(msg.getPeerAddress())
@@ -218,15 +217,14 @@ class TransferLayer(UpperLayer):
         except IOException as e:
             logging.critical("Failed to send error message: {:s}".format(e.getMessage()))
 
-    @classmethod
     def getBlock(cls, msg, num, szx):
         """ generated source for method getBlock """
         blockSize = 1 << (szx + 4)
         payloadOffset = num * blockSize
         payloadLeft = msg.payloadSize() - payloadOffset
         if payloadLeft > 0:
-            if isinstance(msg, (Request,)):
-                block = Request(msg.getCode(), msg.isConfirmable())
+            if isinstance(msg, (request,)):
+                block = request(msg.getCode(), msg.isConfirmable())
             else:
                 block = Response(msg.getCode())
                 if num == 0 and msg.getType() == Message.messageType.CON:
@@ -241,7 +239,7 @@ class TransferLayer(UpperLayer):
                 blockSize = payloadLeft
             System.arraycopy(msg.getPayload(), payloadOffset, blockPayload, 0, blockSize)
             block.setPayload(blockPayload)
-            if isinstance(msg, (Request,)):
+            if isinstance(msg, (request,)):
                 blockOpt = BlockOption(OptionNumberRegistry.BLOCK1, num, szx, m)
             else:
                 blockOpt = BlockOption(OptionNumberRegistry.BLOCK2, num, szx, m)
@@ -251,22 +249,10 @@ class TransferLayer(UpperLayer):
             return None
 
     def getStats(self):
-        """
-        TODO: JSON
-        """
-        stats = ""
-        stats.join("Default block size: ")
-        stats.join(BlockOption.decodeSZX(self.defaultSZX))
-        stats.join('\n')
-        stats.join("Outgoing cache size: ")
-        stats.join(len(self.outgoing))
-        stats.join('\n')
-        stats.join("Incoming cache size: ")
-        stats.join(len(self.incoming))
-        stats.join('\n')
-        stats.join("Messages sent:     ")
-        stats.join(numMessagesSent)
-        stats.join('\n')
-        stats.join("Messages received: ")
-        stats.join(numMessagesReceived)
-        return stats.__str__()
+        stats = {}
+        stats["Default block size"] = BlockOption.decodeSZX(self.defaultSZX)
+        stats["Outgoing cache size"] = len(self.outgoing)
+        stats["Incoming cache size"] = len(self.incoming)
+        stats["Messages sent"] = self.numMessagesSent
+        stats["Messages received"] = self.numMessagesReceived
+        return str(stats)

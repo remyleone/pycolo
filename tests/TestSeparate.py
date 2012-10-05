@@ -1,17 +1,16 @@
 # coding=utf-8
 
-from pycolo.codes import CodeRegistry
-from pycolo import Response, LocalResource
+from pycolo.codes import mediaCodes
+from pycolo import Response
 
 
-class Separate(LocalResource):
+class Separate(Resource):
     """
     This class implements a 'separate' resource for demonstration purposes.
     Defines a resource that returns a response in a separate CoAP Message
     """
     def __init__(self):
         """ generated source for method __init__ """
-        super(Separate, self).__init__("separate")
         self.title = "Resource which cannot be served immediately and which\
          cannot be acknowledged in a piggy-backed way"
 
@@ -39,6 +38,6 @@ class Separate(LocalResource):
             request.code, \
             CodeRegistry.(request.code), \
             request.getMID()))
-        response.setContentType(MediaTypeRegistry.TEXT_PLAIN)
+        response.setContentType(mediaCodes.text)
         #  complete the request
         request.respond(response)

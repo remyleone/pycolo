@@ -1,6 +1,8 @@
+import logging
 import random
-from pycolo import ObservingManager, Message, Response, UpperLayer
-
+from pycolo import ObservingManager, Message, Response, UpperLayer, MAX_RETRANSMIT, RESPONSE_TIMEOUT, RESPONSE_RANDOM_FACTOR
+from pycolo import MESSAGE_CACHE_SIZE
+from pycolo import Transaction
 
 class TransactionLayer(UpperLayer):
     """
@@ -26,305 +28,252 @@ class TransactionLayer(UpperLayer):
         self.currentMID %= 0x10000
         return self.currentMID
     
-    /** The timer daemon to schedule retransmissions. * / 
-    private Timer timer = new Timer(true); // run as daemon
+    # The timer daemon to schedule retransmissions.
+    timer = Timer(true) # run as daemon
 
-    /** The Table to store the transactions of outgoing messages. * / 
-    private Map < String, Transaction > transactionTable = new HashMap < String, Transaction > ();
+    # The Table to store the transactions of outgoing messages.
+    transactionTable = {}
 
-    /** The cache for duplicate detection. * / 
-    private MessageCache dupCache = new MessageCache();
+    # The cache for duplicate detection.
+    dupCache = MessageCache()
 
-    // Cache used to retransmit replies to incoming messages
-    private MessageCache replyCache = new MessageCache();
+    # Cache used to retransmit replies to incoming messages
+    replyCache = MessageCache()
 
-// Nested Classes ////////////////////////////////////////////////////////////// 
 
     class Transaction:
     	"""
     	Entity class to keep state of retransmissions.
     	"""
-        Message
-        msg;
-        RetransmitTask retransmitTask;
-        int numRetransmit;
-        int timeout; // to satisfy RESPONSE_RANDOM_FACTOR
+        msg = Message()
+        retransmitTask = RestransmitTask()
+        numRetransmit = 0
+        timeout = 0 # to satisfy RESPONSE_RANDOM_FACTOR
 
-    /** 
-     * The MessageCache is a utility class used for duplicate detection and
-     * reply retransmissions. It is a ring buffer whose size is configured
-     * through the Californium properties file. 
-     * / 
-    @SuppressWarnings("serial")
-    private static class MessageCache extends LinkedHashMap < String, Message > {
+    class MessageCache:
+        """
+        The MessageCache is a utility class used for duplicate detection and
+        reply retransmissions. It is a ring buffer whose size is configured
+        through the Californium properties file.
+        """
 
-        @Override
-        protected boolean removeEldestEntry(Map.Entry < String, Message > eldest) {
-            return size() > Properties.std.getInt("MESSAGE_CACHE_SIZE");
-        }
+        def removeEldestEntry(eldest):
+            return size() > MESSAGE_CACHE_SIZE
 
-    }
 
-    /** 
-     * Utility class to handle timeouts.
-     * / 
-    private class RetransmitTask extends TimerTask {
+    class RetransmitTask(TimerTask):
+        """
+        Utility class to handle timeouts.
+        """
 
-        private Transaction transaction;
+        transaction = Transaction()
 
-        RetransmitTask(Transaction transaction) {
-            this.transaction = transaction;
-        }
+        def RetransmitTask(transaction):
+            self.transaction = transaction
 
-        @Override
-        public void run() {
-            handleResponseTimeout(transaction);
-        }
-    }
+        def run():
+            handleResponseTimeout(transaction)
 
-// Static methods ////////////////////////////////////////////////////////////// 
-
-    /** 
-     * Calculates the initial timeout for outgoing confirmable messages.
-     * 
-     * @Return the timeout in milliseconds
-     */ 
-    private static int initialTimeout() {
+    def initialTimeout():
+        """
+        Calculates the initial timeout for outgoing confirmable messages.
+        :return: the timeout in milliseconds
+        """
         
-        final double min = Properties.std.getDbl("RESPONSE_TIMEOUT");
-        final double f = Properties.std.getDbl("RESPONSE_RANDOM_FACTOR");
+        min = RESPONSE_TIMEOUT
+        f = RESPONSE_RANDOM_FACTOR
         
-        return (int) (min + (min * (f - 1d) * Math.random()));
-    }
+        return min + (min * (f - 1) * random.SystemRandom())
     
-// Constructors //////////////////////////////////////////////////////////////// 
 
-    public TransactionLayer() {
-    }
+    def doSendMessage(msg):
 
-// I / O implementation ////////////////////////////////////////////////////////// 
-
-    @Override
-    protected void doSendMessage(Message
-msg) throws IOException {
-
-        // set message ID
-        if (msg.getMID() < 0) {
-            msg.setMID(nextMessageID());
-        }
+        # set message ID
+        if msg.getMID() < 0:
+            msg.setMID(self.nextMessageID())
         
-        // check if message needs confirmation, i.e., a reply is expected
-        if (msg.isConfirmable()) {
+        # check if message needs confirmation, i.e., a reply is expected
+        if msg.isConfirmable():
 
-            // create new transmission context for retransmissions
-            addTransaction(msg);
+            # create new transmission context for retransmissions
+            self.addTransaction(msg)
 
-        } else if (msg.isReply()) {
+        elif msg.isReply():
 
-            // put message into ring buffer in case peer retransmits
-            replyCache.put(msg.transactionKey(), msg);
-        }
+            # put message into ring buffer in case peer retransmits
+            self.replyCache.put(msg.transactionKey(), msg)
 
-        // send message over unreliable channel
-        sendMessageOverLowerLayer(msg);
-    }
+        # send message over unreliable channel
+        self.sendMessageOverLowerLayer(msg)
 
-    @Override
-    protected void doReceiveMessage(Message
-msg) {
 
-        // check for duplicate
-        if (dupCache.containsKey(msg.key())) {
+    def doReceiveMessage(msg):
 
-            // check for retransmitted Confirmable
-            if (msg.isConfirmable()) {
+        # check for duplicate
+        if msg.key() in dupCache:
 
-                // retrieve cached reply
-Message
-reply = replyCache.get(msg.transactionKey());
-                if (reply != null) {
+            # check for retransmitted Confirmable
+            if msg.isConfirmable():
 
-                    // retransmit reply
-                    try {
-                        LOG.info(String.format("Replied to duplicate confirmable: %s", msg.key()));
-                        sendMessageOverLowerLayer(reply);
-                    } catch (IOException e) {
-                        LOG.severe(String.format("Replying to duplicate confirmable failed: %s\n%s", msg.key(), e.getMessage()));
-                    }
-                } else {
-                    LOG.info(String.format("Dropped duplicate confirmable without cached reply: %s", msg.key()));
-                }
+                # retrieve cached reply
+                reply = replyCache.get(msg.transactionKey())
+                if reply:
+                    # retransmit reply
+                    try:
+                        logging.info("Replied to duplicate confirmable: %s" % msg.key())
+                        self.sendMessageOverLowerLayer(reply)
+                    except IOException e:
+                        logging.severe("Replying to duplicate confirmable failed: %s\n%s", msg.key(), e.getMessage())
+                else:
+                    logging.info("Dropped duplicate confirmable without cached reply: %s"% msg.key())
 
-                // drop duplicate anyway
+                # drop duplicate anyway
+                return
+
+            else:
+                # ignore duplicate
+                logging.info(String.format("Dropped duplicate: %s", msg.key()));
                 return;
 
-            } else {
-
-                // ignore duplicate
-                LOG.info(String.format("Dropped duplicate: %s", msg.key()));
-                return;
-            }
-
-        } else {
-
-            // cache received message
+        else:
+            # cache received message
             dupCache.put(msg.key(), msg);
-        }
 
-        // check for reply to CON and remove transaction
-        if (msg.isReply()) {
 
-            // retrieve transaction for the incoming message
+        # check for reply to CON and remove transaction
+        if msg.isReply():
+
+            # retrieve transaction for the incoming message
             Transaction transaction = getTransaction(msg);
 
-            if (transaction != null) {
+            if transaction:
 
-                // transmission completed
+                # transmission completed
                 removeTransaction(transaction);
                 
-                if (msg.isEmptyACK()) {
+                if msg.isEmptyACK():
                     
-                    // transaction is complete, no information for higher layers
+                    # transaction is complete, no information for higher layers
                     return;
                     
-                } else if (msg.getType() == Message.messageType.RST) {
+                else if (msg.getType() == Message.messageType.RST):
                     
                     handleIncomingReset(msg);
                     return;
-                }
                 
-            } else if (msg.getType() == Message.messageType.RST) {
+            elif (msg.getType() == Message.messageType.RST):
                 
                 handleIncomingReset(msg);
                 return;
 
-            } else {
+            else:
                 
-                // ignore unexpected reply except RST, which could match to a NON sent by the endpoint
-                LOG.warning(String.format("Dropped unexpected reply: %s", msg.key()));
+                # ignore unexpected reply except RST, which could match to a NON sent by the endpoint
+                logging.warning("Dropped unexpected reply: %s", msg.key())
                 return;
-            }
-        }
-        
-        // Only accept Responses here, Requests must be handled at application level 
+
+        # Only accept Responses here, Requests must be handled at application level 
         if (msg instanceof Response && msg.isConfirmable()) {
-            try {
-                LOG.info(String.format("Accepted confirmable response: %s", msg.key()));
-                sendMessageOverLowerLayer(msg.newAccept());
-            } catch (IOException e) {
-                LOG.severe(String.format("Accepting confirmable failed: %s\n%s", msg.key(), e.getMessage()));
-            }
-        }
+            try:
+                logging.info("Accepted confirmable response: %s" % msg.key())
+                sendMessageOverLowerLayer(msg.newAccept())
+            except (IOException e)
+                logging.severe("Accepting confirmable failed: %s\n%s" % msg.key(), e.getMessage())
 
-        // pass message to registered receivers
-        deliverMessage(msg);
-    }
+        # pass message to registered receivers
+        deliverMessage(msg)
 
-    // Internal //////////////////////////////////////////////////////////////// 
-
-    private void handleIncomingReset(Message
-msg) {
+    def handleIncomingReset(msg):
         
-        // remove possible observers
-        ObservingManager.getInstance().removeObserver(msg.getPeerAddress().toString(), msg.getMID());
-    }
+        # remove possible observers
+        ObservingManager.getInstance().removeObserver(msg.getPeerAddress().toString(), msg.getMID())
 
-    private void handleResponseTimeout(Transaction transaction) {
+    def handleResponseTimeout(Transaction transaction):
 
-        final int max = Properties.std.getInt("MAX_RETRANSMIT");
+        max = MAX_RETRANSMIT
         
-        // check if limit of retransmissions reached
-        if (transaction.numRetransmit < max) {
+        # check if limit of retransmissions reached
+        if transaction.numRetransmit < max:
 
-            // retransmit message
-            transaction.msg.setRetransmissioned(+ +transaction.numRetransmit); 
+            # retransmit message
+            transaction.msg.setRetransmissioned(transaction.numRetransmit)
 
-            LOG.info(String.format("Retransmitting %s (%d of %d)", transaction.msg.key(), transaction.numRetransmit, max));
+            logging.info("Retransmitting %s (%d of %d)" % transaction.msg.key(), transaction.numRetransmit, max)
 
-            try {
+            try:
                 sendMessageOverLowerLayer(transaction.msg);
-            } catch (IOException e) {
+            except IOException e:
 
-                LOG.severe(String.format("Retransmission failed: %s", e.getMessage()));
+                logging.severe("Retransmission failed: %s", e.getMessage())
                 removeTransaction(transaction);
 
                 return;
-            }
 
-            // schedule next retransmission
-            scheduleRetransmission(transaction);
+            # schedule next retransmission
+            scheduleRetransmission(transaction)
 
-        } else {
+        else:
 
-            // cancel transmission
-            removeTransaction(transaction);
+            # cancel transmission
+            removeTransaction(transaction)
             
-            // cancel observations
-            ObservingManager.getInstance().removeObserver(transaction.msg.getPeerAddress().toString());
+            # cancel observations
+            ObservingManager.getInstance().removeObserver(transaction.msg.getPeerAddress().toString())
 
-            // invoke event handler method
-            transaction.msg.handleTimeout();
-        }
-    }
+            # invoke event handler method
+            transaction.msg.handleTimeout()
 
-    private synchronized Transaction addTransaction(Message
-msg) {
+    def addTransaction(msg):
 
-        // initialize new transmission context
-        Transaction transaction = new Transaction();
-        transaction.msg = msg;
-        transaction.numRetransmit = 0;
-        transaction.retransmitTask = null;
+        # initialize new transmission context
+        transaction = Transaction()
+        transaction.msg = msg
+        transaction.numRetransmit = 0
+        transaction.retransmitTask = None
 
-        transactionTable.put(msg.transactionKey(), transaction);
+        transactionTable.put(msg.transactionKey(), transaction)
 
-        // schedule first retransmission
-        scheduleRetransmission(transaction);
+        # schedule first retransmission
+        self.scheduleRetransmission(transaction)
         
-        LOG.finest(String.format("Stored new transaction for %s", msg.key()));
+        logging.info("Stored new transaction for %s" % msg.key())
 
-        return transaction;
-    }
+        return transaction
 
-    private synchronized Transaction getTransaction(Message
-msg) {
-        return transactionTable.get(msg.transactionKey());
-    }
+    def getTransaction(msg):
+        return transactionTable.get(msg.transactionKey())
 
-    private synchronized void removeTransaction(Transaction transaction) {
+    def removeTransaction(transaction):
 
-        // cancel any pending retransmission schedule
-        transaction.retransmitTask.cancel();
-        transaction.retransmitTask = null;
+        # cancel any pending retransmission schedule
+        transaction.retransmitTask.cancel()
+        transaction.retransmitTask = None
 
-        // remove transaction from table
-        transactionTable.remove(transaction.msg.transactionKey());
+        # remove transaction from table
+        self.transactionTable.remove(transaction.msg.transactionKey())
         
-        LOG.finest(String.format("Cleared transaction for %s", transaction.msg.key()));
-    }
+        logging.info("Cleared transaction for %s" % transaction.msg.key())
 
-    private void scheduleRetransmission(Transaction transaction) {
+    def scheduleRetransmission(transaction):
 
-        // cancel existing schedule (if any)
-        if (transaction.retransmitTask != null) {
-            transaction.retransmitTask.cancel();
-        }
+        # cancel existing schedule (if any)
+        if transaction.retransmitTask:
+            transaction.retransmitTask.cancel()
 
-        // create new retransmission task
-        transaction.retransmitTask = new RetransmitTask(transaction);
+        # create new retransmission task
+        transaction.retransmitTask = RetransmitTask(transaction)
 
-        // calculate timeout using exponential back - off
-        if (transaction.timeout == 0) {
-            // use initial timeout
-            transaction.timeout = initialTimeout();
-        } else {
-            // double timeout
-            transaction.timeout *= 2;
-        }
+        # calculate timeout using exponential back - off
 
-        // schedule retransmission task
-        timer.schedule(transaction.retransmitTask, transaction.timeout);
-    }
+        if transaction.timeout == 0:
+            # use initial timeout
+            transaction.timeout = self.initialTimeout()
+        else:
+            # double timeout
+            transaction.timeout *= 2
+
+        # schedule retransmission task
+        timer.schedule(transaction.retransmitTask, transaction.timeout)
 
     def __str__():
         stats = dict()

@@ -32,7 +32,6 @@ class Option:
         self.setValue(raw)
         self.setOptionNumber(nr)
 
-    @classmethod
     def fromNumber(cls, nr):
         """
         This method creates a new Option object with dynamic type corresponding
@@ -47,7 +46,6 @@ class Option:
         else:
             return Option(nr)
 
-    @classmethod
     def split(cls, optionNumber, s, delimiter):
         """ generated source for method split """
         #  create option list
@@ -61,7 +59,6 @@ class Option:
                     options.add(Option(segment, optionNumber))
         return options
 
-    @classmethod
     def join(cls, options, delimiter):
         if options:
             for opt in options:
@@ -177,7 +174,6 @@ class Option:
             return False
         return True
 
-    @classmethod
     def hex(cls, data):
         """ generated source for method hex """
         if data:

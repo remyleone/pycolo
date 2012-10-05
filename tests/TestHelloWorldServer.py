@@ -1,11 +1,13 @@
+# coding=utf-8
 import logging
 import unittest
-from pycolo import codes, LocalEndpoint, LocalResource
+from pycolo import codes, Endpoint
+from pycolo.Resource import Resource
 
 
-class HelloWorldServer(LocalEndpoint):
+class HelloWorldServer(Endpoint):
 
-    class HelloWorldResource(LocalResource):
+    class HelloWorldResource(Resource):
         """ Definition of the Hello-World Resource """
         def __init__(self):
             """ generated source for method __init__ """
@@ -15,7 +17,9 @@ class HelloWorldServer(LocalEndpoint):
             self.setTitle("Hello-World Resource")
 
         def performGET(self, request):
-            """ generated source for method performGET """
+            """ generated source for method performGET
+            :param request:
+            """
             #  respond to the request
             request.respond(codes.RESP_CONTENT, "Hello World!")
 
@@ -29,9 +33,10 @@ class HelloWorldServer(LocalEndpoint):
         self.addResource(self.HelloWorldResource())
 
 
-    @classmethod
     def main(cls, args):
-        """ Application entry point. """
+        """ Application entry point.
+        :param args:
+        """
         try:
             #  create server
             print "Server listening on port " + server.port()

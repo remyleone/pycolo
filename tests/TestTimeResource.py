@@ -39,6 +39,8 @@ class TimeResource(Resource):
         return time.localtime()
 
     def performGET(self, request):
-        """ generated source for method performGET """
+        """ generated source for method performGET
+        :param request:
+        """
         request.respond(codes.RESP_CONTENT, self.time, mediaCodes.txt)
 

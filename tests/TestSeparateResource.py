@@ -1,10 +1,9 @@
 # coding=utf-8
-from pycolo import Response, codes, LocalResource
-
-from pycolo.coap import GETRequest
+from pycolo import Response, codes, Resource
 
 
-class SeparateResource(LocalResource):
+
+class SeparateResource(Resource):
     """
     This class implements a 'separate' resource for demonstration purposes.
     Defines a resource that returns a response in a separate CoAP Message
@@ -16,7 +15,9 @@ class SeparateResource(LocalResource):
         self.resourceType = "SepararateResponseTester"
 
     def performGET(self, request):
-        """ generated source for method performGET """
+        """ generated source for method performGET
+        :param request:
+        """
         #  we know this stuff may take longer...
         #  promise the client that this request will be acted upon
         #  by sending an Acknowledgement

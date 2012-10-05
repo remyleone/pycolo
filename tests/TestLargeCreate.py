@@ -1,9 +1,9 @@
 # coding=utf-8
 
-import java.util.ArrayList
-from pycolo import Response, codes, LocalResource
+from pycolo import Response, codes
+from pycolo.codes import mediaCodes
+from pycolo.Resource import Resource
 
-from pycolo.coap import MediaTypeRegistry
 
 
 class LargeCreate(Resource):
@@ -15,22 +15,23 @@ class LargeCreate(Resource):
     data = None
     dataCt = -1
 
-    @overloaded
     def __init__(self):
         """
         Constructs a new storage resource with the given resourceIdentifier.
         """
         super(LargeCreate, self).__init__()
         self.__init__("large-create")
-        self.setTitle("Large resource that can be created using POST method")
-        self.setResourceType("block")
+        self.title = "Large resource that can be created using POST method"
+        self.resourceType = "block"
 
     def performGET(self, request):
-        """ generated source for method performGET """
+        """ generated source for method performGET
+        :param request:
+        """
         response = None
-        if self.data == None:
+        if not self.data:
             response = Response(codes.RESP_CONTENT)
-            response.setPayload("Nothing POSTed yet", MediaTypeRegistry.TEXT_PLAIN)
+            response.setPayload("Nothing posted yet", mediaCodes.text)
         else:
             #  content negotiation
             supported.add(self.dataCt)
@@ -39,15 +40,16 @@ class LargeCreate(Resource):
                 request.respond(codes.RESP_NOT_ACCEPTABLE, "Accept " + MediaTypeRegistry.toString(self.dataCt))
                 return
             response = Response(codes.RESP_CONTENT)
-            #  load data into payload
-            response.setPayload(self.data)
-            #  set content type
-            response.setContentType(ct)
-        #  complete the request
-        request.respond(response)
+
+            response.payload = self.data  # load data into payload
+            response.setContentType(ct)  # set content type
+
+        request.respond(response)  # complete the request
 
     def performPOST(self, request):
-        """ POST content to create this resource. """
+        """ POST content to create this resource.
+        :param request:
+        """
         if request.getContentType() == MediaTypeRegistry.UNDEFINED:
             request.respond(codes.RESP_BAD_REQUEST, "Content-Type not set")
             return
@@ -61,7 +63,9 @@ class LargeCreate(Resource):
         request.respond(response)
 
     def performDELETE(self, request):
-        """ DELETE the data and act as resouce was deleted. """
+        """ DELETE the data and act as resouce was deleted.
+        :param request:
+        """
         #  delete
         self.data = None
         #  complete the request

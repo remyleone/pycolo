@@ -5,12 +5,12 @@
 #import java.util.Date
 #import java.util.Timer
 #import java.util.TimerTask
-from pycolo import Response, codes, LocalResource
+from pycolo import Response, codes,
 
-from pycolo.coap import MediaTypeRegistry
+from pycolo.codes import mediaCodes
 
 
-class Observe(LocalResource):
+class Observe(Resource):
     """
     This resource implements a test of specification for the ETSI IoT CoAP
     Plugtests, Paris, France, 24 - 25 March 2012.
@@ -43,7 +43,9 @@ class Observe(LocalResource):
         return dateFormat.format(time)
 
     def performGET(self, request):
-        """ generated source for method performGET """
+        """ generated source for method performGET
+        :param request:
+        """
         #  create response
         response = Response(codes.RESP_CONTENT)
         #  set payload

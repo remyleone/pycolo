@@ -1,5 +1,7 @@
 # coding=utf-8
 from pycolo import Resource
+from pycolo.Response import Response
+from pycolo.codes import mediaCodes, codes
 
 
 class HelloWorldResource(Resource):
@@ -8,45 +10,15 @@ class HelloWorldResource(Resource):
     Defines a resource that returns text with special characters on GET.
     """
 
-    public
-    HelloWorldResource(String
-    custom, String
-    title, String
-    rt) {
-    super(custom);
-    setTitle(title);
-    setResourceType(rt);
-    }
+    def __init__(self, title="helloWorld", rt="HelloWorldDisplayer"):
+        self.title = title
+        self.resourceType = rt
 
-    public
-    HelloWorldResource()
-    {
-    this("helloWorld", "GET a friendly greeting!", "HelloWorldDisplayer");
-    }
+    def performGET(self, request):
+        # create response
+        response = Response(code=codes.RESP_CONTENT)
 
-    @Override
-
-    public
-    void
-    performGET(GETRequest
-    request) {
-
-             // create
-    response
-    Response
-    response = new
-    Response(CodeRegistry.RESP_CONTENT);
-
-    // set
-    payload
-    response.setPayload(
-        "Hello World! Some umlauts: äöü\n\nZalgo: C͓̦̭̹̭͎͖̗̗̊Ȱ̬̥͚͚̏͛ͩ͆̎̿̈͝A̵̴̡̩̞͇̱͓͎̾P͎ͤͦ͆̍͋͒̽̂ͮ͠ͅ ̧̯̟̑ͫ͑͑͢͡R͈̜͍̄͌̄ͣͅU̥̭͓͉̟̳͗̈́̂L͎̘̪͓̟̩͌ͮͧ͞Ẽ̴̖̳̘̌̉ͯ͋̽̔Z̠̣̩̫͚͇̬̲͛ͮ̓ͧͨ̕");
-    response.setContentType(MediaTypeRegistry.TEXT_PLAIN);
-
-    // complete
-    the
-    request
-    request.respond(response);
-    }
-
-}
+        payload = "Hello World! My name is Rémy Léone look @ the funny €"
+        response.contentType(mediaCodes.text)
+        response.payload = payload
+        return response

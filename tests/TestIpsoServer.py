@@ -2,6 +2,7 @@
 
 import logging
 import random
+import sys
 from pycolo import link, LocalEndpoint
 from pycolo.codes import mediaCodes
 from pycolo.codes import codes
@@ -18,22 +19,26 @@ class DeviceManufacturer(Resource):
         self.interfaceDescription = "core#rp"
 
     def performGET(self, request):
-        """ generated source for method performGET """
+        """ generated source for method performGET
+        :param request:
+        """
         #  complete the request
         request.respond(codes.RESP_CONTENT,\
-            "Pycolo", mediaCodes["TEXT_PLAIN"])
+            "Pycolo", mediaCodes.text)
 
 class DeviceModel(Resource):
     """ This resource implements a part of the IPSO profile. """
     def __init__(self):
         """ generated source for method __init__ """
         super(DeviceModel, self).__init__("dev/mdl")
-        self.setTitle("Model")
-        self.setResourceType("ipso:dev-mdl")
+        self.title = "Model"
+        self.resourceType = "ipso:dev-mdl"
         self.setInterfaceDescription("core#rp")
 
     def performGET(self, request):
-        """ generated source for method performGET """
+        """ generated source for method performGET
+        :param request:
+        """
         #  complete the request
         request.respond(codes.RESP_CONTENT,\
             "Californium", mediaCodes["TEXT_PLAIN"])
@@ -50,14 +55,18 @@ class DeviceName(Resource):
         self.address = "dev/n"
 
     def performGET(self, request):
-        """ generated source for method performGET """
+        """ generated source for method performGET
+        :param request:
+        """
         #  complete the request
         request.respond(codes.RESP_CONTENT,\
             self.name,\
-            mediaCodes["TEXT_PLAIN"])
+            mediaCodes.text)
 
     def performPUT(self, request):
-        """ generated source for method performPUT """
+        """ generated source for method performPUT
+        :param request:
+        """
         if request.contentType != mediaCodes["TEXT_PLAIN"]:
             request.respond(codes.RESP_BAD_REQUEST, "text/plain only")
             return
@@ -70,14 +79,16 @@ class DeviceSerial(Resource):
     def __init__(self):
         """ generated source for method __init__ """
         super(DeviceSerial, self).__init__("dev/ser")
-        setTitle("Serial")
-        setResourceType("ipso:dev-ser")
-        setInterfaceDescription("core#rp")
+        self.title = "Serial"
+        self.resourceType = "ipso:dev-ser"
+        self.interfaceDescription = "core#rp"
 
     def performGET(self, request):
-        """ generated source for method performGET """
+        """ generated source for method performGET
+        :param request:
+        """
         #  complete the request
-        request.respond(codes.RESP_CONTENT, "4711", mediaCodes["TEXT_PLAIN"])
+        request.respond(codes.RESP_CONTENT, "4711", mediaCodes.text)
 
 
 
@@ -108,6 +119,7 @@ class DeviceBattery(Resource):
 
     def performGET(self, request):
         """
+        :param request:
          TODO: Strange call
         """
         #  complete the request
@@ -122,12 +134,12 @@ class PowerCumulative(Resource):
     def __init__(self):
         """ generated source for method __init__ """
         super(PowerCumulative, self).__init__("pwr/kwh")
-        self.setTitle("Cumulative Power")
-        self.setResourceType("ipso:pwr-kwh")
+        self.title = "Cumulative Power"
+        self.resourceType = "ipso:pwr-kwh"
         #  second rt not supported by current SensiNode RD demo
         # setResourceType("ucum:kWh");
         self.setInterfaceDescription("core#s")
-        self.isObservable(True)
+        self.observable = True
         #  Set timer task scheduling
         timer = Timer()
         timer.schedule(TimeTask(), 0, 1000)
@@ -142,7 +154,9 @@ class PowerCumulative(Resource):
                 self.changed()
 
     def performGET(self, request):
-        """ generated source for method performGET """
+        """ generated source for method performGET
+        :param request:
+        """
         #  complete the request
         request.respond(codes.RESP_CONTENT, Double.toString(self.power), mediaCodes.TEXT_PLAIN)
 
@@ -159,14 +173,18 @@ class PowerDimmer(Resource):
         self.observable = True
 
     def performGET(self, request):
-        """ generated source for method performGET """
+        """ generated source for method performGET
+        :param request:
+        """
         #  complete the request
         request.respond(codes.RESP_CONTENT,\
             int(self.percent),\
             mediaCodes["TEXT_PLAIN"])
 
     def performPUT(self, request):
-        """ generated source for method performPUT """
+        """ generated source for method performPUT
+        :param request:
+        """
         if request.contentType != mediaCodes["TEXT_PLAIN"]:
             request.respond(codes.RESP_BAD_REQUEST, "text/plain only")
             return
@@ -188,11 +206,11 @@ class PowerInstantaneous(Resource):
         """ generated source for method __init__ """
         super(PowerInstantaneous, self).__init__("pwr/w")
         self.title = "Instantaneous Power"
-        self.setResourceType("ipso:pwr-w")
+        self.resourceType = "ipso:pwr-w"
         #  second rt not supported by current SensiNode RD demo
         # setResourceType("ucum:W");
-        self.setInterfaceDescription("core#s")
-        self.isObservable(True)
+        self.interfaceDescription = "core#s"
+        self.observable = True
         #  Set timer task scheduling
         timer = Timer()
         timer.schedule(TimeTask(), 0, 1000)
@@ -212,7 +230,9 @@ class PowerInstantaneous(Resource):
             self.changed()
 
     def performGET(self, request):
-        """ generated source for method performGET """
+        """ generated source for method performGET
+        :param request:
+        """
         #  complete the request
         request.respond(codes.RESP_CONTENT,\
             str(self.power),\
@@ -222,7 +242,6 @@ class PowerRelay(Resource):
     """ This resource implements a part of the IPSO profile. """
     on = True
 
-    @classmethod
     def getRelay(cls):
         """ generated source for method getRelay """
         return cls.on
@@ -236,14 +255,18 @@ class PowerRelay(Resource):
         self.isObservable(True)
 
     def performGET(self, request):
-        """ generated source for method performGET """
+        """ generated source for method performGET
+        :param request:
+        """
         #  complete the request
         request.respond(codes.RESP_CONTENT,\
             "1" if self.on else "0",\
             mediaCodes["TEXT_PLAIN"])
 
     def performPUT(self, request):
-        """ generated source for method performPUT """
+        """ generated source for method performPUT
+        :param request:
+        """
         if request.contentType != mediaCodes["TEXT_PLAIN"]:
             request.respond(codes.RESP_BAD_REQUEST, "text/plain only")
             return
@@ -293,16 +316,20 @@ class IpsoServer(LocalEndpoint):
         self.addResource(PowerDimmer())
 
     def handleRequest(self, request):
-        """ generated source for method handleRequest """
+        """ generated source for method handleRequest
+        :param request:
+        """
         #  Add additional handling like special logging here.
         request.prettyPrint()
         #  dispatch to requested resource
         super(IpsoServer, self).handleRequest(request)
 
     #  Application entry point /////////////////////////////////////////////////
-    @classmethod
+
     def main(cls, args):
-        """ generated source for method main """
+        """ generated source for method main
+        :param args:
+        """
         #  create server
         try:
             logging.info(IpsoServer.__class__.getSimpleName() + " listening on port %d.\n", server.port())
@@ -322,13 +349,13 @@ class IpsoServer(LocalEndpoint):
                 try:
                     hostname = InetAddress.getLocalHost().getHostName()
                 except UnknownHostException as e1:
-                    print "Unable to retrieve hostname for registration"
-                    print "Fallback to random"
+                    print("Unable to retrieve hostname for registration")
+                    print("Fallback to random")
             register.setURI(rd + "?h=Cf-" + hostname)
             register.setPayload(link.serialize(server.getRootResource(), None, True), mediaCodes.APPLICATION_LINK_FORMAT)
             try:
                 print("Registering at " + rd + " as Cf-" + hostname)
-                register.execute()
+                self.register.execute()
             except Exception as e:
                 logging.critical("Failed to execute request: " + e.getMessage())
                 sys.exit(cls.ERR_INIT_FAILED)

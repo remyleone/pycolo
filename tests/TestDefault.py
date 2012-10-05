@@ -16,7 +16,7 @@ class DefaultTest(Resource):
 
         self.title = "Default test resource"
 
-    def performGET(request):
+    def performGET(self, request):
 
         # Check: Type, Code
 
@@ -45,7 +45,7 @@ class DefaultTest(Resource):
         # complete the request
         request.respond(response)
 
-    def performPOST(request):
+    def performPOST(self, request):
 
         # Check: Type, Code, has Content-Type
 
@@ -76,11 +76,15 @@ class DefaultTest(Resource):
         # complete the request
         request.respond(response)
 
-    def performPUT(request):
+    def performPUT(self, request):
 
         # Check: Type, Code, has Content-Type
 
         # create new response
+        """
+
+        :param request:
+        """
         response = Response(codes.RESP_CHANGED)
 
         payload = "Type: %d (%s)\nCode: %d (%s)\nMID: %d" %\
@@ -107,12 +111,16 @@ class DefaultTest(Resource):
         request.respond(response)
 
 
-    def performDELETE(request):
+    def performDELETE(self, request):
 
         # Check: Type, Code, has Content-Type
 
         # create new response
-        response = Response(codes.RESP_DELETED);
+        """
+
+        :param request:
+        """
+        response = Response(codes.RESP_DELETED)
 
         payload = "Type: %d (%s)\nCode: %d (%s)\nMID: %d" %\
                                      request.getType().ordinal(),\

@@ -3,7 +3,7 @@
 import logging
 
 from pycolo.coap.OptionNumberRegistry import OptionNumberRegistry
-from pycolo import Request, Response, UpperLayer
+from pycolo import request, Response, UpperLayer
 
 
 class MatchingLayer(UpperLayer):
@@ -18,14 +18,14 @@ class MatchingLayer(UpperLayer):
     class RequestResponsePair:
         """ Entity class to keep state of transfers """
         key = str()
-        request = Request()
+        request = request()
 
     def __init__(self):
         """ generated source for method __init__ """
         super(MatchingLayer, self).__init__()
 
     def doSendMessage(self, msg):
-        if isinstance(msg, (Request,)):
+        if isinstance(msg, (request,)):
             self.addOpenRequest(msg)
         self.sendMessageOverLowerLayer(msg)
 

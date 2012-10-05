@@ -1,7 +1,7 @@
 # coding=utf-8
 
 import unittest
-from pycolo import Request, Response
+from pycolo import request, Response
 
 class RequestTest(unittest.TestCase):
 
@@ -16,7 +16,7 @@ class RequestTest(unittest.TestCase):
             self.request.respond(self.response)
             self.request.sendResponse()
 
-        request = Request()
+        request = request()
         response = Response()
 
     handledResponse = Response()

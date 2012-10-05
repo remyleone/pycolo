@@ -2,11 +2,9 @@
 # coding=utf-8
 """ generated source for module LargeUpdate """
 # package: ch.ethz.inf.vs.californium.examples.plugtest
-import java.util.ArrayList
-from pycolo import LocalResource
 
-from pycolo.codes import CodeRegistry
-from pycolo.coap.MediaTypeRegistry import MediaTypeRegistry
+
+from pycolo.codes import codes, mediaCodes
 from pycolo import Resource
 
 class LargeUpdate(Resource):
@@ -33,6 +31,7 @@ class LargeUpdate(Resource):
         If the content-type of the request is set to application/link-format
         or if the resource does not store any data, the contained sub-resources
         are returned in link format.
+        :param request:
         """
         #  content negotiation
         supported = ArrayList()
@@ -44,7 +43,7 @@ class LargeUpdate(Resource):
             return
         #  create response
         response = Response(CodeRegistry.RESP_CONTENT)
-        if self.data == None:
+        if self.data is None:
             builder = """
             /-------------------------------------------------------------\
             |                 RESOURCE BLOCK NO. 1 OF 5                   |
@@ -77,9 +76,11 @@ class LargeUpdate(Resource):
             request.respond(response)
 
     def performPUT(self, request):
-        """ generated source for method performPUT """
-        if request.getContentType() == MediaTypeRegistry.UNDEFINED:
-            request.respond(CodeRegistry.RESP_BAD_REQUEST, "Content-Type not set")
+        """ generated source for method performPUT
+        :param request:
+        """
+        if request.getContentType() == mediaCodes.UNDEFINED:
+            request.respond(codes.RESP_BAD_REQUEST, "Content-Type not set")
             return
         #  store payload
         storeData(request)

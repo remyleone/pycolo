@@ -4,7 +4,7 @@ from pycolo import Option
 
 
 class BlockOption(Option):
-    @classmethod
+
     def encode(cls, num, szx, m):
         value = 0
         value |= (szx & 0x7)
@@ -46,7 +46,6 @@ class BlockOption(Option):
     def setM(self, m):
         self.setValue(self.getNUM(), self.getSZX(), m)
 
-    @classmethod
     def decodeSZX(cls, szx):
         """
         Decodes a 3-bit SZX value into a block size as specified by
@@ -57,7 +56,6 @@ class BlockOption(Option):
         """
         return 1 << (szx + 4)
 
-    @classmethod
     def encodeSZX(cls, blockSize):
         """
         Encodes a block size into a 3-bit SZX value as specified by
@@ -68,10 +66,9 @@ class BlockOption(Option):
         """
         return int((math.log(blockSize) / math.log(2))) - 4
 
-    @classmethod
     def validSZX(cls, szx):
         return 0 <= szx <= 6
 
     def __str__(self):
-        return "NUM: {:d}, SZX: {:d} ({:d} bytes), M: %b" % self.getNUM(), \
-             self.SZX, self.size, self.M
+        return "NUM: {:d}, SZX: {:d} ({:d} bytes), M: %b" % self.getNUM(),\
+               self.SZX, self.size, self.M

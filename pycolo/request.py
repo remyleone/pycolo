@@ -5,10 +5,11 @@ import java.util.ArrayList
 
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
-from pycolo import Message
+from pycolo import Message, codes
+from pycolo.Response import Response
 
 
-class Request(Message):
+class request(Message):
     """
     The Class Request describes the functionality of a CoAP Request as a subclass
     of a CoAP {@link Message}. It provides operations to answer a request by a {@link Response}
@@ -21,7 +22,6 @@ class Request(Message):
     <li>by calling the blocking method {@link #receiveResponse()}
     </ol>
     """
-    #  Constants //////////////////////////////////////////////////////////////
     #  The Constant TIMEOUT_RESPONSE.
     #  TODO better solution?
     TIMEOUT_RESPONSE = Response()
@@ -29,7 +29,6 @@ class Request(Message):
     #  The time when a request was issued to calculate Observe counter.
     startTime = System.currentTimeMillis()
 
-    #  Members ////////////////////////////////////////////////////////////////
     #  The list of response handlers that are notified about incoming responses
     responseHandlers = list()
 
@@ -38,7 +37,7 @@ class Request(Message):
     currentResponse = None
 
     #  The number of responses to this request. 
-    responseCount = int()
+    responseCount = 0
 
     def __init__(self, method, confirmable):
         """
@@ -71,7 +70,6 @@ class Request(Message):
     def setResponse(self, response):
         self.currentResponse = response
 
-    @overloaded
     def respond(self, response):
         """
         Issues a new response to this request
@@ -79,27 +77,27 @@ class Request(Message):
         """
         #  assign response to this request
         response.setRequest(self)
-        response.setPeerAddress(getPeerAddress())
+        response.setPeerAddress(self.getPeerAddress())
         #  set matching MID for replies
-        if self.responseCount == 0 and isConfirmable():
-            response.setMID(getMID())
+        if self.responseCount == 0 and self.isConfirmable():
+            response.setMID(self.getMID())
         #  set matching type
         if response.getType() == None:
-            if self.responseCount == 0 and isConfirmable():
+            if self.responseCount == 0 and self.isConfirmable():
                 #  use piggy-backed response
-                response.setType(messageType.ACK)
+                response.setType(self.messageType.ACK)
             else:
                 #  use separate response:
                 #  Confirmable response to confirmable request,
                 #  Non-confirmable response to non-confirmable request
-                response.setType(getType())
-        if response.getCode() != CodeRegistry.EMPTY_MESSAGE:
+                response.setType(self.getType())
+        if response.getCode() != codes.EMPTY_MESSAGE:
             #  Reflect token
             response.setToken(self.getToken())
             #  echo block1 option
-            if block1 != None:
+            if self.block1:
                 #  TODO: block1.setM(false); maybe in TransferLayer
-                response.addOption(block1)
+                response.addOption(self.block1)
         else:
             logging.critical("FIXME: Called with EMPTY MESSAGE")
             #  FIXME Unsure about execution path, check
@@ -116,7 +114,7 @@ class Request(Message):
         @param contentType the Content-Type of the response
         """
         response = Response(code_)
-        if message != None:
+        if message:
             response.setPayload(message)
             response.setContentType(contentType)
             logging.info("Responding with Content-Type {:d}: {:d} bytes".format(contentType, len(message)))
@@ -130,7 +128,7 @@ class Request(Message):
         @param message a string message
         """
         response = Response(code_)
-        if message != None:
+        if message:
             response.setPayload(message)
         self.respond(response)
 
@@ -148,9 +146,9 @@ class Request(Message):
                 self.currentResponse.send()
             else:
                 #  handle locally
-                handleResponse(self.currentResponse)
+                self.handleResponse(self.currentResponse)
         else:
-            logging.warning("Missing response to send: Request {:s} for {:s}".format(key(), getUriPath()))
+            logging.warning("Missing response to send: Request {:s} for {:s}" % self.key(), self.getUriPath())
 
     def receiveResponse(self):
         """
@@ -163,9 +161,9 @@ class Request(Message):
         @throws InterruptedException the interrupted exception
         """
         #  response queue required to perform this operation
-        if not responseQueueEnabled():
+        if not self.responseQueueEnabled():
             logging.warning("Missing enableResponseQueue(true) call, responses may be lost")
-            enableResponseQueue(True)
+            self.enableResponseQueue(True)
         #  take response from queue
         response = self.responseQueue.take()
         #  return null if request timed out
@@ -242,7 +240,7 @@ class Request(Message):
         according method of the provided RequestHandler (visitor pattern)
         @param handler A handler for this request
         """
-        logging.info("Cannot dispatch: {:s}".format(CodeRegistry.toString(getCode())))
+        logging.info("Cannot dispatch: {:s}".format(CodeRegistry.toString(self.getCode())))
 
     def handleBy(self, handler):
         """ generated source for method handleBy """

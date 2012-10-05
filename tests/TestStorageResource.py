@@ -33,6 +33,7 @@ class StorageResource(Resource):
         If the content-type of the request is set to application/link-format
         or if the resource does not store any data, the contained sub-resources
         are returned in link format.
+        :param request:
         """
         #  create response
         response = Response(CodeRegistry.RESP_CONTENT)
@@ -52,6 +53,7 @@ class StorageResource(Resource):
     def performPUT(self, request):
         """
         PUTs content to this resource.
+        :param request:
         """
         #  store payload
         self.storeData(request)
@@ -63,6 +65,7 @@ class StorageResource(Resource):
         POSTs a new sub-resource to this resource.
         The name of the new sub-resource is retrieved from the request
         payload.
+        :param request:
         """
         #  get request payload as a string
         payload = request.payload
@@ -77,6 +80,8 @@ class StorageResource(Resource):
         """
         Creates a new sub-resource with the given identifier in this resource.
         Added checks for resource creation.
+        :param newIdentifier:
+        :param request:
         """
         if isinstance(request, (PUTRequest,)):
             request.respond(codes.RESP_FORBIDDEN, "PUT restricted to exiting resources")
@@ -102,18 +107,18 @@ class StorageResource(Resource):
         #  rt by query
         newRtAttribute = None
         for query in request.getOptions(OptionNumberRegistry.URI_QUERY):
-            if keyValue[0] == "rt" and len(keyValue):
-                newRtAttribute = keyValue[1]
+            if self.keyValue[0] == "rt" and len(self.keyValue):
+                newRtAttribute = self.keyValue[1]
                 continue 
-        if self.getResource(newIdentifier) == None:
-            if newRtAttribute != None:
+        if self.getResource(newIdentifier) is None:
+            if newRtAttribute is not None:
                 self.resource.setResourceType(newRtAttribute)
             self.add(self.resource)
             self.resource.storeData(request)
-            self.response.setLocationPath(resource.getPath())
-            request.respond(response)
+            self.response.setLocationPath(self.resource.getPath())
+            request.respond(self.response)
         else:
-            request.respond(CodeRegistry.RESP_INTERNAL_SERVER_ERROR, "Trying to create existing resource")
+            request.respond(codes.RESP_INTERNAL_SERVER_ERROR, "Trying to create existing resource")
             logging.critical("Cannot create sub resource: {:s}/[{:s}] already exists".format(self.getPath(), newIdentifier))
 
     def performDELETE(self, request):
@@ -124,7 +129,9 @@ class StorageResource(Resource):
             request.respond(codes.RESP_FORBIDDEN, "Root storage resource cannot be deleted")
 
     def storeData(self, request):
-        """ generated source for method storeData """
+        """ generated source for method storeData
+        :param request:
+        """
         data = request.payload
         self.clearAttribute(LinkFormat.CONTENT_TYPE)
         self.setContentTypeCode(request.getContentType())

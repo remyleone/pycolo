@@ -14,7 +14,9 @@ class Large(Resource):
         self.resourceType = "block"
 
     def performGET(self, request):
-        """ generated source for method performGET """
+        """ generated source for method performGET
+        :param request:
+        """
         builder = """
         /-------------------------------------------------------------\
         |                 RESOURCE BLOCK NO. 1 OF 5                   |

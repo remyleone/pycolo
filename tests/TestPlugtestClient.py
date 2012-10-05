@@ -2,516 +2,100 @@
 
 import logging
 import unittest
-from pycolo.endpoint import Resource
+import sys
+from pycolo import Resource
+from pycolo.Communicator import Communicator
+from pycolo.TokenManager import TokenManager
+from pycolo.codes import options
+from pycolo.request import request
 
-
-class PlugtestClient:
+class PlugtestClient(unittest.TestCase):
 
     PLUGTEST_BLOCK_SIZE = 64
 
-    serverURI = None
-    testMap = dict()
-    testsToRun = list()  # The test list.
-    summary = list()  # The test summary.
+    serverURI = "coap://localhost"
 
-    /** 
-     * Default constructor. Loads with reflection each nested class that is a
-     * derived type of TestClientAbstract.
-     * 
-     * @param serverURI
-     * the server uri
-     */ 
-    public PlugtestClient(String serverURI) {
-        if (serverURI == null || serverURI.isEmpty()) {
-            logging.critical("serverURI == null || serverURI.isEmpty()");
-            throw new IllegalArgumentException("serverURI == null || serverURI.isEmpty()");
-        }
-        this.serverURI = serverURI;
+    # Use synchronous or asynchronous requests. Sync recommended due to single threaded servers and slow resources.
+    sync = True
 
-        # fill the map with each nested class not abstract that instantiate
-        # TestClientAbstract
-        for (Class < ? > clientTest : this.getClass().getDeclaredClasses()) {
-            if (! Modifier.isAbstract(clientTest.getModifiers()) && (clientTest.getSuperclass() == TestClientAbstract.class)) {
-
-                this.testMap.put(clientTest.getSimpleName(), clientTest);
-            }
-        }
-
-        # DEBUG logging.info(this.testMap.size());
-    }
-
-    /** 
-     * Instantiates the given testNames or if null all tests implemented.
-     * 
-     * @param testNames
-     * the test names
-     */ 
-    public void instantiateTests(String... testNames) {
-
-        testsToRun = Arrays.asList((testNames == null || testNames.length == 0) ? this.testMap.keySet().toArray(testNames) : testNames);
-        Collections.sort(testsToRun);
-
-        try {
-            # iterate for each chosen test
-            for (String testString : testsToRun) {
-                # DEBUG logging.info(testString);
-
-                # get the corresponding class
-                Class < ? > testClass = this.testMap.get(testString);
-                if (testClass == null) {
-                    logging.critical("testClass == null")
-                    sys.exit(-1)
-                }
-
-                # get the unique constructor
-                Constructor < ? > [] constructors = testClass.getDeclaredConstructors();
-
-                if (constructors.length == 0) {
-                    logging.critical("constructors.length == 0");
-                    sys.exit(-1);
-                }
-
-                # inner class: first argument (this) is the enclosing instance
-                @SuppressWarnings("unused")
-                    TestClientAbstract testClient = (TestClientAbstract) constructors[0].newInstance(this, serverURI);
-            }
-
-            waitForTests();
-
-            # summary
-            logging.info("\n==== SUMMARY ====");
-            for (String result : summary) {
-                logging.info(result);
-            }
-
-        } catch (InstantiationException e) {
-            logging.critical("Reflection error");
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            logging.critical("Reflection error");
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            logging.critical("Reflection error");
-            e.printStackTrace();
-        } catch (SecurityException e) {
-            logging.critical("Reflection error");
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            logging.critical("Reflection error");
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            logging.critical("Concurrency error");
-            e.printStackTrace();
-        }
-    }
-    /* 
-        public synchronized void waitForTests() throws InterruptedException {
-        while (summary.size() < testsToRun.size()) {
-        wait();
-        }
-        }
-
-        public synchronized void tickOffTest() {
-        notify();
-        }
-
-        public synchronized void addSummaryEntry(String entry) {
-        summary.add(entry);
-        }
-     * / 
-    /** 
-     * Main entry point.
-     * 
-     * @param args
-     * the arguments
-     */ 
-    public static void main(String[] args) {
-        if (args.length == 0 || ! args[0].startsWith("coap://")) {
-            logging.info("Californium (Cf) Plugtest Client");
-            logging.info("(c) 2012, Institute for Pervasive Computing, ETH Zurich");
-            logging.info();
-            logging.info("Usage: " + PlugtestClient.class.getSimpleName() + " URI [TESTNAMES...]");
-            logging.info("  URI       : The CoAP URI of the Plugtest server to test (coap://...)");
-            logging.info("  TESTNAMES : A list of specific tests to run, omit to run all");
-            logging.info();
-            logging.info("Available tests:");
-            System.out.print(" ");
-            for (Class < ? > clientTest : PlugtestClient.class.getDeclaredClasses()) {
-                if (! Modifier.isAbstract(clientTest.getModifiers()) && (clientTest.getSuperclass() == TestClientAbstract.class)) {
-                    System.out.print(" " + clientTest.getSimpleName());
-                }
-            }
-            sys.exit(-1);
-        }
-
-        Log.setLevel(Level.WARNING);
-        Log.init();
+    def setUp(self):
+        """
+        Default constructor. Loads with reflection each nested class that is a
+        derived type of self.
+        @param serverURI the server uri
+        :return:
+        """
 
         # default block size
-        Communicator.setupTransfer(PLUGTEST_BLOCK_SIZE);
+        Communicator.setupTransfer(codes.PLUGTEST_BLOCK_SIZE)
 
-        # create the factory with the given server URI
-        PlugtestClient clientFactory = new PlugtestClient(args[0]);
-
-        # instantiate the chosen tests
-        clientFactory.instantiateTests(Arrays.copyOfRange(args, 1, args.length));
-    }
-
-    /** 
-     * Abstract class to support various test client implementations.
-     * 
-     * @author Francesco Corazza
-     */ 
-    public abstract class TestClientAbstract {
-        testName = None
-        verbose = False
-
-        /** Use synchronous or asynchronous requests. Sync recommended due to single threaded servers and slow resources. * / 
-        protected boolean sync = true;
-
-        /** 
-         * Instantiates a new test client abstract.
-         * 
-         * @param testName
-         * the test name
-         * @param verbose
-         * the verbose
-         */ 
-        public TestClientAbstract(String testName, boolean verbose, boolean synchronous) {
-            if (testName == null || testName.isEmpty()) {
-                throw new IllegalArgumentException("testName == null || testName.isEmpty()");
-            }
-
-            this.testName = testName;
-            this.verbose = verbose;
-            this.sync = synchronous;
-        }
-
-        /** 
-         * Instantiates a new test client abstract.
-         * 
-         * @param testName
-         * the test name
-         */ 
-        public TestClientAbstract(String testName) {
-            this(testName, false, true);
-        }
-
-        /** 
-         * Execute request.
-         * 
-         * @param request
-         * the request
-         * @param serverURI
-         * the server uri
-         * @param resourceUri
-         * the resource uri
-         * @param payload
-         * the payload
-         */ 
-        /* 
-           protected synchronized void executeRequest(Request request, String serverURI, String resourceUri) {
-           if (serverURI == null || serverURI.isEmpty()) {
-           logging.critical("serverURI == null || serverURI.isEmpty()");
-           throw new IllegalArgumentException("serverURI == null || serverURI.isEmpty()");
-           }
-
-        # defensive check for slash
-        if (! serverURI.endsWith("/") && ! resourceUri.startsWith("/")) {
-        resourceUri = "/" + resourceUri;
-        }
-
-        URI uri = null;
-        try {
-        uri = new URI(serverURI + resourceUri);
-        } catch (URISyntaxException use) {
-        logging.critical("Invalid URI: " + use.getMessage());
-        # TODO
-        }
-
-        request.setURI(uri);
         if (request.requiresToken()) {
-        request.setToken(TokenManager.getInstance().acquireToken());
+            request.setToken(TokenManager.getInstance().acquireToken())
         }
 
-        request.registerResponseHandler(new TestResponseHandler());
+        request.registerResponseHandler(new TestResponseHandler())
 
         # enable response queue for synchronous I / O
-        if (sync) {
-        request.enableResponseQueue(true);
-        }
+        if sync:
+            request.enableResponseQueue(True)
 
-        # print request info
-        if (verbose) {
-        logging.info("Request for test " + this.testName + " sent");
-        str(request)
-        }
-
-        # execute the request
-        try {
-        request.execute();
-        if (sync) {
-        request.receiveResponse();
-        }
-        } catch (IOException e) {
-        logging.critical("Failed to execute request: " + e.getMessage());
-        sys.exit(-1);
-        } catch (InterruptedException e) {
-        logging.critical("Interupted during receive: " + e.getMessage())
-        sys.exit(-1)
-        }
-        }
-         * / 
-        /** 
-         * The Class TestResponseHandler.
-         * / 
-        protected class TestResponseHandler implements ResponseHandler {
-
-            /** 
-             * @see ch.ethz.inf.vs.californium.coap.ResponseHandler#handleResponse(ch.ethz.inf.vs.californium.coap.Response)
-             */ 
-            @Override
-                public void handleResponse(Response response) {
-
-                    logging.info();
-                    logging.info("**** TEST: " + testName + " ****");
-
-                    # checking the response
-                    if (response != null) {
-
-                        # print response info
-                        if (verbose) {
-                            logging.info("Response received");
-                            logging.info("Time elapsed (ms): "
-                                    + response.getRTT());
-                            response.prettyPrint();
-                        }
-
-                        logging.info("**** BEGIN CHECK ****");
-
-                        if (checkResponse(response.getRequest(), response)) {
-                            logging.info("**** TEST PASSED ****");
-                            addSummaryEntry(testName + ": PASSED");
-                        } else {
-                            logging.info("**** TEST FAILED ****");
-                            addSummaryEntry(testName + ": FAILED");
-                        }
-
-                        tickOffTest();
-                    }
-
+            # execute the request
+            try {
+                request.execute()
+                if (sync) {
+                    request.receiveResponse()
                 }
-        }
-
-        /** 
-         * Check response.
-         * 
-         * @param request
-         * the request
-         * @param response
-         * the response
-         * @return true, if successful
-         */ 
-        protected abstract boolean checkResponse(Request request, Response response);
-
-        /** 
-         * Check int.
-         * 
-         * @param expected
-         * the expected
-         * @param actual
-         * the actual
-         * @param fieldName
-         * the field name
-         * @return true, if successful
-         */ 
-        protected boolean checkInt(int expected, int actual, String fieldName) {
-            boolean success = expected == actual;
-
-            if (! success) {
-                logging.info("FAIL: Expected " + fieldName + ": " + expected + ", but was: " + actual);
-            } else {
-                logging.info("PASS: Correct " + fieldName + String.format(" (%d)", actual));
             }
 
-            return success;
-        }
+    def test_token(self):
+        """
+        Check token.
+        @param expectedToken the expected token
+        @param actualToken the actual token
+        @return True, if successful
+        """
+        #
+        success = True
 
-        /** 
-         * Check type.
-         * 
-         * @param expectedMessageType
-         * the expected message type
-         * @param actualMessageType
-         * the actual message type
-         * @return true, if successful
-         */ 
-        protected boolean checkType(Message.messageType expectedMessageType, Message.messageType actualMessageType) {
-            boolean success = expectedMessageType.equals(actualMessageType);
+        if (expextedOption.equals(new Option(TokenManager.emptyToken, options.TOKEN))):
+            self.assertEqual(None, actualOption)
+        else:
+            success = actualOption.getRawValue().length <= 8
+            success &= actualOption.getRawValue().length >= 1
 
-            if (! success) {
-                logging.info("FAIL: Expected type %s, but was %s\n", expectedMessageType, actualMessageType);
-            } else {
-                logging.info("PASS: Correct type (%s)\n", actualMessageType.toString());
-            }
+        # eval token length
+        if not success:
+            logging.info("FAIL: Expected token %s, but %s has illeagal length" % expextedOption, actualOption)
+            
+        success &= expextedOption.toString().equals(actualOption.toString())
 
-            return success;
-        }
+    def test_checkDiscovery(expextedAttribute, actualDiscovery):
+        """
+        Check discovery.
+        @param expextedAttribute the resource attribute to filter
+        @param actualDiscovery the reported Link Format
+        @return True, if successful
+        :param actualDiscovery:
+        :param expextedAttribute:
+        """
 
-        /** 
-         * Checks for Content - Type option.
-         * 
-         * @param response
-         * the response
-         * @return true, if successful
-         */ 
-        protected boolean hasContentType(Response response) {
-            boolean success = response.hasOption(OptionNumberRegistry.CONTENT_TYPE);
+        Resource res = RemoteResource.newRoot(actualDiscovery)
 
-            if (! success) {
-                logging.info("FAIL: Response without Content-Type");
-            } else {
-                logging.info("PASS: Content-Type (%s)\n", MediaTypeRegistry.toString(response.getContentType()));
-            }
+        List < Option > query = new ArrayList < Option > ()
+        query.add(new Option(expextedAttribute, options.URI_QUERY))
 
-            return success;
-        }
+        success = True
 
-        def hasLocation(response):
-            """
-            Checks for Location option.
-            @param response the response
-            @return true, if successful
-            """
-            success = response.hasOption(OptionNumberRegistry.LOCATION_PATH)
+        for sub in res.getSubResources():
+            success &= LinkFormat.matches(sub, query)
 
             if not success:
-                logging.info("FAIL: Response without Location")
-            else:
-                logging.info("PASS: Location (%s)\n", response.getLocationPath())
-
-            return success
-
-        /** 
-         * Checks for Observe option.
-         * 
-         * @param response
-         * the response
-         * @return true, if successful
-         */ 
-        protected boolean hasObserve(Response response, boolean invert) {
-            boolean success = response.hasOption(OptionNumberRegistry.OBSERVE);
-
-            # invert to check for not having the option
-            success ^= invert;
-
-            if (! success) {
-                logging.info("FAIL: Response without Observe");
-            } else if (! invert) {
-                logging.info("PASS: Observe (%d)\n", response.getFirstOption(OptionNumberRegistry.OBSERVE).getIntValue());
-            } else {
-                logging.info("PASS: No Observe");
-            }
-
-            return success;
-        }
-        protected boolean hasObserve(Response response) {
-            return hasObserve(response, false);
-        }
-
-        protected boolean checkOption(Option expextedOption, Option actualOption) {
-            success = actualOption and expextedOption.optionNumber == actualOption.optionNumber
-
-            if not success:
-                logging.info("FAIL: Missing option nr %d\n", expextedOption.optionNumber);
-            } else {
-
-                # raw value byte array can be different, although value is the same 
-                success &= expextedOption.toString().equals(actualOption.toString());
-
-                if (! success) {
-                    logging.info("FAIL: Expected %s, but was %s\n", expextedOption.toString(), actualOption.toString());
-                } else {
-                    logging.info("PASS: Correct option (%s)\n", actualOption.toString());
-                }
-            }
-
-            return success;
-        }
-
-        /** 
-         * Check token.
-         * 
-         * @param expectedToken the expected token
-         * @param actualToken the actual token
-         * @return true, if successful
-         */ 
-        protected boolean checkToken(Option expextedOption, Option actualOption) {
-            success = True
-
-            if (expextedOption.equals(new Option(TokenManager.emptyToken, OptionNumberRegistry.TOKEN))) {
-
-                success = actualOption == null;
-
-                if (! success) {
-                    logging.info("FAIL: Expected empty token, but was %s" % actualOption)
-                } else {
-                    logging.info("PASS: Correct empty token")
-                }
-
-                return success;
-
-            } else {
-
-                success = actualOption.getRawValue().length <= 8
-                success &= actualOption.getRawValue().length >= 1
-
-                # eval token length
-                if (! success) {
-                    logging.info("FAIL: Expected token %s, but %s has illeagal length" % expextedOption, actualOption);
-                    return success
-                }
-
-                success &= expextedOption.toString().equals(actualOption.toString());
-
-                if (! success) {
-                    logging.info("FAIL: Expected token %s, but was %s\n", expextedOption, actualOption);
-                } else {
-                    logging.info("PASS: Correct token (%s)\n", actualOption);
-                }
-
-                return success;
-            }
-        }
-
-        def checkDiscovery(expextedAttribute, actualDiscovery):
-            """
-            Check discovery.
-            @param expextedAttribute the resource attribute to filter
-            @param actualDiscovery the reported Link Format
-            @return true, if successful
-            """
-
-            Resource res = RemoteResource.newRoot(actualDiscovery);
-
-            List < Option > query = new ArrayList < Option > ();
-            query.add(new Option(expextedAttribute, OptionNumberRegistry.URI_QUERY));
-
-            boolean success = true;
-
-            for sub in res.getSubResources():
-                success &= LinkFormat.matches(sub, query)
-
-                if not success:
-                    logging.info("FAIL: Expected %s, but was %s\n", expextedAttribute, LinkFormat.serialize(sub, null, false));
+                logging.info("FAIL: Expected %s, but was %s\n", expextedAttribute, LinkFormat.serialize(sub, null, false))
 
             if success:
                 logging.info("PASS: Correct Link Format filtering")
 
-            return success
-
-
-    class CC01(TestClientAbstract):
+    def test_CC01(self):
         """
         TD_COAP_CORE_01:
         Perform GET transaction (CON mode).
@@ -520,60 +104,40 @@ class PlugtestClient:
         RESOURCE_URI = "/test"
         EXPECTED_RESPONSE_CODE = 69
 
-        public CC01(String serverURI) {
-            super(CC01.class.getSimpleName());
+        r = request.get(self.serverURI+ RESOURCE_URI)
 
-            # create the request
-            Request request = new GETRequest();
 
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
 
-        protected boolean checkResponse(Request request, Response response) {
-            boolean success = true;
+        def checkResponse(Request request, Response response)
+        success = True
 
-            success &= checkType(Message.messageType.ACK, response.getType());
-            success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-            success &= checkInt(request.getMID(), response.getMID(), "MID");
-            success &= hasContentType(response);
+        success &= checkType(Message.messageType.ACK, response.getType())
+        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(request.getMID(), response.getMID(), "MID")
+        self.assertEqual(True, r.hasContentType)
 
-            return success;
-        }
-    }
+        
 
-    class CC02(TestClientAbstract):
+    def test_CC02(self):
         """
         TD_COAP_CORE_02:
         Perform POST transaction (CON mode).
         """
 
-        public static final String RESOURCE_URI = "/test";
-        EXPECTED_RESPONSE_CODE = 65;
+        RESOURCE_URI = "/test"
+        EXPECTED_RESPONSE_CODE = 65
 
-        public CC02(String serverURI) {
-            super(CC02.class.getSimpleName());
+        payload = "TD_COAP_CORE_02"
+        r = request.post(self.serverURI+ RESOURCE_URI, payload=payload)
 
-            # create the request
-            Request request = new POSTRequest();
-            # add payload
-            request.setPayload("TD_COAP_CORE_02", MediaTypeRegistry.TEXT_PLAIN);
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
 
-        protected boolean checkResponse(Request request, Response response) {
-            success = True
+        success &= checkType(Message.messageType.ACK, response.getType())
+        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(request.getMID(), response.getMID(), "MID")
 
-            success &= checkType(Message.messageType.ACK, response.getType())
-            success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
-            success &= checkInt(request.getMID(), response.getMID(), "MID")
-            
-            return success
-        }
-    }
+        
 
-    class CC03(TestClientAbstract):
+    def test_CC03(self):
         """
         TD_COAP_CORE_03:
         Perform PUT transaction (CON mode).
@@ -582,58 +146,26 @@ class PlugtestClient:
         RESOURCE_URI = "/test"
         EXPECTED_RESPONSE_CODE = 68
 
-        public CC03(String serverURI) {
-            super(CC03.class.getSimpleName());
+        r = request.put(self.serverURI + RESOURCE_URI, payload="TD_COAP_CORE_02")
 
-            # create the request
-            Request request = new PUTRequest();
-            # add payload
-            request.setPayload("TD_COAP_CORE_02", MediaTypeRegistry.TEXT_PLAIN);
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
+        self.assertEqual(Message.messageType.ACK, r.type)
+        self.assertEqual(EXPECTED_RESPONSE_CODE, r.code)
 
-        protected boolean checkResponse(Request request, Response response) {
-            success = True
-
-            success &= checkType(Message.messageType.ACK, response.getType());
-            success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-            success &= checkInt(request.getMID(), response.getMID(), "MID");
-
-            return success;
-        }
-    }
-
-    class CC04(TestClientAbstract):
+    def test_CC04(self):
         """
         TD_COAP_CORE_04:
         Perform DELETE transaction (CON mode).
         """
-
         RESOURCE_URI = "/test"
         EXPECTED_RESPONSE_CODE = 66
 
-        public CC04(String serverURI) {
-            super(CC04.class.getSimpleName());
 
-            # create the request
-            Request request = new DELETERequest();
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
+        r = request.delete(serverURI + RESOURCE_URI)
+        self.assertEqual(Message.messageType.ACK, r.type)
+        self.assertEqual(EXPECTED_RESPONSE_CODE, r.code)
 
-        protected boolean checkResponse(Request request, Response response) {
-            boolean success = true;
 
-            success &= checkType(Message.messageType.ACK, response.getType());
-            success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-            success &= checkInt(request.getMID(), response.getMID(), "MID");
-
-            return success;
-        }
-    }
-
-    class CC05(TestClientAbstract):
+    def test_CC05(self):
         """
         TD_COAP_CORE_05:
         Perform GET transaction (NON mode).
@@ -642,27 +174,14 @@ class PlugtestClient:
         RESOURCE_URI = "/test"
         EXPECTED_RESPONSE_CODE = 69
 
-        public CC05(String serverURI) {
-            super(CC05.class.getSimpleName());
+        r = request.get(self.serverURI+ RESOURCE_URI, confirmable=False)
 
-            # create the request
-            Request request = new Request(CodeRegistry.METHOD_GET, false);
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
+        self.assertEqual(Message.messageType.NON, r.type)
+        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(True, r.hasContentType())
 
-        protected boolean checkResponse(Request request, Response response) {
-            boolean success = true;
 
-            success &= checkType(Message.messageType.NON, response.getType());
-            success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-            success &= hasContentType(response);
-
-            return success;
-        }
-    }
-
-    class CC06(TestClientAbstract):
+    def test_CC06(self):
         """
         TD_COAP_CORE_06:
         Perform POST transaction (NON mode).
@@ -671,28 +190,14 @@ class PlugtestClient:
         RESOURCE_URI = "/test"
         EXPECTED_RESPONSE_CODE = 65
 
-        public CC06(String serverURI) {
-            super(CC06.class.getSimpleName());
+        r = request.post(self.serverURI+ RESOURCE_URI,\
+            confirmable=False,\
+            payload="TD_COAP_CORE_06")
 
-            # create the request
-            Request request = new Request(CodeRegistry.METHOD_POST, false);
-            # add payload
-            request.setPayload("TD_COAP_CORE_06", MediaTypeRegistry.TEXT_PLAIN);
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
+        self.assertEqual(Message.messageType.NON, r.type)
+        self.assertEqual(EXPECTED_RESPONSE_CODE, r.code)
 
-        protected boolean checkResponse(Request request, Response response) {
-            boolean success = true;
-
-            success &= checkType(Message.messageType.NON, response.getType());
-            success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-
-            return success;
-        }
-    }
-
-    class CC07(TestClientAbstract):
+    def test_CC07(self):
         """
         TD_COAP_CORE_07:
         Perform PUT transaction (NON mode).
@@ -700,28 +205,14 @@ class PlugtestClient:
         RESOURCE_URI = "/test"
         EXPECTED_RESPONSE_CODE = 68
 
-        public CC07(String serverURI) {
-            super(CC07.class.getSimpleName());
+        # create the request
+        r = request.put(self.serverURI+ RESOURCE_URI, confirmable=False, payload="TD_COAP_CORE_07")
 
-            # create the request
-            Request request = new Request(CodeRegistry.METHOD_PUT, false);
-            # add payload
-            request.setPayload("TD_COAP_CORE_07", MediaTypeRegistry.TEXT_PLAIN);
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
+        self.assertEqual(Message.messageType.NON, r.type)
+        self.assertEqual(EXPECTED_RESPONSE_CODE, r.code, "code")
 
-        protected boolean checkResponse(Request request, Response response) {
-            boolean success = true;
 
-            success &= checkType(Message.messageType.NON, response.getType());
-            success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-
-            return success;
-        }
-    }
-
-    class CC08(TestClientAbstract):
+    def test_CC08(self):
         """
         TD_COAP_CORE_08:
         Perform DELETE transaction (NON mode).
@@ -730,26 +221,13 @@ class PlugtestClient:
         RESOURCE_URI = "/test"
         EXPECTED_RESPONSE_CODE = 66
 
-        public CC08(String serverURI) {
-            super(CC08.class.getSimpleName());
+        r = request.delete(self.serverURI + RESOURCE_URI, confirmable=False)
 
-            # create the request
-            Request request = new Request(CodeRegistry.METHOD_DELETE, false);
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
+        self.assertEqual(Message.messageType.NON, r.type)
+        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
 
-        protected boolean checkResponse(Request request, Response response) {
-            boolean success = true;
 
-            success &= checkType(Message.messageType.NON, response.getType());
-            success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-
-            return success;
-        }
-    }
-
-    class CC09(TestClientAbstract):
+    def test_CC09(self):
         """
         TD_COAP_CORE_09:
         Perform GET transaction with delayed response (CON mode, no piggyback).
@@ -758,27 +236,15 @@ class PlugtestClient:
         RESOURCE_URI = "/separate"
         EXPECTED_RESPONSE_CODE = 69
 
-        public CC09(String serverURI) {
-            super(CC09.class.getSimpleName());
+        # create the request
+        r = request.get(self.serverURI + RESOURCE_URI, confirmable=True)
 
-            # create the request
-            Request request = new Request(CodeRegistry.METHOD_GET, true);
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
 
-        protected boolean checkResponse(Request request, Response response) {
-            boolean success = true;
+        self.assertEqual(Message.messageType.CON, r.type)
+        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode())
+        self.assertEqual(True, r.hasContentType)
 
-            success &= checkType(Message.messageType.CON, response.getType());
-            success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-            success &= hasContentType(response);
-
-            return success;
-        }
-    }
-
-    class CC10(TestClientAbstract):
+    def test_CC10(self):
         """
         TD_COAP_CORE_10:
         Handle request containing Token option.
@@ -787,60 +253,34 @@ class PlugtestClient:
         RESOURCE_URI = "/test"
         EXPECTED_RESPONSE_CODE = 69
 
-        public CC10(String serverURI) {
-            super(CC10.class.getSimpleName());
+        token = TokenManager.getInstance().acquireToken(False) # not preferring empty token
+        r = request.get(self.serverURI + RESOURCE_URI, confirmable=True, token=token)
 
-            # create the request
-            Request request = new Request(CodeRegistry.METHOD_GET, true);
-            request.setToken(TokenManager.getInstance().acquireToken(false)); # not preferring empty token
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
+        self.assertEqual(Message.messageType.ACK, r.type)
+        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(request.getFirstOption(options.TOKEN), response.getFirstOption(options.TOKEN))
+        self.assertEqual(True, r.hasContentType)
 
-        protected boolean checkResponse(Request request, Response response) {
-            boolean success = true;
-
-            success &= checkType(Message.messageType.ACK, response.getType());
-            success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-            success &= checkToken(request.getFirstOption(OptionNumberRegistry.TOKEN), response.getFirstOption(OptionNumberRegistry.TOKEN));
-            success &= hasContentType(response);
-
-            return success;
-        }
-    }
-
-    class CC11(TestClientAbstract):
+    def test_CC11(self):
         """
         TD_COAP_CORE_11:
         Handle request not containing Token option.
         """
 
-        public static final String RESOURCE_URI = "/test";
-        EXPECTED_RESPONSE_CODE = 69;
+        RESOURCE_URI = "/test"
+        EXPECTED_RESPONSE_CODE = 69
 
-        public CC11(String serverURI) {
-            super(CC11.class.getSimpleName());
+        token = TokenManager.getInstance().acquireToken(True)
+        r = request.get(self.serverURI + RESOURCE_URI, confirmable=True, token=token)
 
-            # create the request
-            Request request = new Request(CodeRegistry.METHOD_GET, true);
-            request.setToken(TokenManager.getInstance().acquireToken(true));
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
+        self.assertEqual(Message.messageType.ACK, response.getType())
+        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(new Option(TokenManager.emptyToken, options.TOKEN), response.getFirstOption(options.TOKEN))
+        self.assertEqual(True, r.hasContentType())
 
-        protected boolean checkResponse(Request request, Response response) {
-            boolean success = true;
+        
 
-            success &= checkType(Message.messageType.ACK, response.getType());
-            success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-            success &= checkToken(new Option(TokenManager.emptyToken, OptionNumberRegistry.TOKEN), response.getFirstOption(OptionNumberRegistry.TOKEN));
-            success &= hasContentType(response);
-
-            return success;
-        }
-    }
-
-    class CC12(TestClientAbstract):
+    def test_CC12(self):
         """
         TD_COAP_CORE_12:
         Handle request containing several Uri - Path options.
@@ -849,27 +289,19 @@ class PlugtestClient:
         RESOURCE_URI = "/seg1/seg2/seg3"
         EXPECTED_RESPONSE_CODE = 69
 
-        public CC12(String serverURI) {
-            super(CC12.class.getSimpleName());
-
-            # create the request
-            Request request = new Request(CodeRegistry.METHOD_GET, true);
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
+        Request request = request.get(self.serverURI + RESOURCE_URI, confirmable=True)
+        executeRequest(request, serverURI, RESOURCE_URI)
 
         protected boolean checkResponse(Request request, Response response) {
-            boolean success = true;
+            boolean success = True
 
-            success &= checkType(Message.messageType.ACK, response.getType());
-            success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-            success &= hasContentType(response);
+        success &= checkType(Message.messageType.ACK, response.getType())
+        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        success &= hasContentType(response)
 
-            return success;
-        }
-    }
+        
 
-    class CC13(TestClientAbstract):
+    def test_CC13(self):
         """
         TD_COAP_CORE_13:
         Handle request containing several Uri - Query options.
@@ -878,31 +310,21 @@ class PlugtestClient:
         RESOURCE_URI = "/query"
         EXPECTED_RESPONSE_CODE = 69
 
-        public CC13(String serverURI) {
-            super(CC13.class.getSimpleName());
+        # create the request
+        r = request.get(self.serverURI + RESOURCE_URI, confirmable=True)
+        # add query
+        request.setOption(new Option("first=1", options.URI_QUERY))
+        request.addOption(new Option("second=2", options.URI_QUERY))
+        request.addOption(new Option("third=3", options.URI_QUERY))
 
-            # create the request
-            Request request = new Request(CodeRegistry.METHOD_GET, true);
-            # add query
-            request.setOption(new Option("first=1", OptionNumberRegistry.URI_QUERY));
-            request.addOption(new Option("second=2", OptionNumberRegistry.URI_QUERY));
-            request.addOption(new Option("third=3", OptionNumberRegistry.URI_QUERY));
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
 
-        protected boolean checkResponse(Request request, Response response) {
-            boolean success = true;
+        self.assertEqual(Message.messageType.ACK, response.getType()) || checkType(Message.messageType.CON, response.getType())
+        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(True, r.hasContentType(response))
 
-            success &= checkType(Message.messageType.ACK, response.getType()) || checkType(Message.messageType.CON, response.getType());
-            success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-            success &= hasContentType(response);
+        
 
-            return success;
-        }
-    }
-
-    class CC16(TestClientAbstract):
+    def test_CC16(self):
         """
         TD_COAP_CORE_16:
         Perform GET transaction with delayed response (NON mode).
@@ -911,27 +333,13 @@ class PlugtestClient:
         RESOURCE_URI = "/separate"
         EXPECTED_RESPONSE_CODE = 69
 
-        public CC16(String serverURI) {
-            super(CC16.class.getSimpleName());
+        r =  request.get(self.serverURI + RESOURCE_URI, confirmable=False)
 
-            # create the request
-            Request request = new Request(CodeRegistry.METHOD_GET, false);
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
+        self.assertEqual(Message.messageType.NON, r.type)
+        self.assertEqual(EXPECTED_RESPONSE_CODE, r.code)
+        self.assertEqual(True, r.hasContentType())
 
-        protected boolean checkResponse(Request request, Response response) {
-            boolean success = true;
-
-            success &= checkType(Message.messageType.NON, response.getType());
-            success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-            success &= hasContentType(response);
-
-            return success;
-        }
-    }
-
-    class CL01(TestClientAbstract):
+    def test_CL01(self):
         """
         TD_COAP_LINK_01:
         Access to well - known interface for resource discovery.
@@ -940,27 +348,13 @@ class PlugtestClient:
         RESOURCE_URI = "/.well-known/core"
         EXPECTED_RESPONSE_CODE = 69
 
-        public CL01(String serverURI) {
-            super(CL01.class.getSimpleName());
+        r = request.get(self.serverURI + RESOURCE_URI, confirmable=True)
 
-            # create the request
-            Request request = new Request(CodeRegistry.METHOD_GET, true);
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
+        self.assertEqual(Message.messageType.ACK, response.getType())
+        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(new Option(MediaTypeRegistry.APPLICATION_LINK_FORMAT, options.CONTENT_TYPE), response.getFirstOption(options.CONTENT_TYPE))
 
-        protected boolean checkResponse(Request request, Response response) {
-            boolean success = true;
-
-            success &= checkType(Message.messageType.ACK, response.getType());
-            success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-            success &= checkOption(new Option(MediaTypeRegistry.APPLICATION_LINK_FORMAT, OptionNumberRegistry.CONTENT_TYPE), response.getFirstOption(OptionNumberRegistry.CONTENT_TYPE));
-
-            return success;
-        }
-    }
-
-    class CL02(TestClientAbstract):
+    def test_CL02(self):
         """
         TD_COAP_LINK_02:
         Use filtered requests for limiting discovery results.
@@ -970,30 +364,20 @@ class PlugtestClient:
         EXPECTED_RESPONSE_CODE = 69
         EXPECTED_RT = "rt=block"
 
-        public CL02(String serverURI) {
-            super(CL02.class.getSimpleName());
+        # create the request
+        r = request.get(self.serverURI + RESOURCE_URI, confirmable=True)
+        # set query
+        request.setOption(new Option(EXPECTED_RT, options.URI_QUERY))
+        # set the parameters and execute the request
 
-            # create the request
-            Request request = new Request(CodeRegistry.METHOD_GET, true);
-            # set query
-            request.setOption(new Option(EXPECTED_RT, OptionNumberRegistry.URI_QUERY));
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
+        self.assertEqual(Message.messageType.ACK, response.getType())
+        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(new Option(MediaTypeRegistry.APPLICATION_LINK_FORMAT, options.CONTENT_TYPE), response.getFirstOption(options.CONTENT_TYPE))
+        self.assertEqual(EXPECTED_RT, response.getPayloadString())
 
-        protected boolean checkResponse(Request request, Response response) {
-            boolean success = true;
+        
 
-            success &= checkType(Message.messageType.ACK, response.getType());
-            success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-            success &= checkOption(new Option(MediaTypeRegistry.APPLICATION_LINK_FORMAT, OptionNumberRegistry.CONTENT_TYPE), response.getFirstOption(OptionNumberRegistry.CONTENT_TYPE));
-            success &= checkDiscovery(EXPECTED_RT, response.getPayloadString());
-
-            return success;
-        }
-    }
-
-    class CB01(TestClientAbstract):
+    def test_CB01(self):
         """
         TD_COAP_BLOCK_01:
         Handle GET blockwise transfer for large resource (early negotiation).
@@ -1002,40 +386,24 @@ class PlugtestClient:
         RESOURCE_URI = "/large"
         EXPECTED_RESPONSE_CODE = 69
 
-        public CB01(String serverURI) {
-            super(CB01.class.getSimpleName());
+        r = request.get(self.serverURI + RESOURCE_URI, confirmable=True)
 
-            # create the request
-            Request request = new Request(CodeRegistry.METHOD_GET, true);
-            # set block2
-            request.setOption(new BlockOption(OptionNumberRegistry.BLOCK2, 0, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false));
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
-
-        protected boolean checkResponse(Request request, Response response) {
-            boolean success = response.hasOption(OptionNumberRegistry.BLOCK2);
+        #request.setOption(new BlockOption(options.BLOCK2, 0, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false))
 
 
-            if (! success) {
-                logging.info("FAIL: no Block2 option");
-            } else {
-                # get actual number of blocks for check
-                int maxNUM = ((BlockOption)response.getFirstOption(OptionNumberRegistry.BLOCK2)).getNUM();
+        self.assertEqual(True, r.hasOption(options.BLOCK2))
 
-                success &= checkType(Message.messageType.ACK, response.getType());
-                success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-                success &= checkOption(
-                        new BlockOption(OptionNumberRegistry.BLOCK2, maxNUM, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false),
-                        response.getFirstOption(OptionNumberRegistry.BLOCK2)
-                        );
-                success &= hasContentType(response);
-            }
-            return success;
-        }
-    }
+        # get actual number of blocks for check
+        maxNUM = ((BlockOption)response.getFirstOption(options.BLOCK2)).getNUM()
 
-    class CB02(TestClientAbstract):
+        self.assertEqual(Message.messageType.ACK, response.getType())
+        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(
+            new BlockOption(options.BLOCK2, maxNUM, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false),
+                response.getFirstOption(options.BLOCK2))
+        self.assertEqual(hasContentType(response)
+
+    def test_CB02():
         """
         TD_COAP_BLOCK_02:
         Handle GET blockwise transfer for large resource (late negotiation).
@@ -1044,37 +412,21 @@ class PlugtestClient:
         RESOURCE_URI = "/large"
         EXPECTED_RESPONSE_CODE = 69
 
-        public CB02(String serverURI) {
-            super(CB02.class.getSimpleName());
+        r = request.get(self.serverURI + RESOURCE_URI, confirmable=True)
 
-            # create the request
-            Request request = new Request(CodeRegistry.METHOD_GET, true);
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
+        self.assertEqual(True, response.hasOption(options.BLOCK2))
 
-        protected boolean checkResponse(Request request, Response response) {
-            boolean success = response.hasOption(OptionNumberRegistry.BLOCK2);
+        # get actual number of blocks for check
+        maxNUM = ((BlockOption)response.getFirstOption(options.BLOCK2)).getNUM()
 
-            if (! success) {
-                logging.info("FAIL: no Block2 option");
-            } else {
-                # get actual number of blocks for check
-                int maxNUM = ((BlockOption)response.getFirstOption(OptionNumberRegistry.BLOCK2)).getNUM();
+        self.assertEqual((Message.messageType.ACK, response.getType())
+        self.assertEqual(EXPECTED_RESPONSE_CODE, r.code)
+        self.assertEqual(
+            new BlockOption(options.BLOCK2, maxNUM, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false),
+                response.getFirstOption(options.BLOCK2))
+        self.assertEqual(True, r.hasContentType)
 
-                success &= checkType(Message.messageType.ACK, response.getType());
-                success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-                success &= checkOption(
-                        new BlockOption(OptionNumberRegistry.BLOCK2, maxNUM, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false),
-                        response.getFirstOption(OptionNumberRegistry.BLOCK2)
-                        );
-                success &= hasContentType(response);
-            }
-            return success;
-        }
-    }
-
-    class CB03(TestClientAbstract):
+    def test_CB03(self):
         """
         TD_COAP_BLOCK_03:
         Handle PUT blockwise transfer for large resource.
@@ -1083,48 +435,28 @@ class PlugtestClient:
         RESOURCE_URI = "/large-update"
         EXPECTED_RESPONSE_CODE = 68
 
-        public CB03(String serverURI) {
-            super(CB03.class.getSimpleName());
+        payload = ""
 
-            # create the request
-            Request request = new Request(CodeRegistry.METHOD_PUT, true);
+        for i in range(20):
+            for j in range(63):
+                payload.append(int(i % 10))
+                payload.append('\n')
 
-            # create payload
-            StringBuilder builder = new StringBuilder();
-            for (int i=0; i < 20; + +i) {
-                for (int j=0; j < 63; + +j) {
-                    builder.append(Integer.toString(i % 10));
-                }
-                builder.append('\n');
-            }
-            request.setPayload(builder.toString(), MediaTypeRegistry.TEXT_PLAIN);
+        r = request.put(self.serverURI + RESOURCE_URI, confirmable=True, payload=payload)
 
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
+        success = response.hasOption(options.BLOCK1)
 
-        protected boolean checkResponse(Request request, Response response) {
-            boolean success = response.hasOption(OptionNumberRegistry.BLOCK1);
+        # get actual number of blocks for check
+        maxNUM = ((BlockOption)response.getFirstOption(options.BLOCK1)).getNUM()
 
-            if (! success) {
-                logging.info("FAIL: no Block1 option");
-            } else {
-                # get actual number of blocks for check
-                int maxNUM = ((BlockOption)response.getFirstOption(OptionNumberRegistry.BLOCK1)).getNUM();
+        self.assertEqual(Message.messageType.ACK, response.getType())
+        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(
+            new BlockOption(options.BLOCK1, maxNUM, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false),
+                response.getFirstOption(options.BLOCK1))
 
-                success &= checkType(Message.messageType.ACK, response.getType());
-                success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-                success &= checkOption(
-                        new BlockOption(OptionNumberRegistry.BLOCK1, maxNUM, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false),
-                        response.getFirstOption(OptionNumberRegistry.BLOCK1)
-                        );
-            }
 
-            return success;
-        }
-    }
-
-    class CB04(TestClientAbstract):
+    def test_CB04(self):
         """
         TD_COAP_BLOCK_04:
         Handle POST blockwise transfer for large resource.
@@ -1133,49 +465,31 @@ class PlugtestClient:
         RESOURCE_URI = "/large-create"
         EXPECTED_RESPONSE_CODE = 65
 
-        public CB04(String serverURI) {
-            super(CB04.class.getSimpleName());
 
-            # create the request
-            Request request = new Request(CodeRegistry.METHOD_POST, true);
+        payload = ""
 
-            # create payload
-            StringBuilder builder = new StringBuilder();
-            for (int i=0; i < 20; + +i) {
-                for (int j=0; j < 63; + +j) {
-                    builder.append(Integer.toString(i % 10));
-                }
-                builder.append('\n');
-            }
-            request.setPayload(builder.toString(), MediaTypeRegistry.TEXT_PLAIN);
+        for i in range(20):
+            for j in range(63):
+                payload.append(str(i % 10))
+                payload.append('\n')
 
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
+        r = request.post(self.server + RESOURCE_URI, confirmable=True, payload=payload)
 
-        protected boolean checkResponse(Request request, Response response) {
-            boolean success = response.hasOption(OptionNumberRegistry.BLOCK1);
+        self.assertEqual(True, r.hasOption(options.BLOCK1))
 
-            if (! success) {
-                logging.info("FAIL: no Block1 option");
-            } else {
-                # get actual number of blocks for check
-                int maxNUM = ((BlockOption)response.getFirstOption(OptionNumberRegistry.BLOCK1)).getNUM();
 
-                success &= checkType(Message.messageType.ACK, response.getType());
-                success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-                success &= checkOption(
-                        new BlockOption(OptionNumberRegistry.BLOCK1, maxNUM, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false),
-                        response.getFirstOption(OptionNumberRegistry.BLOCK1)
-                        );
-                success &= hasLocation(response);
-            }
+        # get actual number of blocks for check
+        maxNUM = ((BlockOption)response.getFirstOption(options.BLOCK1)).getNUM()
 
-            return success;
-        }
-    }
+        self.assertEqual(Message.messageType.ACK, response.getType())
+        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(
+            new BlockOption(options.BLOCK1, maxNUM, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false),
+                response.getFirstOption(options.BLOCK1))
+        self.assertEqual(True, r.hasLocation)
 
-    class CO01_02(TestClientAbstract):
+
+    def test_CO01_02():
         """
         TD_COAP_OBS_01:
         Handle resource observation.
@@ -1186,326 +500,234 @@ class PlugtestClient:
         RESOURCE_URI = "/obs"
         EXPECTED_RESPONSE_CODE = 69
 
-        public CO01_02(String serverURI) {
-            super(CO01_02.class.getSimpleName());
 
-            # create the request
-            Request request = new Request(CodeRegistry.METHOD_GET, true);
-            # set Observe option
-            request.setOption(new Option(0, OptionNumberRegistry.OBSERVE));
-            # set the parameters and execute the request
-            executeRequest(request, serverURI, RESOURCE_URI);
-        }
+        r = request.get(serverURI, RESOURCE_URI, confirmable=True)
 
-        protected boolean checkResponse(Request request, Response response) {
-            boolean success = true;
+        request.setOption(new Option(0, options.OBSERVE))
 
-            success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-            success &= hasObserve(response);
-            success &= hasContentType(response);
+        self.assertEqual(codes.EXPECTED_RESPONSE_CODE, r.code)
+        self.assertEqual(True, r.hasObserve(response))
+        self.assertEqual(True, r.hasContentType(response))
 
-            return success;
-        }
-        /* 
-           @Override
-           protected synchronized void executeRequest(Request request, String serverURI, String resourceUri) {
-           if (serverURI == null || serverURI.isEmpty()) {
-           throw new IllegalArgumentException("serverURI == null || serverURI.isEmpty()");
-           }
 
-        # defensive check for slash
-        if (! serverURI.endsWith("/") && ! resourceUri.startsWith("/")) {
-        resourceUri = "/" + resourceUri;
-        }
-
-        URI uri = null;
-        try {
-        uri = new URI(serverURI + resourceUri);
-        } catch (URISyntaxException use) {
-        throw new IllegalArgumentException("Invalid URI: " + use.getMessage());
-        }
-
-        request.setURI(uri);
-        if (request.requiresToken()) {
-        request.setToken(TokenManager.getInstance().acquireToken());
-        }
+        request.setURI(uri)
+        if request.requiresToken():
+            request.setToken(TokenManager.getInstance().acquireToken())
 
         # enable response queue for synchronous I / O
-        request.enableResponseQueue(true);
+        request.enableResponseQueue(True)
 
         # for observing
-        int observeLoop = 5;
+        observeLoop = 5
 
         # print request info
-        if (verbose) {
-        logging.info("Request for test " + this.testName + " sent");
-        request.prettyPrint();
-        }
+        if verbose:
+            logging.info("Request for test " + this.testName + " sent")
+        request.prettyPrint()
 
         # execute the request
         try {
-        Response response = null;
-        boolean success = true;
+            Response response = null
+            success = True
 
-        request.execute();
+            request.execute()
 
-        logging.info();
-        logging.info("**** TEST: " + testName + " ****");
-        logging.info("**** BEGIN CHECK ****");
+            # receive multiple responses
+            for i in range(l):
+                response = request.receiveResponse()
 
-        # receive multiple responses
-        for (int l=0; l < observeLoop; + +l) {
-        response = request.receiveResponse();
+                # checking the response
+                if (response != null) {
+
+                    # print response info
+                    if self.verbose:
+                        logging.info("Response received")
+                        logging.info("Time elapsed (ms): " + response.getRTT())
+                        response.prettyPrint()
+
+                success &= checkResponse(response.getRequest(), response)
+
+                if (! hasObserve(response)) {
+                    break
+                }
+            }
+        }
+
+        # TD_COAP_OBS_02: Stop resource observation
+        request.removeOptions(options.OBSERVE)
+        request.setMID(-1)
+        request.execute()
+        response = request.receiveResponse()
+
+        success &= hasObserve(response, True)
+
+        if (success) {
+        logging.info("**** TEST PASSED ****")
+    addSummaryEntry(testName + ": PASSED")
+    } else {
+        logging.info("**** TEST FAILED ****")
+    addSummaryEntry(testName + ": FAILED")
+    }
+
+    tickOffTest()
+
+    } catch (IOException e) {
+        logging.critical("Failed to execute request: " + e.getMessage())
+        sys.exit(-1)
+    } catch (InterruptedException e) {
+        logging.critical("Interupted during receive: " + e.getMessage())
+        sys.exit(-1)
+    }
+
+    def test_CO03_05(self):
+        """
+        TD_COAP_OBS_03:
+        Client detection of deregistration (Max - Age).
+        TD_COAP_OBS_05:
+        Server detection of deregistration (explicit RST).
+        """
+
+        RESOURCE_URI = "/obs"
+        EXPECTED_RESPONSE_CODE = 69
+
+        private Timer timer = new Timer(True)
+
+        /*
+        * Utility class to provide transaction timeouts
+        */
+        private class MaxAgeTask extends TimerTask {
+
+            private Request request
+
+        public MaxAgeTask(Request request) {
+            this.request = request
+        }
+
+        @Override
+        public void run() {
+            this.request.handleTimeout()
+        }
+        }
+
+        r = request.get(self.serverURI + RESOURCE_URI, confirmable=True)
+        request.setOption(new Option(0, options.OBSERVE))
+        }
+
+        protected boolean checkResponse(Request request, Response response) {
+            boolean success = True
+
+        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(True, r.hasObserve)
+        self.assertEqual(True, r.hasContentType)
+
+        protected synchronized void executeRequest(Request request, String serverURI, String resourceUri) {
+        if (self.serverURI == null || serverURI.isEmpty()) {
+            throw new IllegalArgumentException("serverURI == null || serverURI.isEmpty()")
+        }
+
+        # defensive check for slash
+        if (! serverURI.endsWith("/") && ! resourceUri.startsWith("/")) {
+            resourceUri = "/" + resourceUri
+        }
+
+        if (request.requiresToken()) {
+            request.setToken(TokenManager.getInstance().acquireToken())
+        }
+
+    # enable response queue for synchronous I / O
+    if (sync) {
+        request.enableResponseQueue(True)
+    }
+
+    # for observing
+    int observeLoop = 5
+
+    # print request info
+    if (verbose) {
+        logging.info("Request for test " + this.testName + " sent")
+    request.prettyPrint()
+    }
+
+    # execute the request
+    try:
+
+        success = True
+        timedOut = False
+
+        MaxAgeTask timeout = null
+
+        request.execute()
+
+
+    for (int l=0 l < observeLoop + +l) {
+
+        response = request.receiveResponse()
 
         # checking the response
         if (response != null) {
 
-        # print response info
-        if (verbose) {
-        logging.info("Response received");
-        logging.info("Time elapsed (ms): " + response.getRTT());
-        response.prettyPrint();
-        }
-
-        success &= checkResponse(response.getRequest(), response);
-
-        if (! hasObserve(response)) {
-        break;
-        }
-        }
-        }
-
-        # TD_COAP_OBS_02: Stop resource observation
-        request.removeOptions(OptionNumberRegistry.OBSERVE);
-        request.setMID(-1);
-        request.execute();
-        response = request.receiveResponse();
-
-        success &= hasObserve(response, true);
-
-        if (success) {
-            logging.info("**** TEST PASSED ****");
-            addSummaryEntry(testName + ": PASSED");
-        } else {
-            logging.info("**** TEST FAILED ****");
-            addSummaryEntry(testName + ": FAILED");
-        }
-
-        tickOffTest();
-
-    } catch (IOException e) {
-        logging.critical("Failed to execute request: " + e.getMessage());
-        sys.exit(-1);
-    } catch (InterruptedException e) {
-        logging.critical("Interupted during receive: " + e.getMessage());
-        sys.exit(-1);
-    }
-}
-}* / 
-
-class CO03_05(TestClientAbstract):
-    """
-    TD_COAP_OBS_03:
-    Client detection of deregistration (Max - Age).
-    TD_COAP_OBS_05:
-    Server detection of deregistration (explicit RST).
-    """
-
-    RESOURCE_URI = "/obs"
-    EXPECTED_RESPONSE_CODE = 69
-
-    private Timer timer = new Timer(true);
-
-    /* 
-     * Utility class to provide transaction timeouts
-     */ 
-    private class MaxAgeTask extends TimerTask {
-
-        private Request request;
-
-        public MaxAgeTask(Request request) {
-            this.request = request;
-        }
-
-        @Override
-            public void run() {
-                this.request.handleTimeout();
+            if (l >= 2 && ! timedOut) {
+                logging.info("+++++++++++++++++++++++")
+                logging.info("++++ REBOOT SERVER ++++")
+                logging.info("+++++++++++++++++++++++")
             }
+
+    if (timeout != null) {
+        timeout.cancel()
+    timer.purge()
     }
 
-    public CO03_05(String serverURI) {
-        super(CO03_05.class.getSimpleName());
+    long time = response.getMaxAge() * 1000
 
-        # create the request
-        Request request = new Request(CodeRegistry.METHOD_GET, true);
-        # set Observe option
-        request.setOption(new Option(0, OptionNumberRegistry.OBSERVE));
-        # set the parameters and execute the request
-        executeRequest(request, serverURI, RESOURCE_URI);
+    timeout = new MaxAgeTask(request)
+    timer.schedule(timeout, time + 1000)
+
+    # print response info
+    if (verbose) {
+        logging.info("Response received")
+    logging.info("Time elapsed (ms): " + response.getRTT())
+    response.prettyPrint()
     }
 
-    protected boolean checkResponse(Request request, Response response) {
-        boolean success = true;
+    success &= checkResponse(response.getRequest(), response)
 
-        success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-        success &= hasObserve(response);
-        success &= hasContentType(response);
-
-        return success;
+    if (! hasObserve(response)) {
+    break
     }
-    /* 
-        @Override
-        protected synchronized void executeRequest(Request request, String serverURI, String resourceUri) {
-        if (serverURI == null || serverURI.isEmpty()) {
-        throw new IllegalArgumentException("serverURI == null || serverURI.isEmpty()");
+
+    } else {
+        timedOut = True
+    logging.info("PASS: Max-Age timed out")
+    request.setMID(-1)
+    request.execute()
+
+    + +observeLoop
+    }
+    }
+
+
         }
+    }
 
-# defensive check for slash
-if (! serverURI.endsWith("/") && ! resourceUri.startsWith("/")) {
-resourceUri = "/" + resourceUri;
-}
 
-URI uri = null;
-try {
-uri = new URI(serverURI + resourceUri);
-} catch (URISyntaxException use) {
-throw new IllegalArgumentException("Invalid URI: " + use.getMessage());
-}
+    def test_CO04(self):
+        """
+        TD_COAP_OBS_04:
+        Server detection of deregistration (client OFF).
+        """
 
-request.setURI(uri);
-if (request.requiresToken()) {
-request.setToken(TokenManager.getInstance().acquireToken());
-}
-
-# enable response queue for synchronous I / O
-if (sync) {
-request.enableResponseQueue(true);
-}
-
-# for observing
-int observeLoop = 5;
-
-# print request info
-if (verbose) {
-logging.info("Request for test " + this.testName + " sent");
-request.prettyPrint();
-}
-
-# execute the request
-try {
-Response response = null;
-boolean success = true;
-boolean timedOut = false;
-
-MaxAgeTask timeout = null;
-
-request.execute();
-
-logging.info("**** TEST: " + testName + " ****");
-logging.info("**** BEGIN CHECK ****");
-
-for (int l=0; l < observeLoop; + +l) {
-
-response = request.receiveResponse();
-
-# checking the response
-if (response != null) {
-
-if (l >= 2 && ! timedOut) {
-logging.info("+++++++++++++++++++++++");
-logging.info("++++ REBOOT SERVER ++++");
-logging.info("+++++++++++++++++++++++");
-}
-
-if (timeout != null) {
-timeout.cancel();
-timer.purge();
-}
-
-long time = response.getMaxAge() * 1000;
-
-timeout = new MaxAgeTask(request);
-timer.schedule(timeout, time + 1000);
-
-# print response info
-if (verbose) {
-    logging.info("Response received");
-    logging.info("Time elapsed (ms): " + response.getRTT());
-    response.prettyPrint();
-}
-
-success &= checkResponse(response.getRequest(), response);
-
-if (! hasObserve(response)) {
-    break;
-}
-
-} else {
-    timedOut = true;
-    logging.info("PASS: Max-Age timed out");
-    request.setMID(-1);
-    request.execute();
-
-    + +observeLoop;
-}
-}
-
-# RST to cancel
-response.reject();
-
-success &= timedOut;
-
-if (success) {
-    logging.info("**** TEST PASSED ****");
-    addSummaryEntry(testName + ": PASSED");
-} else {
-    logging.info("**** TEST FAILED ****");
-    addSummaryEntry(testName + ": FAILED");
-}
-
-tickOffTest();
-
-} catch (IOException e) {
-    logging.critical("Failed to execute request: " + e.getMessage());
-    sys.exit(-1);
-} catch (InterruptedException e) {
-    logging.critical("Interupted during receive: " + e.getMessage());
-    sys.exit(-1);
-}
-}
-}
-* / 
-class CO04(TestClientAbstract):
-    """
-    TD_COAP_OBS_04:
-    Server detection of deregistration (client OFF).
-    """
-
-    RESOURCE_URI = "/obs"
-    EXPECTED_RESPONSE_CODE = 69
-
-    public CO04(String serverURI) {
-        super(CO04.class.getSimpleName());
+        RESOURCE_URI = "/obs"
+        EXPECTED_RESPONSE_CODE = 69
 
         # create the request
-        Request request = new Request(CodeRegistry.METHOD_GET, true);
+        r = request.get(self.serverURI + RESOURCE_URI)
         # set Observe option
-        request.setOption(new Option(0, OptionNumberRegistry.OBSERVE));
-        # set the parameters and execute the request
-        executeRequest(request, serverURI, RESOURCE_URI);
-    }
+        request.setOption(new Option(0, options.OBSERVE))
 
-    protected boolean checkResponse(Request request, Response response) {
-        boolean success = true;
 
-        success &= checkInt(EXPECTED_RESPONSE_CODE, response.getCode(), "code");
-        success &= hasObserve(response);
-        success &= hasContentType(response);
-
-        return success;
-    }
-}
-}
+        self.assertEqual(EXPECTED_RESPONSE_CODE, r.code)
+        self.assertEqual(True, r.hasObserve)
+        self.assertEqual(True, r.hasContentType)
 
 if __name__ == '__main__':
     unittest.main()

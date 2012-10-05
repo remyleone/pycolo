@@ -14,7 +14,9 @@ class LongPath(Resource):
         self.title = "Long path resource"
 
     def performGET(self, request):
-        """ generated source for method performGET """
+        """ generated source for method performGET
+        :param request:
+        """
         #  create response
         response = Response(codes.RESP_CONTENT)
         payload = "Type: {:d} ({:s})\nCode: {:d} ({:s})\nMID: {:d}".format(\

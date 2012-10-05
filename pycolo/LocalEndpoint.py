@@ -20,7 +20,7 @@ class LocalEndpoint(Endpoint):
     """
     ENDPOINT_INFO = "************************************************************\n" + "This server is using the Californium (Cf) CoAP framework\n" + "developed by Dominique Im Obersteg, Daniel Pauli, and\n" + "Matthias Kovatsch.\n" + "Cf is available under BSD 3-clause license on GitHub:\n" + "https://github.com/mkovatsc/Californium\n" + "\n" + "(c) 2012, Institute for Pervasive Computing, ETH Zurich\n" + "Contact: Matthias Kovatsch <kovatsch@inf.ethz.ch>\n" + "************************************************************"
 
-    class RootResource(LocalResource):
+    class RootResource(Resource):
         """ generated source for class RootResource """
         def __init__(self):
             """ generated source for method __init__ """
@@ -35,7 +35,7 @@ class LocalEndpoint(Endpoint):
             request.respond(response)
 
     #TODO Constructor with custom root resource; check for resourceIdentifier==""
-    @overloaded
+
     def __init__(self, port, defaultBlockSze, daemon):
         """ generated source for method __init__ """
         super(LocalEndpoint, self).__init__()

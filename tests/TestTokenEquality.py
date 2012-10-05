@@ -13,8 +13,7 @@ class TokenEqualityTest(unittest.TestCase):
         self.assertEquals(t1, t2)
         self.assertEquals(0, t1.getLength())
         t3 = Option("Not empty", options.TOKEN)
-        self.assertFalse(t1 == t3)
-        #  Why no assertNotEquals in JUnit?!
+        self.assertNotEqual(t1, t3)
 
     def testOneByteToken(self):
         """ generated source for method testOneByteToken """
@@ -23,8 +22,7 @@ class TokenEqualityTest(unittest.TestCase):
         self.assertEquals(t1, t2)
         self.assertEquals(1, t1.getLength())
         t3 = Option(0xAC, options.TOKEN)
-        self.assertFalse(t1 == t3)
-        #  Why no assertNotEquals in JUnit?!
+        self.assertNotEqual(t1, t3)
 
     def testTwoByteToken(self):
         """ generated source for method testTwoByteToken """
@@ -33,8 +31,7 @@ class TokenEqualityTest(unittest.TestCase):
         self.assertEquals(t1, t2)
         self.assertEquals(2, t1.getLength())
         t3 = Option(0xABCE, options.TOKEN)
-        self.assertFalse(t1 == t3)
-        #  Why no assertNotEquals in JUnit?!
+        self.assertNotEqual(t1, t3)
 
     def testFourByteToken(self):
         """ generated source for method testFourByteToken """
@@ -43,8 +40,7 @@ class TokenEqualityTest(unittest.TestCase):
         self.assertEquals(t1, t2)
         self.assertEquals(4, t1.getLength())
         t3 = Option(0xABCDEF02, options.TOKEN)
-        self.assertFalse(t1 == t3)
-        #  Why no assertNotEquals in JUnit?!
+        self.assertNotEqual(t1, t3)
 
 if __name__ == '__main__':
     unittest.main()

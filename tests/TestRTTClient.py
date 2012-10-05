@@ -1,6 +1,8 @@
 # coding=utf-8
+import logging
 
 import unittest
+import sys
 
 class RTTClient:
     """
@@ -13,9 +15,11 @@ class RTTClient:
     total = 0
     max = 0
 
-    def main(cls, args):
-        """ Main method of this client. """
-        uri = None
+    def main(self, cls, args):
+        """ Main method of this client.
+        :param args:
+        :param cls:
+        """
         if args:
             #  input URI from command line arguments
             try:
@@ -26,7 +30,7 @@ class RTTClient:
                 sys.exit(-1)
             if len(args):
                 try:
-                    cls.n = Integer.parseInt(args[1])
+                    cls.n = int(args[1])
                 except NumberFormatException as e:
                     logging.critical("Invalid number: " + e.getMessage())
                     sys.exit(-1)
