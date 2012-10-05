@@ -1,19 +1,17 @@
 # coding=utf-8
-from pycolo import codes, LocalResource
+from pycolo import codes, Resource
 
-from pycolo.coap.MediaTypeRegistry import MediaTypeRegistry
+from pycolo.codes import mediaCodes
 
 
-class Large(LocalResource):
+class Large(Resource):
     """
     This resource implements a test of specification for the ETSI IoT CoAP
     Plugtests, Paris, France, 24 - 25 March 2012.
     """
     def __init__(self):
-        """ generated source for method __init__ """
-        super(Large, self).__init__("large")
-        self.setTitle("Large resource")
-        self.setResourceType("block")
+        self.title = "Large resource"
+        self.resourceType = "block"
 
     def performGET(self, request):
         """ generated source for method performGET """
@@ -39,4 +37,4 @@ class Large(LocalResource):
         |               [each line contains 64 bytes]                 |
         \\------------------------------------------------------------/
         """
-        request.respond(codes.RESP_CONTENT, builder.__str__(), MediaTypeRegistry.TEXT_PLAIN)
+        request.respond(codes.RESP_CONTENT, str(builder), mediaCodes.text)

@@ -6,27 +6,22 @@ from pycolo import Response, codes, LocalResource
 from pycolo.coap import MediaTypeRegistry
 
 
-class LargeCreate(LocalResource):
+class LargeCreate(Resource):
     """
     This resource implements a test of specification for the
     ETSI IoT CoAP Plugtests, Paris, France, 24 - 25 March 2012.
     """
-    #  Members ////////////////////////////////////////////////////////////////
+
     data = None
     dataCt = -1
 
     @overloaded
     def __init__(self):
-        """ generated source for method __init__ """
-        super(LargeCreate, self).__init__()
-        self.__init__("large-create")
-
-    @__init__.register(object, str)
-    def __init___0(self, resourceIdentifier):
         """
         Constructs a new storage resource with the given resourceIdentifier.
         """
-        super(LargeCreate, self).__init__(False)
+        super(LargeCreate, self).__init__()
+        self.__init__("large-create")
         self.setTitle("Large resource that can be created using POST method")
         self.setResourceType("block")
 
@@ -88,5 +83,3 @@ class LargeCreate(LocalResource):
     #  signal that resource state changed
     # 		changed();
     # 	}
-    # 	
-

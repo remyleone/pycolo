@@ -1,13 +1,14 @@
 # coding=utf-8
 
 import logging
-from pycolo import LinkFormat, LocalEndpoint
-from pycolo.coap import mediaTypeRegistry
-from .pycolo.tests.ipso import DeviceBattery, PowerCumulative
-from tests.ipso import DeviceModel, PowerRelay, DeviceSerial, DeviceManufacturer, DeviceName, PowerDimmer, PowerInstantaneous
+import random
+from pycolo import link, LocalEndpoint
+from pycolo.codes import mediaCodes
+from pycolo.codes import codes
 import unittest
+from pycolo import Resource
 
-class DeviceManufacturer(LocalResource):
+class DeviceManufacturer(Resource):
     """ This resource implements a part of the IPSO profile. """
     def __init__(self):
         """ generated source for method __init__ """
@@ -19,10 +20,10 @@ class DeviceManufacturer(LocalResource):
     def performGET(self, request):
         """ generated source for method performGET """
         #  complete the request
-        request.respond(CodeRegistry.RESP_CONTENT,\
-            "Pycolo", mediaTypeRegistry["TEXT_PLAIN"])
+        request.respond(codes.RESP_CONTENT,\
+            "Pycolo", mediaCodes["TEXT_PLAIN"])
 
-class DeviceModel(LocalResource):
+class DeviceModel(Resource):
     """ This resource implements a part of the IPSO profile. """
     def __init__(self):
         """ generated source for method __init__ """
@@ -35,9 +36,9 @@ class DeviceModel(LocalResource):
         """ generated source for method performGET """
         #  complete the request
         request.respond(codes.RESP_CONTENT,\
-            "Californium", mediaTypeRegistry["TEXT_PLAIN"])
+            "Californium", mediaCodes["TEXT_PLAIN"])
 
-class DeviceName(LocalResource):
+class DeviceName(Resource):
     """ This resource implements a part of the IPSO profile. """
     name = "IPSO Server"
 
@@ -51,20 +52,20 @@ class DeviceName(LocalResource):
     def performGET(self, request):
         """ generated source for method performGET """
         #  complete the request
-        request.respond(CodeRegistry.RESP_CONTENT,\
+        request.respond(codes.RESP_CONTENT,\
             self.name,\
-            mediaTypeRegistry["TEXT_PLAIN"])
+            mediaCodes["TEXT_PLAIN"])
 
     def performPUT(self, request):
         """ generated source for method performPUT """
-        if request.contentType != mediaTypeRegistry["TEXT_PLAIN"]:
-            request.respond(CodeRegistry.RESP_BAD_REQUEST, "text/plain only")
+        if request.contentType != mediaCodes["TEXT_PLAIN"]:
+            request.respond(codes.RESP_BAD_REQUEST, "text/plain only")
             return
         self.name = request.payload
         #  complete the request
-        request.respond(CodeRegistry.RESP_CHANGED)
+        request.respond(codes.RESP_CHANGED)
 
-class DeviceSerial(LocalResource):
+class DeviceSerial(Resource):
     """ This resource implements a part of the IPSO profile. """
     def __init__(self):
         """ generated source for method __init__ """
@@ -76,11 +77,11 @@ class DeviceSerial(LocalResource):
     def performGET(self, request):
         """ generated source for method performGET """
         #  complete the request
-        request.respond(codes.RESP_CONTENT, "4711", mediaTypeRegistry["TEXT_PLAIN"])
+        request.respond(codes.RESP_CONTENT, "4711", mediaCodes["TEXT_PLAIN"])
 
 
 
-class DeviceBattery(LocalResource):
+class DeviceBattery(Resource):
     """ This resource implements a part of the IPSO profile. """
     power = 3.6
 
@@ -110,11 +111,11 @@ class DeviceBattery(LocalResource):
          TODO: Strange call
         """
         #  complete the request
-        request.respond(CodeRegistry.RESP_CONTENT,\
+        request.respond(codes.RESP_CONTENT,\
             self.power * 1000 / 1000,\
-            mediaTypeRegistry["TEXT_PLAIN"])
+            mediaCodes["TEXT_PLAIN"])
 
-class PowerCumulative(LocalResource):
+class PowerCumulative(Resource):
     """ This resource implements a part of the IPSO profile. """
     power = 0
 
@@ -143,9 +144,9 @@ class PowerCumulative(LocalResource):
     def performGET(self, request):
         """ generated source for method performGET """
         #  complete the request
-        request.respond(CodeRegistry.RESP_CONTENT, Double.toString(self.power), MediaTypeRegistry.TEXT_PLAIN)
+        request.respond(codes.RESP_CONTENT, Double.toString(self.power), mediaCodes.TEXT_PLAIN)
 
-class PowerDimmer(LocalResource):
+class PowerDimmer(Resource):
     """ This resource implements a part of the IPSO profile. """
     percent = 100
 
@@ -160,26 +161,26 @@ class PowerDimmer(LocalResource):
     def performGET(self, request):
         """ generated source for method performGET """
         #  complete the request
-        request.respond(CodeRegistry.RESP_CONTENT,\
+        request.respond(codes.RESP_CONTENT,\
             int(self.percent),\
-            mediaTypeRegistry["TEXT_PLAIN"])
+            mediaCodes["TEXT_PLAIN"])
 
     def performPUT(self, request):
         """ generated source for method performPUT """
-        if request.contentType != mediaTypeRegistry["TEXT_PLAIN"]:
-            request.respond(CodeRegistry.RESP_BAD_REQUEST, "text/plain only")
+        if request.contentType != mediaCodes["TEXT_PLAIN"]:
+            request.respond(codes.RESP_BAD_REQUEST, "text/plain only")
             return
         pl = int(request.payload)
         if 0 <= pl <= 100:
             if self.percent == pl:
                 return
             self.percent = pl
-            request.respond(CodeRegistry.RESP_CHANGED)
+            request.respond(codes.RESP_CHANGED)
             self.changed()
         else:
-            request.respond(CodeRegistry.RESP_BAD_REQUEST, "use 0-100")
+            request.respond(codes.RESP_BAD_REQUEST, "use 0-100")
 
-class PowerInstantaneous(LocalResource):
+class PowerInstantaneous(Resource):
     """ This resource implements a part of the IPSO profile. """
     power = 0
 
@@ -213,11 +214,11 @@ class PowerInstantaneous(LocalResource):
     def performGET(self, request):
         """ generated source for method performGET """
         #  complete the request
-        request.respond(CodeRegistry.RESP_CONTENT,\
+        request.respond(codes.RESP_CONTENT,\
             str(self.power),\
-            mediaTypeRegistry["TEXT_PLAIN"])
+            mediaCodes["TEXT_PLAIN"])
 
-class PowerRelay(LocalResource):
+class PowerRelay(Resource):
     """ This resource implements a part of the IPSO profile. """
     on = True
 
@@ -237,14 +238,14 @@ class PowerRelay(LocalResource):
     def performGET(self, request):
         """ generated source for method performGET """
         #  complete the request
-        request.respond(CodeRegistry.RESP_CONTENT,\
+        request.respond(codes.RESP_CONTENT,\
             "1" if self.on else "0",\
-            mediaTypeRegistry["TEXT_PLAIN"])
+            mediaCodes["TEXT_PLAIN"])
 
     def performPUT(self, request):
         """ generated source for method performPUT """
-        if request.contentType != mediaTypeRegistry["TEXT_PLAIN"]:
-            request.respond(CodeRegistry.RESP_BAD_REQUEST, "text/plain only")
+        if request.contentType != mediaCodes["TEXT_PLAIN"]:
+            request.respond(codes.RESP_BAD_REQUEST, "text/plain only")
             return
         pl = request.getPayloadString()
         if pl == "true" or pl == "1":
@@ -256,11 +257,11 @@ class PowerRelay(LocalResource):
                 return
             self.on = False
         else:
-            request.respond(CodeRegistry.RESP_BAD_REQUEST,\
+            request.respond(codes.RESP_BAD_REQUEST,\
                 "use true/false or 1/0")
             return
             #  complete the request
-        request.respond(CodeRegistry.RESP_CHANGED)
+        request.respond(codes.RESP_CHANGED)
         self.changed()
 
 
@@ -277,7 +278,7 @@ class IpsoServer(LocalEndpoint):
         """
         Constructor for a new PlugtestServer.Call to configure
         the port, etc. according to the {@link LocalEndpoint} constructors.
-        Add all initial {@link LocalResource}s here.
+        Add all initial {@link Resource}s here.
         """
         super(IpsoServer, self).__init__()
         #  add resources to the server
@@ -291,7 +292,6 @@ class IpsoServer(LocalEndpoint):
         self.addResource(PowerRelay())
         self.addResource(PowerDimmer())
 
-    #  Logging ////////////////////////////////////////////////////////////////
     def handleRequest(self, request):
         """ generated source for method handleRequest """
         #  Add additional handling like special logging here.
@@ -325,7 +325,7 @@ class IpsoServer(LocalEndpoint):
                     print "Unable to retrieve hostname for registration"
                     print "Fallback to random"
             register.setURI(rd + "?h=Cf-" + hostname)
-            register.setPayload(LinkFormat.serialize(server.getRootResource(), None, True), MediaTypeRegistry.APPLICATION_LINK_FORMAT)
+            register.setPayload(link.serialize(server.getRootResource(), None, True), mediaCodes.APPLICATION_LINK_FORMAT)
             try:
                 print("Registering at " + rd + " as Cf-" + hostname)
                 register.execute()

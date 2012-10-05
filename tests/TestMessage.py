@@ -1,14 +1,14 @@
 # coding=utf-8
 import unittest
 import logging
-from pycolo.codes import CodeRegistry
 from pycolo import Message
+from pycolo import codes
 
 
 class MessageTest(unittest.TestCase):
     def testMessage(self):
         msg = Message()
-        msg.code = CodeRegistry.METHOD_GET
+        msg.code = codes.get
         msg.type = "CON"
         msg.MID = 12345
         msg.payload = b"some payload"
@@ -24,7 +24,7 @@ class MessageTest(unittest.TestCase):
 
     def testOptionMessage(self):
         msg = Message()
-        msg.code = CodeRegistry.METHOD_GET
+        msg.code = codes.get
         msg.type = "CON"
         msg.MID = 12345
         msg.payload = b"hallo"
@@ -41,7 +41,7 @@ class MessageTest(unittest.TestCase):
 
     def testExtendedOptionMessage(self):
         msg = Message()
-        msg.code = CodeRegistry.METHOD_GET
+        msg.code = codes.get
         msg.type = "CON"
         msg.MID = 12345
         msg.option["a"] = 1

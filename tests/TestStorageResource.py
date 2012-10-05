@@ -1,96 +1,60 @@
 # coding=utf-8
 
 import logging
+from pycolo import Resource
+from pycolo import Response
+from pycolo.codes import mediaCodes
+from pycolo.codes import codes
 
-import ch.ethz.inf.vs.californium.coap.CodeRegistry
+class StorageResource(Resource):
+    """
+    This class implements a 'storage' resource for demonstration purposes.
 
-import ch.ethz.inf.vs.californium.coap.DELETERequest
+    Defines a resource that stores POSTed data and that creates new
+    sub-resources on PUT request where the Uri-Path doesn't yet point to an
+    existing resource.
+    """
 
-import ch.ethz.inf.vs.californium.coap.GETRequest
-
-import ch.ethz.inf.vs.californium.coap.LinkFormat
-
-import ch.ethz.inf.vs.californium.coap.MediaTypeRegistry
-
-import ch.ethz.inf.vs.californium.coap.Option
-
-import ch.ethz.inf.vs.californium.coap.OptionNumberRegistry
-
-import ch.ethz.inf.vs.californium.coap.POSTRequest
-
-import ch.ethz.inf.vs.californium.coap.PUTRequest
-
-import ch.ethz.inf.vs.californium.coap.Request
-
-import ch.ethz.inf.vs.californium.coap.Response
-
-import ch.ethz.inf.vs.californium.endpoint.LocalResource
-
-# 
-#  * This class implements a 'storage' resource for demonstration purposes.
-#  * 
-#  * Defines a resource that stores POSTed data and that creates new
-#  * sub-resources on PUT request where the Uri-Path doesn't yet point to an
-#  * existing resource.
-#  *  
-#  * @author Dominique Im Obersteg & Daniel Pauli
-#  * @version 0.1
-#  * 
-#  
-class StorageResource(LocalResource):
-    """ generated source for class StorageResource """
-    #  Constructors ////////////////////////////////////////////////////////////
-    # 
-    # 	 * Default constructor.
-    # 	 
-    @overloaded
     def __init__(self):
-        """ generated source for method __init__ """
+        """
+        Constructs a new storage resource with the given resourceIdentifier.
+        :return:
+        """
         super(StorageResource, self).__init__()
         self.__init__("storage")
-
-    # 
-    # 	 * Constructs a new storage resource with the given resourceIdentifier.
-    # 	 
-    @__init__.register(object, str)
-    def __init___0(self, resourceIdentifier):
-        """ generated source for method __init___0 """
-        super(StorageResource, self).__init__(resourceIdentifier)
         self.title = "PUT your data here or POST new resources!"
-        setResourceType("Storage")
+        self.setResourceType("Storage")
         self.observable = True
 
-    #  REST Operations /////////////////////////////////////////////////////////
-    # 
-    # 	 * GETs the content of this storage resource. 
-    # 	 * If the content-type of the request is set to application/link-format 
-    # 	 * or if the resource does not store any data, the contained sub-resources
-    # 	 * are returned in link format.
-    # 	 
+
     def performGET(self, request):
-        """ generated source for method performGET """
+        """
+        GETs the content of this storage resource.
+        If the content-type of the request is set to application/link-format
+        or if the resource does not store any data, the contained sub-resources
+        are returned in link format.
+        """
         #  create response
         response = Response(CodeRegistry.RESP_CONTENT)
         #  check if link format requested
-        if request.getContentType() == MediaTypeRegistry.APPLICATION_LINK_FORMAT or data == None:
+        if request.contentType == mediaCodes.APPLICATION_LINK_FORMAT or not self.data:
             #  respond with list of sub-resources in link format
             response.setPayload(LinkFormat.serialize(self, request.getOptions(OptionNumberRegistry.URI_QUERY), True), MediaTypeRegistry.APPLICATION_LINK_FORMAT)
         else:
             #  load data into payload
-            response.setPayload(data)
+            response.payload = self.data
             #  set content type
             if getContentTypeCode().size() > 0:
                 response.setContentType(getContentTypeCode().get(0))
         #  complete the request
         request.respond(response)
 
-    # 
-    # 	 * PUTs content to this resource.
-    # 	 
     def performPUT(self, request):
-        """ generated source for method performPUT """
+        """
+        PUTs content to this resource.
+        """
         #  store payload
-        storeData(request)
+        self.storeData(request)
         #  complete the request
         request.respond(CodeRegistry.RESP_CHANGED)
 
@@ -107,7 +71,7 @@ class StorageResource(LocalResource):
             self.createSubResource(request, payload)
         else:
             #  complete the request
-            request.respond(CodeRegistry.RESP_BAD_REQUEST, "Payload must contain Uri-Path for new sub-resource.")
+            request.respond(codes.RESP_BAD_REQUEST, "Payload must contain Uri-Path for new sub-resource.")
 
     def createSubResource(self, request, newIdentifier):
         """
@@ -115,7 +79,7 @@ class StorageResource(LocalResource):
         Added checks for resource creation.
         """
         if isinstance(request, (PUTRequest,)):
-            request.respond(CodeRegistry.RESP_FORBIDDEN, "PUT restricted to exiting resources")
+            request.respond(codes.RESP_FORBIDDEN, "PUT restricted to exiting resources")
             return
         #  omit leading and trailing slashes
         if newIdentifier.startsWith("/"):
@@ -133,7 +97,7 @@ class StorageResource(LocalResource):
             newIdentifier = newIdentifier.substring(0, newIdentifier.indexOf("\n"))
         #  special restriction
         if 32 > len(newIdentifier):
-            request.respond(CodeRegistry.RESP_FORBIDDEN, "Resource segments limited to 32 chars")
+            request.respond(codes.RESP_FORBIDDEN, "Resource segments limited to 32 chars")
             return
         #  rt by query
         newRtAttribute = None
@@ -153,12 +117,11 @@ class StorageResource(LocalResource):
             logging.critical("Cannot create sub resource: {:s}/[{:s}] already exists".format(self.getPath(), newIdentifier))
 
     def performDELETE(self, request):
-        """ generated source for method performDELETE """
-        if isinstance(parent, (StorageResource,)):
+        if isinstance(self.parent, (StorageResource,)):
             self.remove()
-            request.respond(CodeRegistry.RESP_DELETED)
+            request.respond(codes.RESP_DELETED)
         else:
-            request.respond(CodeRegistry.RESP_FORBIDDEN, "Root storage resource cannot be deleted")
+            request.respond(codes.RESP_FORBIDDEN, "Root storage resource cannot be deleted")
 
     def storeData(self, request):
         """ generated source for method storeData """

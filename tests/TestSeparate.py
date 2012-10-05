@@ -12,14 +12,18 @@ class Separate(LocalResource):
     def __init__(self):
         """ generated source for method __init__ """
         super(Separate, self).__init__("separate")
-        self.setTitle("Resource which cannot be served immediately and which\
-         cannot be acknowledged in a piggy-backed way")
+        self.title = "Resource which cannot be served immediately and which\
+         cannot be acknowledged in a piggy-backed way"
 
     def performGET(self, request):
-        """ generated source for method performGET """
-        #  we know this stuff may take longer...
-        #  promise the client that this request will be acted upon
-        #  by sending an Acknowledgement
+        """
+        we know this stuff may take longer...
+        promise the client that this request will be acted upon
+        by sending an Acknowledgement
+        :param request:
+        :return:
+        """
+
         request.accept()
         #  do the time-consuming computation
         try:
