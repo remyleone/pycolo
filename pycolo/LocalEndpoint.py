@@ -70,16 +70,16 @@ class LocalEndpoint(Endpoint):
     def execute(self, request):
         """ generated source for method execute """
         #  check if request exists
-        if request != None:
+        if request is not None:
             #  retrieve resource identifier
             #  lookup resource
             #  check if resource available
-            if resource != None:
+            if resource is not None:
                 logging.info("Dispatching execution: {:s}".format(resourcePath))
                 #  invoke request handler of the resource
                 request.dispatch(resource)
                 #  check if resource did generate a response
-                if request.getResponse() != None:
+                if request.getResponse() is not None:
                     #  check if resource is to be observed
                     if resource.isObservable() and isinstance(request, (GETRequest,)) and CodeRegistry.responseClass(request.getResponse().getCode()) == CodeRegistry.CLASS_SUCCESS:
                         if request.hasOption(OptionNumberRegistry.OBSERVE):
@@ -124,7 +124,7 @@ class LocalEndpoint(Endpoint):
 
     def getResource(self, resourcePath):
         """ generated source for method getResource """
-        if rootResource != None:
+        if rootResource is not None:
             return rootResource.getResource(resourcePath)
         else:
             return None
@@ -135,12 +135,12 @@ class LocalEndpoint(Endpoint):
         identifier is actually a path, it is split up into multiple resources.
         @param resource - the resource to add to the root resource
         """
-        if rootResource != None:
+        if rootResource is not None:
             rootResource.add(resource)
 
     def removeResource(self, resourceIdentifier):
         """ generated source for method removeResource """
-        if rootResource != None:
+        if rootResource is not None:
             rootResource.removeSubResource(resourceIdentifier)
 
     def handleRequest(self, request):
