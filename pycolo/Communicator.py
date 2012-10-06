@@ -68,7 +68,7 @@ class Communicator(UpperLayer):
     def setupPort(port):
         if port != self.udpPort and not singleton:
             if not singleton:
-                udpPort = port;
+                udpPort = port
                 logging.config("Custom port: %d", udpPort)
             else:
                 logging.severe("Communicator already initialized, setup failed")
@@ -79,13 +79,13 @@ class Communicator(UpperLayer):
                 transferBlockSize = defaultBlockSize
                 logging.config(String.format("Custom block size: %d", transferBlockSize))
             else:
-                logging.severe("Communicator already initialized, setup failed");
+                logging.severe("Communicator already initialized, setup failed")
 
     def setupDeamon(daemon):
         if daemon != self.runAsDaemon and not singleton:
             if not singleton:
                 self.runAsDaemon = daemon
-                logging.config("Custom daemon option: %b" % runAsDaemon)
+                logging.config("Custom daemon option: %b" % self.runAsDaemon)
             else:
                 logging.critical("Communicator already initialized, setup failed")
 
@@ -107,9 +107,9 @@ class Communicator(UpperLayer):
     def doSendMessage(self, msg):
         """ generated source for method doSendMessage """
         #  defensive programming before entering the stack, lower layers should assume a correct message.
-        if msg != None:
+        if msg is not None:
             #  check message before sending through the stack
-            if msg.getPeerAddress().getAddress() == None:
+            if msg.getPeerAddress().getAddress() is None:
                 raise "Remote address not specified"
             #  delegate to first layer
             self.sendMessageOverLowerLayer(msg)
@@ -118,7 +118,7 @@ class Communicator(UpperLayer):
         """ generated source for method doReceiveMessage """
         if isinstance(msg, (Response,)):
             #  initiate custom response handling
-            if response.getRequest() != None:
+            if response.getRequest() is not None:
                 response.getRequest().handleResponse(response)
         #  pass message to registered receivers
         self.deliverMessage(msg)
