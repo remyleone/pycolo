@@ -12,7 +12,7 @@ class DefaultTest(Resource):
     ETSI IoT CoAP Plugtests, Paris, France, 24 - 25 March 2012.
     """
 
-    def __int__(self):
+    def __init__(self):
 
         self.title = "Default test resource"
 
@@ -112,14 +112,6 @@ class DefaultTest(Resource):
 
 
     def performDELETE(self, request):
-
-        # Check: Type, Code, has Content-Type
-
-        # create new response
-        """
-
-        :param request:
-        """
         response = Response(codes.RESP_DELETED)
 
         payload = "Type: %d (%s)\nCode: %d (%s)\nMID: %d" %\
