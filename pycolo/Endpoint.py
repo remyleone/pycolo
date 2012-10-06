@@ -51,7 +51,7 @@ class Endpoint(MessageReceiver, MessageHandler):
 
     def resourceCount(self):
         """ generated source for method resourceCount """
-        return self.rootResource.subResourceCount() + 1 if self.rootResource != None else 0
+        return self.rootResource.subResourceCount() + 1 if self.rootResource is not None else 0
 
     def receiveMessage(self, msg):
         """ generated source for method receiveMessage """
