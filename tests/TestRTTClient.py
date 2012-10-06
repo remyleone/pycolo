@@ -53,14 +53,14 @@ class RTTClient:
                         if response.getRTT() < cls.min:
                             cls.min = response.getRTT()
                         if response.getRTT() < 0:
-                            print "ERROR: Response untimed, time=" + response.getRTT()
+                            logging.info("ERROR: Response untimed, time=" + response.getRTT())
                         elif request.getRetransmissioned() > 0:
-                            print "WARNING: Response after retransmission, time=" + response.getRTT()
+                            logging.info("WARNING: Response after retransmission, time=" + response.getRTT())
                         else:
-                            print "time=" + response.getRTT() + "ms"
+                            logging.info("time=" + response.getRTT() + "ms")
                         cls.total += response.getRTT()
                     else:
-                        print "No response received"
+                        logging.info"No response received"
                 except InterruptedException as e:
                     #  TODO Auto-generated catch block
                     e.printStackTrace()
