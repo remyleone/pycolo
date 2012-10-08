@@ -4,13 +4,13 @@ from .structures import LookupDict
 
 _codes = {
     #  Constants
-    0 :("EMPTY_MESSAGE", "Empty Message"),
+    0: ("EMPTY_MESSAGE", "Empty Message"),
 
     #  CoAP method codes
-    1 : ("METHOD_GET","get","GET"),
-    2 : ("METHOD_POST", "post", "POST"),
-    3 : ("METHOD_PUT", "put", "PUT"),
-    4 : ("METHOD_DELETE", "delete", "DELETE"),
+    1: ("METHOD_GET", "get", "GET"),
+    2: ("METHOD_POST", "post", "POST"),
+    3: ("METHOD_PUT", "put", "PUT"),
+    4: ("METHOD_DELETE", "delete", "DELETE"),
 
     #  CoAP response codes
 
@@ -22,7 +22,7 @@ _codes = {
     #  class 2.xx
     65: ("RESP_CREATED", "2.01 Created", "created"),
     66: ("RESP_DELETED", "2.02 Deleted", "deleted"),
-    67: ("RESP_VALID","2.03 Valid", "valid"),
+    67: ("RESP_VALID", "2.03 Valid", "valid"),
     68: ("RESP_CHANGED", "2.04 Changed", "changed"),
     69: ("RESP_CONTENT", "2.05 Content", "content"),
 
@@ -104,9 +104,11 @@ _options = {
 
 }
 
+
 def isCritical(optionNumber):
     """ generated source for method isCritical """
     return (optionNumber & 1) == 1
+
 
 def isFencepost(cls, optionNumber):
     """ generated source for method isFencepost """
@@ -133,12 +135,15 @@ def isRequest(code):
     """
     return 1 <= code <= 31
 
+
 def isValid(code):
     #return (code >= 0) && (code <= 31)) || ((code >= 64) && (code <= 191)
     return 0 <= code <= 255
 
+
 def isResponse(code):
     return 64 <= code <= 191
+
 
 def isElective(optionNumber):
     """ generated source for method isElective """
