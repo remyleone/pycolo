@@ -16,6 +16,7 @@ class Separate(Resource):
     def __init__(self):
         self.title = "Resource which cannot be served immediately and which\
              cannot be acknowledged in a piggy-backed way"
+        self.resourceType = "SepararateResponseTester"
 
     def performGET(self, request):
         """
