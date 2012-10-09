@@ -84,7 +84,10 @@ _options = {
     5: ("URI_HOST", "Uri-Host"),
     6: ("LOCATION_PATH", "Location-Path"),
     7: ("URI_PORT", "Uri-Port"),
-    8: ("LOCATION_QUERY", "Location-Query"),
+    8: ("LOCATION_QUERY", "Location-Query",\
+        "TOKEN_LEN", "token_len", "tokenLen"),
+    # Token len and location query are not related semantically but
+    # they share the same value.
     9: ("URI_PATH", "Uri-Path"),
     10: ("OBSERVE", "Observe", "observe"),
 
@@ -100,30 +103,42 @@ _options = {
     #  draft-IETF-core-block
     19: ("BLOCK1", "Block1"),
     21: ("IF_NONE_MATCH", "If-None-Match"),
-    8: ("TOKEN_LEN", "token_len", "tokenLen")  # TODO: Repetition?
 
 }
 
 
+def _init(d):
+    for (code, titles) in list(d.items()):
+        for title in titles:
+            setattr(codes, title, code)
+            if not title.startswith('\\'):
+                setattr(codes, title.upper(), code)
+
+codes = LookupDict(name="status_code")
+codes = _init(_codes)
+mediaCodes = LookupDict(name="media_code")
+mediaCodes = _init(_mediaCode)
+options = LookupDict(name="options_code")
+optionsCodes = _init(_options)
+
+
 def isCritical(optionNumber):
-    """ generated source for method isCritical """
     return (optionNumber & 1) == 1
 
 
-def isFencepost(cls, optionNumber):
-    """ generated source for method isFencepost """
-    return optionNumber % cls.FENCEPOST_DIVISOR == 0
+def isFencepost(optionNumber):
+    return optionNumber % options.FENCEPOST_DIVISOR == 0
 
 
-def nextFencepost(cls, optionNumber):
+def nextFencepost(optionNumber):
     """
     Returns the next fencepost option number following a given option
-    number
-    @param optionNumber The option number
-    @return The smallest fencepost option number larger than the given
+    number, the smallest fencepost option number larger than the given
     option number
+    :param optionNumber: The option number
     """
-    return (optionNumber / cls.FENCEPOST_DIVISOR + 1) * cls.FENCEPOST_DIVISOR
+    return (optionNumber / options.FENCEPOST_DIVISOR + 1)\
+           * options.FENCEPOST_DIVISOR
 
 
 def isRequest(code):
@@ -158,18 +173,3 @@ def responseClass(code):
     :return: The response class of the code
     """
     return (code >> 5) & 0x7
-
-
-def _init(d):
-    for (code, titles) in list(d.items()):
-        for title in titles:
-            setattr(codes, title, code)
-            if not title.startswith('\\'):
-                setattr(codes, title.upper(), code)
-
-codes = LookupDict(name="status_code")
-codes = _init(_codes)
-mediaCodes = LookupDict(name="media_code")
-mediaCodes = _init(_mediaCode)
-options = LookupDict(name="options_code")
-optionsCodes = _init(_options)
