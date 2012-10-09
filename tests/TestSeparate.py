@@ -1,7 +1,11 @@
 # coding=utf-8
+import time
 
+import unittest
+from pycolo.codes import codes
 from pycolo.codes import mediaCodes
-from pycolo import Response
+from pycolo.message import Response
+from pycolo.resource import Resource
 
 
 class Separate(Resource):
@@ -10,9 +14,8 @@ class Separate(Resource):
     Defines a resource that returns a response in a separate CoAP Message
     """
     def __init__(self):
-        """ generated source for method __init__ """
         self.title = "Resource which cannot be served immediately and which\
-         cannot be acknowledged in a piggy-backed way"
+             cannot be acknowledged in a piggy-backed way"
 
     def performGET(self, request):
         """
@@ -22,22 +25,25 @@ class Separate(Resource):
         :param request:
         :return:
         """
-
         request.accept()
-        #  do the time-consuming computation
-        try:
-            Thread.sleep(1000)
-        except Exception as e:
-            e.stacktrace()
+        time.sleep(1)  # do the time-consuming computation
 
-        response = Response(CodeRegistry.RESP_CONTENT)  # create response
+        response = Response(codes.RESP_CONTENT)  # create response
         #  set payload
-        response.payload = "Type: {:d} ({:s})\nCode: {:d} ({:s})\nMID: {:d}" % \
-            request.type.ordinal(), \
-            request.typeString(), \
-            request.code, \
-            CodeRegistry.(request.code), \
-            request.getMID()))
-        response.setContentType(mediaCodes.text)
-        #  complete the request
-        request.respond(response)
+        payload = dict()
+        payload["type"] = request.type.ordinal()
+        payload["type-string"] = request.typeString()
+        payload["Code"] = request.code
+        payload["Message ID"] = request.MID
+        response.payload = str(payload)
+        response.contentType = mediaCodes.text
+        request.respond(response)  # complete the request
+
+
+class TestSeparate(unittest.TestCase):
+
+    def setUp(self):
+        sep = Separate()
+
+if __name__ == '__main__':
+    unittest.main()
