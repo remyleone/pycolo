@@ -10,7 +10,7 @@ Pycolo is under active development, and contributions are more than welcome!
    changes to the **develop** branch (or branch off of it).
 #. Write a test which shows that the bug was fixed or that the feature works as expected.
 #. Send a pull request and bug the maintainer until it gets merged and published. :)
-   Make sure to add yourself to `AUTHORS <https://github.com/sieben/pycolo/blob/develop/AUTHORS.rst>`_.
+   Make sure to add yourself to `AUTHORS <https://github.com/sieben/pycolo/blob/master/AUTHORS.rst>`_.
 
 What Needs to be Done
 ---------------------
