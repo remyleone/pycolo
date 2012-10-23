@@ -9,7 +9,10 @@ Welcome to pycolo's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
+
+   pycolo
+
 
 Main advice: Do not distribute state over multiple layers. CoAP unfortunately
 has many cross-layer dependencies if you divide processing in more than the
@@ -40,6 +43,17 @@ this part of the documentation is for you.
    :maxdepth: 2
 
    api
+
+Test documentation
+------------------
+
+If you are looking for information about tests and certifications and/or resources used,
+this part of the documentation is for you.
+
+.. toctree::
+   :maxdepth: 2
+
+   tests
 
 Developer Guide
 ---------------

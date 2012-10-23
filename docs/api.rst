@@ -33,83 +33,26 @@ They all return an instance of the :class:`Response <Response>` object.
 .. autofunction:: patch
 .. autofunction:: delete
 
-
------------------
-
-.. autofunction:: session
-
-
-
-Exceptions
-~~~~~~~~~~
-
-.. module:: requests
-
-.. autoexception:: RequestException
-.. autoexception:: ConnectionError
-.. autoexception:: HTTPError
-.. autoexception:: URLRequired
-.. autoexception:: TooManyRedirects
-
-
-.. _configurations:
-
-Configurations
---------------
-
-.. automodule:: requests.defaults
-
-
-.. _async:
-
-Async
------
-
-.. module:: requests.async
-
-
-.. autofunction:: map
-.. autofunction:: request
-.. autofunction:: head
-.. autofunction:: get
-.. autofunction:: post
-.. autofunction:: put
-.. autofunction:: patch
-.. autofunction:: delete
-
-
-
 Utilities
 ---------
 
 These functions are used internally, but may be useful outside of
 Requests.
 
-.. module:: requests.utils
+.. module:: pycolo.structure
 
 Status Code Lookup
 ~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: requests.codes
+.. autofunction:: pycolo.codes
 
 ::
 
-    >>> requests.codes['temporary_redirect']
+    >>> pycolo.codes['temporary_redirect']
     307
 
-    >>> requests.codes.teapot
-    418
-
-    >>> requests.codes['\o/']
+    >>> pycolo.codes['\o/']
     200
-
-Cookies
-~~~~~~~
-
-.. autofunction:: dict_from_cookiejar
-.. autofunction:: cookiejar_from_dict
-.. autofunction:: add_dict_to_cookiejar
-
 
 Encodings
 ~~~~~~~~~
@@ -123,21 +66,16 @@ Encodings
 Internals
 ---------
 
-These items are an internal component to Requests, and should never be
+These items are an internal component to Pycolo, and should never be
 seen by the end user (developer). This part of the API documentation
-exists for those who are extending the functionality of Requests.
+exists for those who are extending the functionality of Pycolo.
 
 
 Classes
 ~~~~~~~
 
-.. autoclass:: requests.Response
+.. autoclass:: pycolo.Response
    :inherited-members:
 
-.. autoclass:: requests.Request
-   :inherited-members:
-
-.. _sessionapi:
-
-.. autoclass:: requests.Session
+.. autoclass:: pycolo.request
    :inherited-members:
