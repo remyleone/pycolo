@@ -20,7 +20,7 @@ def nextToken():
     """
     global currentToken
     currentToken = (currentToken + 1) % 16
-    logging.info("Token value: %d" + currentToken)
+    logging.info("Token value: %d" % currentToken)
 
     return currentToken
 
@@ -35,6 +35,7 @@ def acquireToken(preferEmptyToken=False):
     in block - wise transfers, as the empty token is then not available
     for concurrent transactions.
     """
+    global token
     if preferEmptyToken and emptyToken not in acquiredTokens:
         token = emptyToken
     else:
