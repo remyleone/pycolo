@@ -4,10 +4,17 @@ import logging
 import socket
 import unittest
 import sys
-from pycolo import LocalEndpoint
+from .TestQuery import Query
+from .TestSeparate import Separate
+from .TestObserve import Observe
+from .TestLarge import LargeCreate
+from .TestLarge import LargeUpdate
+from .TestLarge import Large
+from .TestDefault import DefaultResource
+from pycolo.endpoint import Endpoint
 
 
-class PlugtestServer(LocalEndpoint):
+class PlugtestServer(Endpoint):
     """
     The class PlugtestServer implements the test specification for the
     ETSI IoT CoAP Plugtests, Paris, France, 24 - 25 March 2012.
@@ -16,11 +23,8 @@ class PlugtestServer(LocalEndpoint):
     ERR_INIT_FAILED = 1
 
     def __init__(self):
-        """ generated source for method __init__ """
-        super(PlugtestServer, self).__init__()
         #  add resources to the server
-        self.addResource(DefaultTest())
-        self.addResource(LongPath())
+        self.addResource(DefaultResource())
         self.addResource(Query())
         self.addResource(Separate())
         self.addResource(Large())
@@ -32,21 +36,15 @@ class PlugtestServer(LocalEndpoint):
         """ generated source for method handleRequest
         :param request:
         """
-        #  Add additional handling like special logging here.
-        request.prettyPrint()
-        #  dispatch to requested resource
-        super(PlugtestServer, self).handleRequest(request)
+        str(request)
+        PlugtestServer.handleRequest(request)  # dispatch to requested resource
 
-    def main(cls, args):
-        """ generated source for method main
-        :param args:
-        """
-        #  create server
-        try:
-            logging.info(PlugtestServer.__class__.getSimpleName() + " listening on port %d.\n", server.port())
-        except socket.error as e:
-            logging.critical("Failed to create " + PlugtestServer.__class__.getSimpleName() + ": %s\n", e.getMessage())
-            sys.exit(cls.ERR_INIT_FAILED)
+
+class TestSeparate(unittest.TestCase):
+
+    def setUp(self):
+        sep = Separate()
+
 
 
 if __name__ == '__main__':

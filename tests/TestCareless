@@ -1,7 +1,6 @@
 # coding=utf-8
-
-from pycolo import Resource
-
+import unittest
+from pycolo.resource import Resource
 
 class CarelessResource(Resource):
     """
@@ -23,3 +22,6 @@ class CarelessResource(Resource):
         """
         request.accept()
         #  ... and then do nothing. Pretty mean.
+
+if __name__ == '__main__':
+    unittest.main()

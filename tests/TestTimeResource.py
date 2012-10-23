@@ -1,8 +1,14 @@
 # coding=utf-8
 
-from pycolo.Resource import Resource
+import unittest
+
+from datetime import datetime
+from threading import Timer
+from pycolo.endpoint import Endpoint
+
+from pycolo.request import request
+from pycolo.resource import Resource
 from pycolo.codes import mediaCodes, codes
-import time
 
 
 class TimeResource(Resource):
@@ -11,36 +17,42 @@ class TimeResource(Resource):
     It also Supports observing.
     """
 
-    #  The current time represented as string
-    time = str()
-
     def __init__(self):
-        """ generated source for method __init__ """
-        super(TimeResource, self).__init__("timeResource")
+
+        def update(self):
+            """ generated source for method run """
+            self.time = datetime.datetime.now()
+            #  Call changed to notify subscribers
+            self.changed()
+
         self.title = "GET the current time"
         self.resourceType = "CurrentTime"
         self.isObservable = True
         #  Set timer task scheduling
-        timer = Timer()
-        timer.schedule(TimeTask(), 0, 2000)
-
-    class TimeTask(TimerTask):
-        """
-        Defines a new timer task to return the current time
-        """
-        def run(self):
-            """ generated source for method run """
-            self.time = self.getTime()
-            #  Call changed to notify subscribers
-            self.changed()
-
-    def getTime(self):
-        """ generated source for method getTime """
-        return time.localtime()
+        timer = Timer(2, update)
+        timer.start()
 
     def performGET(self, request):
-        """ generated source for method performGET
-        :param request:
-        """
+
         request.respond(codes.RESP_CONTENT, self.time, mediaCodes.txt)
 
+
+class TestSeparate(unittest.TestCase):
+
+    def setUp(self):
+        """
+        Setup a CoAP server and assign a TimeResource to it
+        """
+        res = TimeResource()
+        server = Endpoint()
+        server.addResource(res)
+
+    def test_get(self):
+        """
+        Simple get test
+        """
+        r = request.get("coap://localhost:5683/time")
+        self.assertEqual(r.status, codes.ok)
+
+if __name__ == '__main__':
+    unittest.main()

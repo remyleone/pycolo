@@ -1,7 +1,9 @@
 # coding=utf-8
+import unittest
 
 from pycolo import resource
 from pycolo.codes import mediaCodes, codes
+from pycolo.endpoint import Endpoint
 from pycolo.message import Response
 
 
@@ -19,10 +21,10 @@ class ImageResource(resource):
     def __init__(self):
         self.title = "GET an image with different content-types"
         self.resourceType = "Image"
-        self.supported.append(codes.mediaCodes["IMAGE_PNG"])
-        self.supported.append(codes.mediaCodes["IMAGE_JPEG"])
-        self.supported.append(codes.mediaCodes["IMAGE_GIF"])
-        self.supported.append(codes.mediaCodes["IMAGE_TIFF"])
+        self.supported.append(mediaCodes.png)
+        self.supported.append(mediaCodes.jpeg)
+        self.supported.append(mediaCodes.gif)
+        self.supported.append(mediaCodes.tiff)
         for ct in self.supported:
             self.contentTypeCode += ct
         self.maximumSizeEstimate = 18029
@@ -34,7 +36,7 @@ class ImageResource(resource):
         Give back a image in a binary form.
         :param request:
         """
-        ct = mediaCodes.IMAGE_PNG
+        ct = mediaCodes.png
         fileData = bytearray()  # load representation from file
         with open("img/python.png") as f:
             fileData = f.read()
@@ -42,3 +44,15 @@ class ImageResource(resource):
         response.payload = fileData
         response.contentType = ct  # set content type
         request.respond(response)  # complete the request
+
+
+class TestImageResource(unittest.TestCase):
+
+    def setUp(self):
+        server = Endpoint()
+        res = ImageResource()
+        server.register(res)
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -63,9 +63,16 @@ class RequestTest(unittest.TestCase):
         acquiredTokens = dict()
         emptyToken = [None] * 0
         acquiredTokens.add(emptyToken)
-        print("Contains: " + acquiredTokens.contains(emptyToken))
+        print("Contains: %s" % acquiredTokens.contains(emptyToken))
         acquiredTokens.remove(emptyToken)
-        print("Contains: " + acquiredTokens.contains(emptyToken))
+        print("Contains: %s" % acquiredTokens.contains(emptyToken))
+
+
+class TestSeparate(unittest.TestCase):
+
+    def setUp(self):
+        sep = Separate()
+
 
 if __name__ == '__main__':
     unittest.main()

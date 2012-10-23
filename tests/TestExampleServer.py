@@ -1,11 +1,28 @@
 # coding=utf-8
 
+import http
 import logging
-from pycolo import LocalEndpoint
-from tests.resources import CarelessResource, SeparateResource, StorageResource, ImageResource, LargeResource, TimeResource
-from tests.resources import ZurichWeatherResource
-from tests.resources import ToUpperResource, HelloWorldResource
 import unittest
+from pycolo.codes import options, codes, mediaCodes
+from pycolo.resource import Resource
+
+
+class ToUpperResource(Resource):
+    """
+    This class implements a 'toUpper' resource for demonstration purposes.
+    Defines a resource that returns a POSTed string in upper-case letters.
+    """
+    def __init__(self):
+        self.title = "POST text here to convert it to uppercase"
+        self.resourceType = "UppercaseConverter"
+
+    def performPOST(self, request):
+
+        if request.contentType != mediaCodes.text:
+            request.respond(codes.RESP_UNSUPPORTED_MEDIA_TYPE, "Use text/plain")
+            return
+            #  complete the request
+        request.respond(codes.RESP_CONTENT, request.payload.upper(), mediaCodes.text)
 
 
 class ExampleServer(LocalEndpoint):
@@ -30,35 +47,9 @@ class ExampleServer(LocalEndpoint):
         self.addResource(SeparateResource())
         self.addResource(LargeResource())
         self.addResource(TimeResource())
-        self.addResource(ZurichWeatherResource())
+        self.addResource(ParisWeatherResource())
         self.addResource(ImageResource())
         self.addResource(CarelessResource())
-
-    def handleRequest(self, request):
-        """ generated source for method handleRequest
-        :param request:
-        """
-        #  Add additional handling like special logging here.
-        request.prettyPrint()
-        #  dispatch to requested resource
-        super(ExampleServer, self).handleRequest(request)
-
-    #  Application entry point /////////////////////////////////////////////////
-
-    def main(cls, args):
-        #  create server
-        """
-
-        :param cls:
-        :param args:
-        """
-        try:
-            logging.info("ExampleServer listening on port %d.\n", server.port())
-        except SocketException as e:
-            logging.critical("Failed to create SampleServer: %s\n", e.getMessage())
-            sys.exit(cls.ERR_INIT_FAILED)
-
-ExampleServer.# 	 * Constructor for a new ExampleServer. Call {@code super(...)} to configure
 
 
 if __name__ == '__main__':

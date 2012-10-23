@@ -1,20 +1,24 @@
 # coding=utf-8
 import unittest
 import logging
-from pycolo import Message
+from pycolo import message
 from pycolo import codes
 
 
 class MessageTest(unittest.TestCase):
+
     def testMessage(self):
-        msg = Message()
+        """
+        Basic message serialization/deserialization
+        """
+        msg = message()
         msg.code = codes.get
         msg.type = "CON"
         msg.MID = 12345
-        msg.payload = b"some payload"
+        msg.payload = b"Bonjour"
         logging.info(str(msg))
         data = msg.dump()
-        convMsg = Message()
+        convMsg = message()
         convMsg.load(data)
         self.assertEquals(msg.code, convMsg.code)
         self.assertEquals(msg.type, convMsg.type)
@@ -24,45 +28,75 @@ class MessageTest(unittest.TestCase):
 
     def testOptionMessage(self):
         """
-
+        Basic options test messages.
         """
-        msg = Message()
+        msg = message()
         msg.code = codes.get
         msg.type = "CON"
         msg.MID = 12345
-        msg.payload = b"hallo"
+        msg.payload = b"Bonjour"
         msg.option["a"] = 1
         msg.option["b"] = 2
         data = msg.dump()
-        convMsg = Message()
-        convMsg.load(data)
-        self.assertEquals(msg.code, convMsg.code)
-        self.assertEquals(msg.type, convMsg.type)
-        self.assertEquals(msg.MID, convMsg.MID)
-        self.assertEquals(len(msg.option), len(convMsg.option))
-        self.assertArrayEquals(msg.payload, convMsg.payload)
+        newMsg = message()
+        newMsg.load(data)
+        self.assertEquals(msg.code, newMsg.code)
+        self.assertEquals(msg.type, newMsg.type)
+        self.assertEquals(msg.MID, newMsg.MID)
+        self.assertEquals(len(msg.option), len(newMsg.option))
+        self.assertArrayEquals(msg.payload, newMsg.payload)
+
 
     def testExtendedOptionMessage(self):
-        msg = Message()
+        msg = message()
         msg.code = codes.get
-        msg.type = "CON"
+        msg.type = codes.confirmable
         msg.MID = 12345
         msg.option["a"] = 1
-        msg.option["ab"] = 197
-        #  will fail as limit of max 15 options would be exceeded
-        #  msg.addOption(new Option ("c".getBytes(), 212));
+        msg.option["ab"] = 197  # will fail as limit of max 15 options would be exceeded
         data = msg.dump()
-        try:
-            logging.info("Testing getHexString(): %s (%d)",
-                str(data), len(data))
-        except Exception as e:
-            e.with_traceback
-        convMsg = Message()
-        convMsg.load(data)
-        self.assertEquals(msg.code, convMsg.code)
-        self.assertEquals(msg.type, convMsg.type)
-        self.assertEquals(msg.MID, convMsg.MID)
-        self.assertEquals(len(msg.option), len(convMsg.option))
+        newMsg = message()
+        newMsg.load(data)
+        self.assertEquals(msg.code, newMsg.code)
+        self.assertEquals(msg.type, newMsg.type)
+        self.assertEquals(msg.MID, newMsg.MID)
+        self.assertEquals(len(msg.option), len(newMsg.option))
+
+    def testGETRequestHeader(self):
+        """ generated source for method testGETRequestHeader """
+        versionIn = 1
+        versionSz = 2
+        typeIn = 0
+        #  Confirmable
+        typeSz = 2
+        optionCntIn = 1
+        optionCntSz = 4
+        codeIn = 1
+        #  GET Request
+        codeSz = 8
+        msgIdIn = 0x1234
+        msgIdSz = 16
+        writer = DatagramWriter()
+        writer.write(versionIn, versionSz)
+        writer.write(typeIn, typeSz)
+        writer.write(optionCntIn, optionCntSz)
+        writer.write(codeIn, codeSz)
+        writer.write(msgIdIn, msgIdSz)
+        data = writer.toByteArray()
+        dataRef = [0x41, 0x01, 0x12, 0x34]
+        self.assertArrayEquals(dataRef, data)
+        reader = DatagramReader(data)
+        versionOut = reader.read(versionSz)
+        typeOut = reader.read(typeSz)
+        optionCntOut = reader.read(optionCntSz)
+        codeOut = reader.read(codeSz)
+        msgIdOut = reader.read(msgIdSz)
+        self.assertEquals(versionIn, versionOut)
+        self.assertEquals(typeIn, typeOut)
+        self.assertEquals(optionCntIn, optionCntOut)
+        self.assertEquals(codeIn, codeOut)
+        self.assertEquals(msgIdIn, msgIdOut)
+
 
 
 if __name__ == '__main__':

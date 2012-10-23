@@ -3,9 +3,10 @@
 import logging
 import unittest
 import sys
-from pycolo import Resource
+from pycolo import resource
 from pycolo.Communicator import Communicator
-from pycolo.TokenManager import TokenManager
+from pycolo.message import Message
+from pycolo.token import TokenManager
 from pycolo.codes import options
 from pycolo.request import request
 
@@ -29,9 +30,9 @@ class PlugtestClient(unittest.TestCase):
         # default block size
         Communicator.setupTransfer(codes.PLUGTEST_BLOCK_SIZE)
 
-        if (request.requiresToken()) {
+        if request.requiresToken():
             request.setToken(TokenManager.getInstance().acquireToken())
-        }
+
 
         request.registerResponseHandler(new TestResponseHandler())
 
@@ -57,7 +58,7 @@ class PlugtestClient(unittest.TestCase):
         #
         success = True
 
-        if (expextedOption.equals(new Option(TokenManager.emptyToken, options.TOKEN))):
+        if expextedOption.equals(new Option(TokenManager.emptyToken, options.TOKEN)):
             self.assertEqual(None, actualOption)
         else:
             success = actualOption.getRawValue().length <= 8
@@ -79,7 +80,7 @@ class PlugtestClient(unittest.TestCase):
         :param expextedAttribute:
         """
 
-        Resource res = RemoteResource.newRoot(actualDiscovery)
+        resource res = RemoteResource.newRoot(actualDiscovery)
 
         List < Option > query = new ArrayList < Option > ()
         query.add(new Option(expextedAttribute, options.URI_QUERY))
@@ -104,17 +105,12 @@ class PlugtestClient(unittest.TestCase):
         RESOURCE_URI = "/test"
         EXPECTED_RESPONSE_CODE = 69
 
-        r = request.get(self.serverURI+ RESOURCE_URI)
+        r = request.get(self.serverURI + RESOURCE_URI)
 
-
-
-        def checkResponse(Request request, Response response)
-        success = True
-
-        success &= checkType(Message.messageType.ACK, response.getType())
-        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
-        self.assertEqual(request.getMID(), response.getMID(), "MID")
-        self.assertEqual(True, r.hasContentType)
+        success &= checkType(Message.messageType["ACK"], r.type)
+        self.assertEqual(EXPECTED_RESPONSE_CODE, r.code)
+        self.assertEqual(request.getMID(), r.MID)
+        self.assertEqual(True, r.hasContentType())
 
         
 
@@ -131,8 +127,8 @@ class PlugtestClient(unittest.TestCase):
         r = request.post(self.serverURI+ RESOURCE_URI, payload=payload)
 
 
-        success &= checkType(Message.messageType.ACK, response.getType())
-        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(Message.messageType["ACK"], r.type)
+        self.assertEqual(EXPECTED_RESPONSE_CODE, r.code)
         self.assertEqual(request.getMID(), response.getMID(), "MID")
 
         
@@ -148,7 +144,7 @@ class PlugtestClient(unittest.TestCase):
 
         r = request.put(self.serverURI + RESOURCE_URI, payload="TD_COAP_CORE_02")
 
-        self.assertEqual(Message.messageType.ACK, r.type)
+        self.assertEqual(Message.messageType["ACK"], r.type)
         self.assertEqual(EXPECTED_RESPONSE_CODE, r.code)
 
     def test_CC04(self):
@@ -161,7 +157,7 @@ class PlugtestClient(unittest.TestCase):
 
 
         r = request.delete(serverURI + RESOURCE_URI)
-        self.assertEqual(Message.messageType.ACK, r.type)
+        self.assertEqual(Message.messageType["ACK"], r.type)
         self.assertEqual(EXPECTED_RESPONSE_CODE, r.code)
 
 
@@ -176,8 +172,8 @@ class PlugtestClient(unittest.TestCase):
 
         r = request.get(self.serverURI+ RESOURCE_URI, confirmable=False)
 
-        self.assertEqual(Message.messageType.NON, r.type)
-        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(Message.messageType["NON"], r.type)
+        self.assertEqual(EXPECTED_RESPONSE_CODE, r.code)
         self.assertEqual(True, r.hasContentType())
 
 
@@ -194,7 +190,7 @@ class PlugtestClient(unittest.TestCase):
             confirmable=False,\
             payload="TD_COAP_CORE_06")
 
-        self.assertEqual(Message.messageType.NON, r.type)
+        self.assertEqual(Message.messageType["NON"], r.type)
         self.assertEqual(EXPECTED_RESPONSE_CODE, r.code)
 
     def test_CC07(self):
@@ -208,7 +204,7 @@ class PlugtestClient(unittest.TestCase):
         # create the request
         r = request.put(self.serverURI+ RESOURCE_URI, confirmable=False, payload="TD_COAP_CORE_07")
 
-        self.assertEqual(Message.messageType.NON, r.type)
+        self.assertEqual(Message.messageType["NON"], r.type)
         self.assertEqual(EXPECTED_RESPONSE_CODE, r.code, "code")
 
 
@@ -223,7 +219,7 @@ class PlugtestClient(unittest.TestCase):
 
         r = request.delete(self.serverURI + RESOURCE_URI, confirmable=False)
 
-        self.assertEqual(Message.messageType.NON, r.type)
+        self.assertEqual(Message.messageType["NON"], r.type)
         self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
 
 
@@ -240,8 +236,8 @@ class PlugtestClient(unittest.TestCase):
         r = request.get(self.serverURI + RESOURCE_URI, confirmable=True)
 
 
-        self.assertEqual(Message.messageType.CON, r.type)
-        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode())
+        self.assertEqual(Message.messageType["NON"], r.type)
+        self.assertEqual(EXPECTED_RESPONSE_CODE, response.code)
         self.assertEqual(True, r.hasContentType)
 
     def test_CC10(self):
@@ -257,7 +253,7 @@ class PlugtestClient(unittest.TestCase):
         r = request.get(self.serverURI + RESOURCE_URI, confirmable=True, token=token)
 
         self.assertEqual(Message.messageType.ACK, r.type)
-        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(EXPECTED_RESPONSE_CODE, r.code, "code")
         self.assertEqual(request.getFirstOption(options.TOKEN), response.getFirstOption(options.TOKEN))
         self.assertEqual(True, r.hasContentType)
 
@@ -274,7 +270,7 @@ class PlugtestClient(unittest.TestCase):
         r = request.get(self.serverURI + RESOURCE_URI, confirmable=True, token=token)
 
         self.assertEqual(Message.messageType.ACK, response.getType())
-        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(EXPECTED_RESPONSE_CODE, r.code, "code")
         self.assertEqual(new Option(TokenManager.emptyToken, options.TOKEN), response.getFirstOption(options.TOKEN))
         self.assertEqual(True, r.hasContentType())
 
@@ -296,7 +292,7 @@ class PlugtestClient(unittest.TestCase):
             boolean success = True
 
         success &= checkType(Message.messageType.ACK, response.getType())
-        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(EXPECTED_RESPONSE_CODE, r.code, "code")
         success &= hasContentType(response)
 
         
@@ -319,7 +315,7 @@ class PlugtestClient(unittest.TestCase):
 
 
         self.assertEqual(Message.messageType.ACK, response.getType()) || checkType(Message.messageType.CON, response.getType())
-        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(EXPECTED_RESPONSE_CODE, r.code, "code")
         self.assertEqual(True, r.hasContentType(response))
 
         
@@ -351,7 +347,7 @@ class PlugtestClient(unittest.TestCase):
         r = request.get(self.serverURI + RESOURCE_URI, confirmable=True)
 
         self.assertEqual(Message.messageType.ACK, response.getType())
-        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(EXPECTED_RESPONSE_CODE, r.code, "code")
         self.assertEqual(new Option(MediaTypeRegistry.APPLICATION_LINK_FORMAT, options.CONTENT_TYPE), response.getFirstOption(options.CONTENT_TYPE))
 
     def test_CL02(self):
@@ -371,7 +367,7 @@ class PlugtestClient(unittest.TestCase):
         # set the parameters and execute the request
 
         self.assertEqual(Message.messageType.ACK, response.getType())
-        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(EXPECTED_RESPONSE_CODE, r.code, "code")
         self.assertEqual(new Option(MediaTypeRegistry.APPLICATION_LINK_FORMAT, options.CONTENT_TYPE), response.getFirstOption(options.CONTENT_TYPE))
         self.assertEqual(EXPECTED_RT, response.getPayloadString())
 
@@ -397,7 +393,7 @@ class PlugtestClient(unittest.TestCase):
         maxNUM = ((BlockOption)response.getFirstOption(options.BLOCK2)).getNUM()
 
         self.assertEqual(Message.messageType.ACK, response.getType())
-        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(EXPECTED_RESPONSE_CODE, r.code, "code")
         self.assertEqual(
             new BlockOption(options.BLOCK2, maxNUM, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false),
                 response.getFirstOption(options.BLOCK2))
@@ -450,7 +446,7 @@ class PlugtestClient(unittest.TestCase):
         maxNUM = ((BlockOption)response.getFirstOption(options.BLOCK1)).getNUM()
 
         self.assertEqual(Message.messageType.ACK, response.getType())
-        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(EXPECTED_RESPONSE_CODE, r.code, "code")
         self.assertEqual(
             new BlockOption(options.BLOCK1, maxNUM, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false),
                 response.getFirstOption(options.BLOCK1))
@@ -482,7 +478,7 @@ class PlugtestClient(unittest.TestCase):
         maxNUM = ((BlockOption)response.getFirstOption(options.BLOCK1)).getNUM()
 
         self.assertEqual(Message.messageType.ACK, response.getType())
-        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(EXPECTED_RESPONSE_CODE, r.code, "code")
         self.assertEqual(
             new BlockOption(options.BLOCK1, maxNUM, BlockOption.encodeSZX(PLUGTEST_BLOCK_SIZE), false),
                 response.getFirstOption(options.BLOCK1))
@@ -522,7 +518,7 @@ class PlugtestClient(unittest.TestCase):
 
         # print request info
         if verbose:
-            logging.info("Request for test " + this.testName + " sent")
+            logging.info("Request for test %s sent" % this.testName)
         request.prettyPrint()
 
         # execute the request
@@ -542,7 +538,7 @@ class PlugtestClient(unittest.TestCase):
                     # print response info
                     if self.verbose:
                         logging.info("Response received")
-                        logging.info("Time elapsed (ms): " + response.getRTT())
+                        logging.info("Time elapsed (ms): %s" % response.getRTT())
                         response.prettyPrint()
 
                 success &= checkResponse(response.getRequest(), response)
@@ -561,21 +557,20 @@ class PlugtestClient(unittest.TestCase):
 
         success &= hasObserve(response, True)
 
-        if (success) {
-        logging.info("**** TEST PASSED ****")
-    addSummaryEntry(testName + ": PASSED")
-    } else {
-        logging.info("**** TEST FAILED ****")
-    addSummaryEntry(testName + ": FAILED")
-    }
+        if success:
+            logging.info("**** TEST PASSED ****")
+            addSummaryEntry("%s: PASSED" % testName)
+        else:
+            logging.info("**** TEST FAILED ****")
+            addSummaryEntry("%s: FAILED" % testName)
 
     tickOffTest()
 
     } catch (IOException e) {
-        logging.critical("Failed to execute request: " + e.getMessage())
+        logging.critical("Failed to execute request: %s" % e.getMessage())
         sys.exit(-1)
     } catch (InterruptedException e) {
-        logging.critical("Interupted during receive: " + e.getMessage())
+        logging.critical("Interupted during receive: %s" % e.getMessage())
         sys.exit(-1)
     }
 
@@ -592,9 +587,9 @@ class PlugtestClient(unittest.TestCase):
 
         private Timer timer = new Timer(True)
 
-        /*
-        * Utility class to provide transaction timeouts
-        */
+
+        # Utility class to provide transaction timeouts
+
         private class MaxAgeTask extends TimerTask {
 
             private Request request
@@ -616,7 +611,7 @@ class PlugtestClient(unittest.TestCase):
         protected boolean checkResponse(Request request, Response response) {
             boolean success = True
 
-        self.assertEqual(EXPECTED_RESPONSE_CODE, response.getCode(), "code")
+        self.assertEqual(EXPECTED_RESPONSE_CODE, r.code)
         self.assertEqual(True, r.hasObserve)
         self.assertEqual(True, r.hasContentType)
 
@@ -626,27 +621,23 @@ class PlugtestClient(unittest.TestCase):
         }
 
         # defensive check for slash
-        if (! serverURI.endsWith("/") && ! resourceUri.startsWith("/")) {
+        if not serverURI.endsWith("/") and not resourceUri.startsWith("/")):
             resourceUri = "/" + resourceUri
-        }
 
-        if (request.requiresToken()) {
+        if request.requiresToken():
             request.setToken(TokenManager.getInstance().acquireToken())
-        }
 
     # enable response queue for synchronous I / O
-    if (sync) {
+    if sync:
         request.enableResponseQueue(True)
-    }
 
     # for observing
     int observeLoop = 5
 
     # print request info
-    if (verbose) {
-        logging.info("Request for test " + this.testName + " sent")
-    request.prettyPrint()
-    }
+    if self.verbose:
+        logging.info("Request for test %s sent" % this.testName)
+        request.prettyPrint()
 
     # execute the request
     try:
@@ -672,10 +663,9 @@ class PlugtestClient(unittest.TestCase):
                 logging.info("+++++++++++++++++++++++")
             }
 
-    if (timeout != null) {
+    if timeout:
         timeout.cancel()
-    timer.purge()
-    }
+        timer.purge()
 
     long time = response.getMaxAge() * 1000
 
@@ -685,7 +675,7 @@ class PlugtestClient(unittest.TestCase):
     # print response info
     if (verbose) {
         logging.info("Response received")
-    logging.info("Time elapsed (ms): " + response.getRTT())
+    logging.info("Time elapsed (ms): %s" % response.getRTT())
     response.prettyPrint()
     }
 
@@ -722,7 +712,7 @@ class PlugtestClient(unittest.TestCase):
         # create the request
         r = request.get(self.serverURI + RESOURCE_URI)
         # set Observe option
-        request.setOption(new Option(0, options.OBSERVE))
+        request.options[0] = options.OBSERVE
 
 
         self.assertEqual(EXPECTED_RESPONSE_CODE, r.code)

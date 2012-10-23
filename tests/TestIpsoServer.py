@@ -7,9 +7,9 @@ from pycolo import link, LocalEndpoint
 from pycolo.codes import mediaCodes
 from pycolo.codes import codes
 import unittest
-from pycolo import Resource
+from pycolo import resource
 
-class DeviceManufacturer(Resource):
+class DeviceManufacturer(resource):
     """ This resource implements a part of the IPSO profile. """
     def __init__(self):
         """ generated source for method __init__ """
@@ -26,7 +26,7 @@ class DeviceManufacturer(Resource):
         request.respond(codes.RESP_CONTENT,\
             "Pycolo", mediaCodes.text)
 
-class DeviceModel(Resource):
+class DeviceModel(resource):
     """ This resource implements a part of the IPSO profile. """
     def __init__(self):
         """ generated source for method __init__ """
@@ -41,9 +41,9 @@ class DeviceModel(Resource):
         """
         #  complete the request
         request.respond(codes.RESP_CONTENT,\
-            "Californium", mediaCodes["TEXT_PLAIN"])
+            "Pycolo", mediaCodes.text)
 
-class DeviceName(Resource):
+class DeviceName(resource):
     """ This resource implements a part of the IPSO profile. """
     name = "IPSO Server"
 
@@ -67,14 +67,14 @@ class DeviceName(Resource):
         """ generated source for method performPUT
         :param request:
         """
-        if request.contentType != mediaCodes["TEXT_PLAIN"]:
+        if request.contentType != mediaCodes.text:
             request.respond(codes.RESP_BAD_REQUEST, "text/plain only")
             return
         self.name = request.payload
         #  complete the request
         request.respond(codes.RESP_CHANGED)
 
-class DeviceSerial(Resource):
+class DeviceSerial(resource):
     """ This resource implements a part of the IPSO profile. """
     def __init__(self):
         """ generated source for method __init__ """
@@ -92,7 +92,7 @@ class DeviceSerial(Resource):
 
 
 
-class DeviceBattery(Resource):
+class DeviceBattery(resource):
     """ This resource implements a part of the IPSO profile. """
     power = 3.6
 
@@ -125,9 +125,9 @@ class DeviceBattery(Resource):
         #  complete the request
         request.respond(codes.RESP_CONTENT,\
             self.power * 1000 / 1000,\
-            mediaCodes["TEXT_PLAIN"])
+            mediaCodes.text)
 
-class PowerCumulative(Resource):
+class PowerCumulative(resource):
     """ This resource implements a part of the IPSO profile. """
     power = 0
 
@@ -158,9 +158,9 @@ class PowerCumulative(Resource):
         :param request:
         """
         #  complete the request
-        request.respond(codes.RESP_CONTENT, Double.toString(self.power), mediaCodes.TEXT_PLAIN)
+        request.respond(codes.RESP_CONTENT, Double.toString(self.power), mediaCodes.text)
 
-class PowerDimmer(Resource):
+class PowerDimmer(resource):
     """ This resource implements a part of the IPSO profile. """
     percent = 100
 
@@ -179,13 +179,13 @@ class PowerDimmer(Resource):
         #  complete the request
         request.respond(codes.RESP_CONTENT,\
             int(self.percent),\
-            mediaCodes["TEXT_PLAIN"])
+            mediaCodes.text)
 
     def performPUT(self, request):
         """ generated source for method performPUT
         :param request:
         """
-        if request.contentType != mediaCodes["TEXT_PLAIN"]:
+        if request.contentType != mediaCodes.text:
             request.respond(codes.RESP_BAD_REQUEST, "text/plain only")
             return
         pl = int(request.payload)
@@ -198,7 +198,7 @@ class PowerDimmer(Resource):
         else:
             request.respond(codes.RESP_BAD_REQUEST, "use 0-100")
 
-class PowerInstantaneous(Resource):
+class PowerInstantaneous(resource):
     """ This resource implements a part of the IPSO profile. """
     power = 0
 
@@ -236,9 +236,9 @@ class PowerInstantaneous(Resource):
         #  complete the request
         request.respond(codes.RESP_CONTENT,\
             str(self.power),\
-            mediaCodes["TEXT_PLAIN"])
+            mediaCodes.text)
 
-class PowerRelay(Resource):
+class PowerRelay(resource):
     """ This resource implements a part of the IPSO profile. """
     on = True
 
@@ -261,13 +261,13 @@ class PowerRelay(Resource):
         #  complete the request
         request.respond(codes.RESP_CONTENT,\
             "1" if self.on else "0",\
-            mediaCodes["TEXT_PLAIN"])
+            mediaCodes.text)
 
     def performPUT(self, request):
         """ generated source for method performPUT
         :param request:
         """
-        if request.contentType != mediaCodes["TEXT_PLAIN"]:
+        if request.contentType != mediaCodes.text:
             request.respond(codes.RESP_BAD_REQUEST, "text/plain only")
             return
         pl = request.getPayloadString()
@@ -332,7 +332,6 @@ class IpsoServer(LocalEndpoint):
         """
         #  create server
         try:
-            logging.info(IpsoServer.__class__.getSimpleName() + " listening on port %d.\n", server.port())
             #  specific handling for this request
             #  here: response received, output a pretty-print
             #  RD location
@@ -351,16 +350,16 @@ class IpsoServer(LocalEndpoint):
                 except UnknownHostException as e1:
                     print("Unable to retrieve hostname for registration")
                     print("Fallback to random")
-            register.setURI(rd + "?h=Cf-" + hostname)
+            register.setURI("%s?h=Cf-%s" % (rd, hostname))
             register.setPayload(link.serialize(server.getRootResource(), None, True), mediaCodes.APPLICATION_LINK_FORMAT)
             try:
-                print("Registering at " + rd + " as Cf-" + hostname)
+                print("Registering at %s as Cf-%s" % (rd, hostname))
                 self.register.execute()
             except Exception as e:
-                logging.critical("Failed to execute request: " + e.getMessage())
+                logging.critical("Failed to execute request: %s" % e.getMessage())
                 sys.exit(cls.ERR_INIT_FAILED)
         except SocketException as e:
-            logging.critical("Failed to create " + IpsoServer.__class__.getSimpleName() + ": %s\n", e.getMessage())
+            logging.critical("Failed to create %s: %s\n" % IpsoServer.__class__.getSimpleName(), e.getMessage())
             sys.exit(cls.ERR_INIT_FAILED)
 
 if __name__ == '__main__':

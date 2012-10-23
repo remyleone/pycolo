@@ -1,70 +1,44 @@
 # coding=utf-8
-import unittest
-from pycolo import Option
 
+import unittest
+import math
+from pycolo.endpoint import Endpoint
+
+def getLength(obj):
+    """
+    This method returns the length of the argument
+    """
+    if isinstance(obj, int):
+        return math.ceil(obj.bit_length() / 8)
+    if isinstance(obj, str):
+        len(bytearray(obj, "utf-8"))
 
 class OptionTest(unittest.TestCase):
 
     def testRawOption(self):
-        """ generated source for method testRawOption """
-        dataRef = "test".getBytes()
+        dataRef = b"test"
         nrRef = 1
-        opt = Option(dataRef, nrRef)
-        self.assertArrayEquals(dataRef, opt.getRawValue())
-        self.assertEquals(opt.getLength(),)
+        options = dict()
+        options[nrRef] = dataRef
+        self.assertEquals(dataRef, options[nrRef])
+        self.assertEquals(len(options), 1)
 
     def testIntOption(self):
-        """ generated source for method testIntOption """
-        oneByteValue = 255
-        #  fits in 1 Byte
-        twoBytesValue = 256
-        #  needs 2 Bytes
+        oneByteValue = 255  # fits in 1 Byte
+        twoBytesValue = 256  # needs 2 Bytes
         nrRef = 1
-        optOneByte = Option(oneByteValue, nrRef)
-        optTwoBytes = Option(twoBytesValue, nrRef)
-        self.assertEquals(1, optOneByte.getLength())
-        self.assertEquals(2, optTwoBytes.getLength())
-        self.assertEquals(255, optOneByte.getIntValue())
-        self.assertEquals(256, optTwoBytes.getIntValue())
+        optOneByte = dict()
+        optTwoBytes = dict()
+        optOneByte[nrRef] = oneByteValue
+        optTwoBytes[nrRef] = twoBytesValue
+        self.assertEquals(1, getLength(oneByteValue))
+        self.assertEquals(2, getLength(twoBytesValue))
+        self.assertEquals(255, optOneByte[nrRef])
+        self.assertEquals(256, optTwoBytes[nrRef])
 
-    def testStringOption(self):
-        """ generated source for method testStringOption """
-        strRef = "test"
-        nrRef = 1
-        opt = Option(strRef, nrRef)
-        self.assertEquals(strRef, opt.getStringValue())
-        self.assertEquals(opt.getLength(),)
+class TestSeparate(unittest.TestCase):
 
-    def testOptionNr(self):
-        """ generated source for method testOptionNr """
-        dataRef = "test".getBytes()
-        nrRef = 1
-        opt = Option(dataRef, nrRef)
-        self.assertEquals(nrRef, opt.getOptionNumber())
-
-    def equalityTest(self):
-        """ generated source for method equalityTest """
-        oneByteValue = 255
-        #  fits in 1 Byte
-        twoBytesValue = 256
-        #  needs 2 Bytes
-        nrRef = 1
-        optOneByte = Option(oneByteValue, nrRef)
-        optTwoBytes = Option(twoBytesValue, nrRef)
-        optTwoBytesRef = Option(twoBytesValue, nrRef)
-        self.assertTrue(optTwoBytes == optTwoBytesRef)
-        self.assertFalse(optTwoBytes == optOneByte)
-
-    def getHexString(cls, b):
-        """ generated source for method getHexString
-        :param b:
-        """
-        result = ""
-        i = 0
-        while len(b):
-            result += int().toString((b[i] & 0xff) + 0x100, 16).substring(1)
-            i += 1
-        return result
-
-if __name__ == '__main__':
-    unittest.main()
+    def setUp(self):
+        res = ResourceTest()
+        server = Endpoint()
+        server.addResource(res)

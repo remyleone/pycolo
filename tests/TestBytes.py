@@ -70,7 +70,6 @@ class TestBytes(unittest.TestCase):
         self.assertEquals(bytesIn, bytesOut)
 
     def testUnalignedBytes3(self):
-        """ generated source for method testUnalignedBytes3 """
         bitsIn = 5
         bitCount = bitsIn.bit_length()
         bytesIn = b"Some unaligned Bytes"
@@ -91,7 +90,6 @@ class TestBytes(unittest.TestCase):
         self.assertEquals(bytesIn, bytesOut)
 
     def testBytesLeft(self):
-        """ generated source for method testBytesLeft """
         bitsIn = 0xaa
         bitCount = bitsIn.bit_length()
         bytesIn = b"Some unaligned Bytes"

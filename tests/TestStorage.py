@@ -1,10 +1,7 @@
 # coding=utf-8
-
-import logging
-from pycolo import Resource
-from pycolo import Response
-from pycolo.codes import mediaCodes
-from pycolo.codes import codes
+from pycolo.codes import codes, mediaCodes, options
+from pycolo.message import Response
+from pycolo.resource import Resource
 
 class StorageResource(Resource):
     """
@@ -36,18 +33,18 @@ class StorageResource(Resource):
         :param request:
         """
         #  create response
-        response = Response(CodeRegistry.RESP_CONTENT)
+        response = Response(codes.RESP_CONTENT)
         #  check if link format requested
         if request.contentType == mediaCodes.APPLICATION_LINK_FORMAT or not self.data:
             #  respond with list of sub-resources in link format
-            response.setPayload(LinkFormat.serialize(self, request.getOptions(OptionNumberRegistry.URI_QUERY), True), MediaTypeRegistry.APPLICATION_LINK_FORMAT)
+            response.setPayload(LinkFormat.serialize(self, request.getOptions(options.URI_QUERY), True), mediaCodes.APPLICATION_LINK_FORMAT)
         else:
             #  load data into payload
             response.payload = self.data
             #  set content type
             if getContentTypeCode().size() > 0:
                 response.setContentType(getContentTypeCode().get(0))
-        #  complete the request
+                #  complete the request
         request.respond(response)
 
     def performPUT(self, request):
@@ -58,7 +55,7 @@ class StorageResource(Resource):
         #  store payload
         self.storeData(request)
         #  complete the request
-        request.respond(CodeRegistry.RESP_CHANGED)
+        request.respond(codes.RESP_CHANGED)
 
     def performPOST(self, request):
         """
@@ -86,12 +83,12 @@ class StorageResource(Resource):
         if isinstance(request, (PUTRequest,)):
             request.respond(codes.RESP_FORBIDDEN, "PUT restricted to exiting resources")
             return
-        #  omit leading and trailing slashes
+            #  omit leading and trailing slashes
         if newIdentifier.startsWith("/"):
             newIdentifier = newIdentifier.substring(1)
         if newIdentifier.endsWith("/"):
             newIdentifier = newIdentifier.substring(0, 1 - len(newIdentifier))
-        #  truncate from special chars onwards 
+            #  truncate from special chars onwards
         if newIdentifier.indexOf("/") != -1:
             newIdentifier = newIdentifier.substring(0, newIdentifier.indexOf("/"))
         if newIdentifier.indexOf("?") != -1:
@@ -100,16 +97,16 @@ class StorageResource(Resource):
             newIdentifier = newIdentifier.substring(0, newIdentifier.indexOf("\r"))
         if newIdentifier.indexOf("\n") != -1:
             newIdentifier = newIdentifier.substring(0, newIdentifier.indexOf("\n"))
-        #  special restriction
+            #  special restriction
         if 32 > len(newIdentifier):
             request.respond(codes.RESP_FORBIDDEN, "Resource segments limited to 32 chars")
             return
-        #  rt by query
+            #  rt by query
         newRtAttribute = None
-        for query in request.getOptions(OptionNumberRegistry.URI_QUERY):
+        for query in request.getOptions(options.URI_QUERY):
             if self.keyValue[0] == "rt" and len(self.keyValue):
                 newRtAttribute = self.keyValue[1]
-                continue 
+                continue
         if self.getResource(newIdentifier) is None:
             if newRtAttribute is not None:
                 self.resource.setResourceType(newRtAttribute)
