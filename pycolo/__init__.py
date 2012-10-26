@@ -53,8 +53,3 @@ DEFAULT_BLOCK_SIZE = 512  # [bytes]
 # the number of notifications until a CON notification will be used
 
 OBSERVING_REFRESH_INTERVAL = 10
-
-# Media Type Registry
-# This dict describes the CoAP Media Type Registry as defined in
-# draft-ietf-core-coap-07, section 11.3
-
