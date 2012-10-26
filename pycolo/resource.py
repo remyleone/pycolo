@@ -88,7 +88,7 @@ class Resource:
         :raise:
         """
         if recursive:
-            raise Exception("Not implemented yet")
+            raise NotImplementedError
         else:
             len(self.__dict__)
 
