@@ -4,7 +4,7 @@ python:
     - "3.2"
 
 install:
-  - pip install nose
+  - sudo apt-get install python3-nose
 
 script: nosetests3
 
