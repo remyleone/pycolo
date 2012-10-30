@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-from .structures import LookupDict
+from pycolo.structures import LookupDict
 
 _codes = {
     #  Constants
@@ -51,7 +51,7 @@ _codes = {
 }
 
 _mediaCode = {
-    0: ("TEXT_PLAIN", "plain", "txt"),
+    0: ("TEXT_PLAIN", "plain", "txt", "text"),
     1: ("TEXT_XML", "xml"),
     2: ("TEXT_CSV", "csv"),
     3: ("TEXT_HTML", "html"),
@@ -84,7 +84,7 @@ _options = {
     5: ("URI_HOST", "Uri-Host"),
     6: ("LOCATION_PATH", "Location-Path"),
     7: ("URI_PORT", "Uri-Port"),
-    8: ("LOCATION_QUERY", "Location-Query",\
+    8: ("LOCATION_QUERY", "Location-Query",
         "TOKEN_LEN", "token_len", "tokenLen"),
     # Token len and location query are not related semantically but
     # they share the same value.
@@ -105,21 +105,6 @@ _options = {
     21: ("IF_NONE_MATCH", "If-None-Match"),
 
 }
-
-
-def _init(d):
-    for (code, titles) in list(d.items()):
-        for title in titles:
-            setattr(codes, title, code)
-            if not title.startswith('\\'):
-                setattr(codes, title.upper(), code)
-
-codes = LookupDict(name="status_code")
-codes = _init(_codes)
-mediaCodes = LookupDict(name="media_code")
-mediaCodes = _init(_mediaCode)
-options = LookupDict(name="options_code")
-optionsCodes = _init(_options)
 
 
 def isCritical(optionNumber):
@@ -173,3 +158,19 @@ def responseClass(code):
     :return: The response class of the code
     """
     return (code >> 5) & 0x7
+
+
+def _init(d, status):
+    for (code, titles) in list(status.items()):
+        for title in titles:
+            setattr(d, title, code)
+            if not title.startswith('\\'):
+                setattr(d, title.upper(), code)
+
+codes = LookupDict(name="status_code")
+mediaCodes = LookupDict(name="media_code")
+options = LookupDict(name="options_code")
+
+_init(codes, _codes)
+_init(mediaCodes, _mediaCode)
+_init(options, _options)
