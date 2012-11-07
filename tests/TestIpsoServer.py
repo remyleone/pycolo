@@ -3,7 +3,7 @@
 import logging
 import random
 import sys
-from pycolo import link, LocalEndpoint
+from pycolo.endpoint import Endpoint
 from pycolo.codes import mediaCodes
 from pycolo.codes import codes
 import unittest
@@ -289,7 +289,7 @@ class PowerRelay(resource):
 
 
 
-class IpsoServer(LocalEndpoint):
+class IpsoServer(Endpoint):
     """
     The class IpsoServer provides an example of the IPSO Profile specification.
     The server registers its resources at the SensiNode Resource Directory.
