@@ -1,5 +1,5 @@
 # coding=utf-8
-from random import random
+from random import randint
 
 import unittest
 import math
@@ -10,7 +10,7 @@ class TestBytes(unittest.TestCase):
         """
         Test random 32 bit integer
         """
-        intIn = random.randint(0, 0xFFFFFFFF)
+        intIn = randint(0, 0xFFFFFFFF)
         temp = intIn.to_bytes(32, 'little')
         intOut = int.from_bytes(temp, 'little')
         self.assertEquals(intIn, intOut)
