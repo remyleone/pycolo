@@ -6,7 +6,8 @@ from pycolo.endpoint import Endpoint
 
 def getLength(obj):
     """
-    This method returns the length of the argument
+    This method returns the bit-length of the argument
+    :param obj: Argument we want the bit-length of
     """
     if isinstance(obj, int):
         return math.ceil(obj.bit_length() / 8)
