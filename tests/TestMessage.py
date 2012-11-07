@@ -15,7 +15,7 @@ class MessageTest(unittest.TestCase):
         msg.code = codes.get
         msg.type = "CON"
         msg.MID = 12345
-        msg.payload = b"Bonjour"
+        msg.payload = b"Hello"
         logging.info(str(msg))
         data = msg.dump()
         convMsg = message()
