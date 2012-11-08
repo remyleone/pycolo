@@ -1,5 +1,10 @@
-pycolo Package
-==============
+.. _pycolo:
+
+Pycolo
+======
+
+.. module:: pycolo
+
 
 :mod:`pycolo` Package
 ---------------------
@@ -81,3 +86,10 @@ pycolo Package
     :undoc-members:
     :show-inheritance:
 
+tests
+=====
+
+.. toctree::
+   :maxdepth: 4
+
+   tests
