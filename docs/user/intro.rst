@@ -16,3 +16,8 @@ Pycolo was developed with a few :pep:`20` idioms in mind.
 #. Readability counts.
 
 All contributions to Pycolo should keep these important rules in mind.
+
+Pycolo License
+----------------
+
+    .. include:: ../../LICENSE
