@@ -13,6 +13,7 @@ class Separate(Resource):
     This class implements a 'separate' resource for demonstration purposes.
     Defines a resource that returns a response in a separate CoAP Message
     """
+
     def __init__(self):
         self.title = "Resource which cannot be served immediately and which\
              cannot be acknowledged in a piggy-backed way"
@@ -43,7 +44,6 @@ class Separate(Resource):
 
 
 class TestSeparate(unittest.TestCase):
-
     def setUp(self):
         sep = Separate()
 
@@ -55,7 +55,7 @@ class TestSeparate(unittest.TestCase):
 
         Pre-test conditions:
             • Server offers a resource /separate which cannot be served immediately and which
-            cannot be acknowledged in a piggy-backed way.
+              cannot be acknowledged in a piggy-backed way.
 
         Step 1 stimulus Client is requested to send a confirmable GET request to server’s resource
 

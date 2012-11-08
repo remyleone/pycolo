@@ -1,14 +1,13 @@
 # coding=utf-8
 import unittest
 
-from pycolo import codes, resource
+from pycolo import codes
 from pycolo.codes import mediaCodes
 from pycolo.endpoint import Endpoint
 from pycolo.message import Response
 from pycolo.resource import Resource
 
 class LargeResource(Resource):
-
     def performGET(self, request):
         """
         :param request:
@@ -19,9 +18,7 @@ class LargeResource(Resource):
         request.respond(codes.RESP_CONTENT, builder.__str__())
 
 
-
-
-class Large(resource):
+class Large(Resource):
     """
     This class implements a resource that returns a larger amount of
     data on GET requests in order to test blockwise transfers.
@@ -34,6 +31,7 @@ class Large(resource):
     TD_COAP_BLOCK_01
     TD_COAP_BLOCK_02
     """
+
     def __init__(self, name="/large"):
         self.title = "This is a large resource for testing block-wise transfer. Large resource (>1024 bytes) "
         self.name = name
@@ -73,23 +71,24 @@ class LargeCreate(Resource):
         """ generated source for method performGET
         :param request:
         """
-        response = None
-        if not self.data:
-            response = Response(codes.RESP_CONTENT)
-            response.setPayload("Nothing posted yet", mediaCodes.text)
-        else:
-            #  content negotiation
-            supported.add(self.dataCt)
-            if ct = MediaTypeRegistry.contentNegotiation(self.dataCt, supported, request.getOptions(OptionNumberRegistry.ACCEPT))) == var = MediaTypeRegistry.UNDEFINED
-            :
-            request.respond(codes.RESP_NOT_ACCEPTABLE, "Accept %s" % MediaTypeRegistry.toString(self.dataCt))
-            return
-            response = Response(codes.RESP_CONTENT)
 
-            response.payload = self.data  # load data into payload
-            response.setContentType(ct)  # set content type
-
-        request.respond(response)  # complete the request
+    #        response = None
+    #        if not self.data:
+    #            response = Response(codes.RESP_CONTENT)
+    #            response.setPayload("Nothing posted yet", mediaCodes.text)
+    #        else:
+    #            #  content negotiation
+    #            self.supported.add(self.dataCt)
+    #            if ct = mediaCodes.contentNegotiation(self.dataCt, self.supported, request.getOptions(options.ACCEPT))) == var = MediaTypeRegistry.UNDEFINED
+    #            :
+    #            request.respond(codes.RESP_NOT_ACCEPTABLE, "Accept %s" % mediaCodes.toString(self.dataCt))
+    #            return
+    #            response = Response(codes.RESP_CONTENT)
+    #
+    #            response.payload = self.data  # load data into payload
+    #            response.setContentType(ct)  # set content type
+    #
+    #        request.respond(response)  # complete the request
 
     def performPOST(self, request):
         """ POST content to create this resource.
@@ -99,7 +98,7 @@ class LargeCreate(Resource):
             request.respond(codes.RESP_BAD_REQUEST, "Content-Type not set")
             return
             #  store payload
-        storeData(request)
+        self.storeData(request)
         #  create new response
         response = Response(codes.RESP_CREATED)
         #  inform client about the location of the new resource
@@ -133,7 +132,8 @@ class LargeCreate(Resource):
         # 		changed();
         # 	}
 
-class LargeUpdate(resource):
+
+class LargeUpdate(Resource):
     """
     Large resource that can be updated using PUT method (>1024 bytes)
     Large resources used in TD_COAP_BLOCK tests shall not exceed 2048 bytes
@@ -150,7 +150,6 @@ class LargeUpdate(resource):
         """
         Constructs a new storage resource with the given resourceIdentifier.
         """
-
         self.name = "large-update"
         self.title = "Large resource that can be updated using PUT method"
         self.resourceType = "block"
@@ -165,57 +164,59 @@ class LargeUpdate(resource):
         :param request:
         """
         #  content negotiation
-        supported = list()
-        supported.add(self.dataCt)
-        ct = mediaCodes.png
-        if ct = mediaCodes.contentNegotiation(self.dataCt, supported, request.getOptions(options.ACCEPT))) == var = mediaCodes.UNDEFINED:
-        request.respond(codes.RESP_NOT_ACCEPTABLE, "Accept %s" % mediaCodes.toString(self.dataCt))
-        return
-        #  create response
-        response = Response(codes.RESP_CONTENT)
-        if self.data is None:
-            builder = """
-            /-------------------------------------------------------------\
-            |                 RESOURCE BLOCK NO. 1 OF 5                   |
-            |               [each line contains 64 bytes]                 |
-            \------------------------------------------------------------/
-            /-------------------------------------------------------------\
-            |                 RESOURCE BLOCK NO. 2 OF 5                   |
-            |               [each line contains 64 bytes]                 |
-            \------------------------------------------------------------/
-            /-------------------------------------------------------------\
-            |                 RESOURCE BLOCK NO. 3 OF 5                   |
-            |               [each line contains 64 bytes]                 |
-            \------------------------------------------------------------/
-            /-------------------------------------------------------------\
-            |                 RESOURCE BLOCK NO. 4 OF 5                   |
-            |               [each line contains 64 bytes]                 |
-            \------------------------------------------------------------/
-            /-------------------------------------------------------------\
-            |                 RESOURCE BLOCK NO. 5 OF 5                   |
-            |               [each line contains 64 bytes]                 |
-            \------------------------------------------------------------/
-            """
-            request.respond(codes.RESP_CONTENT, builder.__str__(), ct)
-        else:
-            #  load data into payload
-            response.payload = self.data
-            #  set content type
-            response.setContentType(ct)
-            #  complete the request
-            request.respond(response)
+
+    #        supported = list()
+    #        supported.add(self.dataCt)
+    #        ct = mediaCodes.png
+    #        if ct = mediaCodes.contentNegotiation(self.dataCt, supported, request.getOptions(options.ACCEPT))) == var = mediaCodes.UNDEFINED:
+    #        request.respond(codes.RESP_NOT_ACCEPTABLE, "Accept %s" % mediaCodes.toString(self.dataCt))
+    #        return
+    #        #  create response
+    #        response = Response(codes.RESP_CONTENT)
+    #        if self.data is None:
+    #            builder = """
+    #            /-------------------------------------------------------------\
+    #            |                 RESOURCE BLOCK NO. 1 OF 5                   |
+    #            |               [each line contains 64 bytes]                 |
+    #            \------------------------------------------------------------/
+    #            /-------------------------------------------------------------\
+    #            |                 RESOURCE BLOCK NO. 2 OF 5                   |
+    #            |               [each line contains 64 bytes]                 |
+    #            \------------------------------------------------------------/
+    #            /-------------------------------------------------------------\
+    #            |                 RESOURCE BLOCK NO. 3 OF 5                   |
+    #            |               [each line contains 64 bytes]                 |
+    #            \------------------------------------------------------------/
+    #            /-------------------------------------------------------------\
+    #            |                 RESOURCE BLOCK NO. 4 OF 5                   |
+    #            |               [each line contains 64 bytes]                 |
+    #            \------------------------------------------------------------/
+    #            /-------------------------------------------------------------\
+    #            |                 RESOURCE BLOCK NO. 5 OF 5                   |
+    #            |               [each line contains 64 bytes]                 |
+    #            \------------------------------------------------------------/
+    #            """
+    #            request.respond(codes.RESP_CONTENT, builder.__str__(), ct)
+    #        else:
+    #            #  load data into payload
+    #            response.payload = self.data
+    #            #  set content type
+    #            response.setContentType(ct)
+    #            #  complete the request
+    #            request.respond(response)
 
     def performPUT(self, request):
         """ generated source for method performPUT
         :param request:
         """
-        if request.getContentType() == mediaCodes.UNDEFINED:
-            request.respond(codes.RESP_BAD_REQUEST, "Content-Type not set")
-            return
-            #  store payload
-        self.storeData(request)
-        #  complete the request
-        request.respond(codes.RESP_CHANGED)
+
+    #        if request.getContentType() == mediaCodes.UNDEFINED:
+    #            request.respond(codes.RESP_BAD_REQUEST, "Content-Type not set")
+    #            return
+    #            #  store payload
+    #        self.storeData(request)
+    #        #  complete the request
+    #        request.respond(codes.RESP_CHANGED)
 
     def storeData(request):
         """
@@ -226,16 +227,16 @@ class LargeUpdate(resource):
         :return:
         """
         # set payload and content type
-        data = request.payload
-        dataCt = request.contentType
-        self.clearAttribute(LinkFormat.CONTENT_TYPE)
-        self.setContentTypeCode(dataCt)
-        # signal that resource state changed
-        self.changed()
+
+#        data = request.payload
+#        dataCt = request.contentType
+#        self.clearAttribute(LinkFormat.CONTENT_TYPE)
+#        self.setContentTypeCode(dataCt)
+#        # signal that resource state changed
+#        self.changed()
 
 
 class TestLarge(unittest.TestCase):
-
     def setUp(self):
         server = Endpoint()
         res = Large()

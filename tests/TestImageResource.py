@@ -1,13 +1,13 @@
 # coding=utf-8
 import unittest
 
-from pycolo import resource
 from pycolo.codes import mediaCodes, codes
 from pycolo.endpoint import Endpoint
 from pycolo.message import Response
+from pycolo.resource import Resource
 
 
-class ImageResource(resource):
+class ImageResource(Resource):
     """
     This class implements an "/image" resource for demonstration purposes.
 
@@ -31,7 +31,6 @@ class ImageResource(resource):
         self.observable = False
 
     def performGET(self, request):
-
         """
         Give back a image in a binary form.
         :param request:
@@ -47,7 +46,6 @@ class ImageResource(resource):
 
 
 class TestImageResource(unittest.TestCase):
-
     def setUp(self):
         server = Endpoint()
         res = ImageResource()

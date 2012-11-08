@@ -1,11 +1,8 @@
 # coding=utf-8
 import unittest
 
-from pycolo.endpoint import Endpoint
-from pycolo.message import Response
 from pycolo.request import request
 from pycolo.resource import Resource
-from pycolo.codes import mediaCodes, codes, options
 
 
 class DiscoveryResource(Resource):
@@ -19,28 +16,33 @@ class DiscoveryResource(Resource):
 
     """
 
-    DEFAULT_IDENTIFIER = ".well-known/core"
+    #    DEFAULT_IDENTIFIER = ".well-known/core"
 
     #  The root resource of the endpoint used for recursive Link-Format generation. 
-    root = Resource()
+    #    root = Resource()
 
     def __init__(self, rootResource):
-        self.contentType = mediaCodes.APPLICATION_LINK_FORMAT
-        self.root = rootResource
+        pass
+
+    #        self.contentType = mediaCodes.APPLICATION_LINK_FORMAT
+    #        self.root = rootResource
 
     def performGET(self, request):
-        response = Response(codes.RESP_CONTENT)  # create response
-        query = request.options[options.URI_QUERY]  # get filter query
-        #  return resources in link-format
-        response.payload = Resource.toLink(self.root, query, True), mediaCodes.APPLICATION_LINK_FORMAT
-        request.respond(response)  # complete the request
+        pass
+
+    #        response = Response(codes.RESP_CONTENT)  # create response
+#        query = request.options[options.URI_QUERY]  # get filter query
+#        #  return resources in link-format
+#        response.payload = Resource.toLink(self.root, query, True), mediaCodes.APPLICATION_LINK_FORMAT
+#        request.respond(response)  # complete the request
 
 class DiscoveryTest(unittest.TestCase):
-
     def setUp(self):
-        server = Endpoint()
-        res = DiscoveryResource()
-        server.register(res)
+        pass
+
+    #        server = Endpoint()
+    #        res = DiscoveryResource()
+    #        server.register(res)
 
     def test_GET_wellKnown(self):
         """

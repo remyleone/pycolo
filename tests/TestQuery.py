@@ -1,10 +1,7 @@
 # coding=utf-8
 import unittest
-from pycolo import Response, codes
 from pycolo.endpoint import Endpoint
 from pycolo.resource import Resource
-
-from pycolo.codes import mediaCodes
 
 class Query(Resource):
     """
@@ -21,35 +18,36 @@ class Query(Resource):
         self.name = "/query"
 
     def performGET(self, request):
+        pass
 
-        response = Response(codes.RESP_CONTENT)  # create response
-
-        payload = "Type: %d (%s)\nCode: %d (%s)\nMID: %d" %\
-                  request.getType().ordinal(),\
-                  request.typeString,\
-                  request.code,\
-                  request.MID
-
-        for (Option query : request.getOptions(OptionNumberRegistry.URI_QUERY)):
-        String keyValue[] = query.getStringValue().split("=")
-
-        payload.append("Query: " + keyValue[0])
-
-        if keyValue.length == 2:
-            payload.append(": ")
-            payload.append(keyValue[1])
-
-        if len(payload) > 64:
-            payload.delete(62, len(payload))
-            payload.append('>>')
-
-        response.payload = str(payload)  # set payload
-        response.contentType = mediaCodes.text
-        request.respond(response)  # complete the request
+    #
+#        response = Response(codes.RESP_CONTENT)  # create response
+#
+#        payload = "Type: %d (%s)\nCode: %d (%s)\nMID: %d" %\
+#                  request.getType().ordinal(),\
+#                  request.typeString,\
+#                  request.code,\
+#                  request.MID
+#
+#        for (Option query : request.getOptions(OptionNumberRegistry.URI_QUERY)):
+#        String keyValue[] = query.getStringValue().split("=")
+#
+#        payload.append("Query: " + keyValue[0])
+#
+#        if keyValue.length == 2:
+#            payload.append(": ")
+#            payload.append(keyValue[1])
+#
+#        if len(payload) > 64:
+#            payload.delete(62, len(payload))
+#            payload.append('>>')
+#
+#        response.payload = str(payload)  # set payload
+#        response.contentType = mediaCodes.text
+#        request.respond(response)  # complete the request
 
 
 class TestQuery(unittest.TestCase):
-
     def setUp(self):
         res = Query()
         server = Endpoint()

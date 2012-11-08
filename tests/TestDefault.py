@@ -1,15 +1,15 @@
 # coding=utf-8
 import unittest
 
-from pycolo import resource
 from pycolo.codes import codes
 from pycolo.codes import mediaCodes
 from pycolo.endpoint import Endpoint
 from pycolo.message import Response
 from pycolo.request import request
+from pycolo.resource import Resource
 
 
-class DefaultResource(resource):
+class DefaultResource(Resource):
     """
     This resource implements a test of specification for the
     ETSI IoT CoAP Plugtests, Paris, France, 24 - 25 March 2012.
@@ -32,10 +32,9 @@ class DefaultResource(resource):
         self.name = "/test"
 
     def performGET(self, request):
-
         response = Response(codes.RESP_CONTENT)
 
-        payload =  str(request)
+        payload = str(request)
 
         if request.getToken().length > 0:
             payload.append("Token: ")
@@ -72,7 +71,6 @@ class DefaultResource(resource):
         request.respond(response)  # complete the request
 
     def performPUT(self, request):
-
         response = Response(codes.RESP_CHANGED)
 
         payload = str(request)
@@ -106,8 +104,8 @@ class DefaultResource(resource):
         response.contentType = mediaCodes.text
         request.respond(response)  # complete the request
 
-class TestDefault(unittest.TestCase):
 
+class TestDefault(unittest.TestCase):
     def setUp(self):
         server = Endpoint()
         res = DefaultResource()
@@ -199,16 +197,18 @@ class TestDefault(unittest.TestCase):
         Step 1 (stimulus) Client is requested to send a DELETE request with:
             • Type = 0(CON)
             • Code = 4(DELETE)
+
         Step 2 (check (CON)) Sent request contains Type value indicating 0 and Code value indicating 4
 
         Step 3 (check (CON)) Server sends response containing:
             • Code = 66(2.02 Deleted)
             • The same Message ID as that of the previous request
-        Step 4 (verify (IOP)) Client displays the received information
 
+        Step 4 (verify (IOP)) Client displays the received information
         """
         r = request.delete("localhost:5683")
         self.assertEqual(codes.ok, r.code)
+
 
     def test_GET_NON(self):
         """
@@ -275,6 +275,7 @@ class TestDefault(unittest.TestCase):
             • Code = 3(PUT)
             • An arbitrary payload
             • Content type option
+
         Step 2 (check (CON)) Sent request contains Type value indicating 1 and Code value indicating 3
 
         Step 3 verify Server displays the received information
@@ -282,6 +283,7 @@ class TestDefault(unittest.TestCase):
         Step 4 (check (CON)) Server sends response containing:
             • Type = 1(NON)
             • Code = 68(2.04 Changed)
+
         Step 5 (verify (IOP)) Client displays the received response
         """
         pass
@@ -409,7 +411,7 @@ class TestDefault(unittest.TestCase):
         Pre-test conditions:
             • Gateway is introduced and configured to produce packet loss
             • Server offers a /separate resource which cannot be served immediately and which
-            cannot be acknowledged in a piggy-backed way.
+              cannot be acknowledged in a piggy-backed way.
 
         Need to observe :
             • One dropped request

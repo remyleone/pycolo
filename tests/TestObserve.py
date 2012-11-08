@@ -46,7 +46,6 @@ class Observe(Resource):
 
 
 class TestObserve(unittest.TestCase):
-
     def setUp(self):
         server = Endpoint()
         res = Observe()
@@ -118,7 +117,7 @@ class TestObserve(unittest.TestCase):
             • Client supports Observe option
             • Server supports Observe option
             • Server offers an observable resource /obs which changes periodically (e.g. every
-            5s)
+              5s)
             • Client is observing /obs on Server
 
         Step 1 stimulus Server is rebooted

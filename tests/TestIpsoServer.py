@@ -1,16 +1,15 @@
 # coding=utf-8
 
-import logging
 import random
-import sys
 from pycolo.endpoint import Endpoint
 from pycolo.codes import mediaCodes
 from pycolo.codes import codes
 import unittest
-from pycolo import resource
+from pycolo.resource import Resource
 
-class DeviceManufacturer(resource):
+class DeviceManufacturer(Resource):
     """ This resource implements a part of the IPSO profile. """
+
     def __init__(self):
         """ generated source for method __init__ """
         super(DeviceManufacturer, self).__init__("dev/mfg")
@@ -26,8 +25,10 @@ class DeviceManufacturer(resource):
         request.respond(codes.RESP_CONTENT,\
             "Pycolo", mediaCodes.text)
 
-class DeviceModel(resource):
+
+class DeviceModel(Resource):
     """ This resource implements a part of the IPSO profile. """
+
     def __init__(self):
         """ generated source for method __init__ """
         super(DeviceModel, self).__init__("dev/mdl")
@@ -43,7 +44,8 @@ class DeviceModel(resource):
         request.respond(codes.RESP_CONTENT,\
             "Pycolo", mediaCodes.text)
 
-class DeviceName(resource):
+
+class DeviceName(Resource):
     """ This resource implements a part of the IPSO profile. """
     name = "IPSO Server"
 
@@ -74,8 +76,10 @@ class DeviceName(resource):
         #  complete the request
         request.respond(codes.RESP_CHANGED)
 
-class DeviceSerial(resource):
+
+class DeviceSerial(Resource):
     """ This resource implements a part of the IPSO profile. """
+
     def __init__(self):
         """ generated source for method __init__ """
         super(DeviceSerial, self).__init__("dev/ser")
@@ -91,26 +95,25 @@ class DeviceSerial(resource):
         request.respond(codes.RESP_CONTENT, "4711", mediaCodes.text)
 
 
-
-class DeviceBattery(resource):
+class DeviceBattery(Resource):
     """ This resource implements a part of the IPSO profile. """
     power = 3.6
 
     def __init__(self):
-        """ generated source for method __init__ """
-        super(DeviceBattery, self).__init__("dev/bat")
-        self.title = "Battery"
-        self.setResourceType("ipso:dev-bat")
-        #  second rt not supported by current SensiNode RD demo
-        # setResourceType("ucum:V");
-        self.setInterfaceDescription("core#s")
-        self.isObservable(True)
-        #  Set timer task scheduling
-        timer = Timer()
-        timer.schedule(TimeTask(), 0, 1000)
+    #        super(DeviceBattery, self).__init__("dev/bat")
+    #        self.title = "Battery"
+    #        self.setResourceType("ipso:dev-bat")
+    #        #  second rt not supported by current SensiNode RD demo
+    #        # setResourceType("ucum:V");
+    #        self.setInterfaceDescription("core#s")
+    #        self.isObservable(True)
+    #        #  Set timer task scheduling
+    #        timer = Timer()
+    #        timer.schedule(TimeTask(), 0, 1000)
 
-    class TimeTask(TimerTask):
+    #class TimeTask():
         """ generated source for class TimeTask """
+
         def run(self):
             """ generated source for method run """
             self.power -= 0.001 * random.SystemRandom()
@@ -120,47 +123,50 @@ class DeviceBattery(resource):
     def performGET(self, request):
         """
         :param request:
-         TODO: Strange call
+        :TODO: Strange call
         """
         #  complete the request
         request.respond(codes.RESP_CONTENT,\
             self.power * 1000 / 1000,\
             mediaCodes.text)
 
-class PowerCumulative(resource):
+
+class PowerCumulative(Resource):
     """ This resource implements a part of the IPSO profile. """
     power = 0
 
     def __init__(self):
-        """ generated source for method __init__ """
-        super(PowerCumulative, self).__init__("pwr/kwh")
-        self.title = "Cumulative Power"
-        self.resourceType = "ipso:pwr-kwh"
-        #  second rt not supported by current SensiNode RD demo
-        # setResourceType("ucum:kWh");
-        self.setInterfaceDescription("core#s")
-        self.observable = True
-        #  Set timer task scheduling
-        timer = Timer()
-        timer.schedule(TimeTask(), 0, 1000)
 
-    class TimeTask(TimerTask):
-        """ generated source for class TimeTask """
+    #        super(PowerCumulative, self).__init__("pwr/kwh")
+    #        self.title = "Cumulative Power"
+    #        self.resourceType = "ipso:pwr-kwh"
+    #        #  second rt not supported by current SensiNode RD demo
+    #        # setResourceType("ucum:kWh");
+    #        self.setInterfaceDescription("core#s")
+    #        self.observable = True
+    #        #  Set timer task scheduling
+    #        timer = Timer()
+    #        timer.schedule(TimeTask(), 0, 1000)
+
+    #class TimeTask:
+
         def run(self):
             """ generated source for method run """
-            if PowerRelay.getRelay():
-                self.power += Math.round(10 * random.SystemRandom() * (PowerDimmer.getDimmer() / 100))
-                #  Call changed to notify subscribers
-                self.changed()
+
+        #            if PowerRelay.getRelay():
+        #                self.power += Math.round(10 * random.SystemRandom() * (PowerDimmer.getDimmer() / 100))
+        #                #  Call changed to notify subscribers
+        #                self.changed()
 
     def performGET(self, request):
         """ generated source for method performGET
         :param request:
         """
         #  complete the request
-        request.respond(codes.RESP_CONTENT, Double.toString(self.power), mediaCodes.text)
 
-class PowerDimmer(resource):
+#        request.respond(codes.RESP_CONTENT, Double.toString(self.power), mediaCodes.text)
+
+class PowerDimmer(Resource):
     """ This resource implements a part of the IPSO profile. """
     percent = 100
 
@@ -198,36 +204,37 @@ class PowerDimmer(resource):
         else:
             request.respond(codes.RESP_BAD_REQUEST, "use 0-100")
 
-class PowerInstantaneous(resource):
+
+class PowerInstantaneous(Resource):
     """ This resource implements a part of the IPSO profile. """
     power = 0
 
     def __init__(self):
-        """ generated source for method __init__ """
-        super(PowerInstantaneous, self).__init__("pwr/w")
-        self.title = "Instantaneous Power"
-        self.resourceType = "ipso:pwr-w"
-        #  second rt not supported by current SensiNode RD demo
-        # setResourceType("ucum:W");
-        self.interfaceDescription = "core#s"
-        self.observable = True
-        #  Set timer task scheduling
-        timer = Timer()
-        timer.schedule(TimeTask(), 0, 1000)
+    #        super(PowerInstantaneous, self).__init__("pwr/w")
+    #        self.title = "Instantaneous Power"
+    #        self.resourceType = "ipso:pwr-w"
+    #        #  second rt not supported by current SensiNode RD demo
+    #        # setResourceType("ucum:W");
+    #        self.interfaceDescription = "core#s"
+    #        self.observable = True
+    #        #  Set timer task scheduling
+    #        timer = Timer()
+    #        timer.schedule(TimeTask(), 0, 1000)
 
-    class TimeTask(TimerTask):
-        """ generated source for class TimeTask """
+    #class TimeTask:
         def run(self):
-            """ generated source for method run """
-            if self.PowerRelay.getRelay():
-                self.power = 1500 * random.SystemRandom() * (PowerDimmer.getDimmer() / 100)
-            else:
-                #  skip changed() update if nothing changed
-                if self.power == 0:
-                    return
-                self.power = 0
-                #  Call changed to notify subscribers
-            self.changed()
+            pass
+
+        #            """ generated source for method run """
+        #            if self.PowerRelay.getRelay():
+        #                self.power = 1500 * random.SystemRandom() * (PowerDimmer.getDimmer() / 100)
+        #            else:
+        #                #  skip changed() update if nothing changed
+        #                if self.power == 0:
+        #                    return
+        #                self.power = 0
+        #                #  Call changed to notify subscribers
+        #            self.changed()
 
     def performGET(self, request):
         """ generated source for method performGET
@@ -238,7 +245,8 @@ class PowerInstantaneous(resource):
             str(self.power),\
             mediaCodes.text)
 
-class PowerRelay(resource):
+
+class PowerRelay(Resource):
     """ This resource implements a part of the IPSO profile. """
     on = True
 
@@ -288,7 +296,6 @@ class PowerRelay(resource):
         self.changed()
 
 
-
 class IpsoServer(Endpoint):
     """
     The class IpsoServer provides an example of the IPSO Profile specification.
@@ -331,36 +338,37 @@ class IpsoServer(Endpoint):
         :param args:
         """
         #  create server
-        try:
-            #  specific handling for this request
-            #  here: response received, output a pretty-print
-            #  RD location
-            if args[0].startsWith("coap://") and len(args):
-                rd = args[0]
-            else:
-                logging.info("Hint: You can give the RD URI as first argument.")
-                logging.info("Fallback to SensiNode RD")
-            if args[1].matches("[A-Za-z0-9-_]+") and len(args):
-                hostname = args[1]
-            else:
-                logging.info("Hint: You can give an alphanumeric (plus '-' and '_') string as second argument to specify a custom hostname.")
-                logging.info("Fallback to hostname")
-                try:
-                    hostname = InetAddress.getLocalHost().getHostName()
-                except UnknownHostException as e1:
-                    print("Unable to retrieve hostname for registration")
-                    print("Fallback to random")
-            register.setURI("%s?h=Cf-%s" % (rd, hostname))
-            register.setPayload(link.serialize(server.getRootResource(), None, True), mediaCodes.APPLICATION_LINK_FORMAT)
-            try:
-                print("Registering at %s as Cf-%s" % (rd, hostname))
-                self.register.execute()
-            except Exception as e:
-                logging.critical("Failed to execute request: %s" % e.getMessage())
-                sys.exit(cls.ERR_INIT_FAILED)
-        except SocketException as e:
-            logging.critical("Failed to create %s: %s\n" % IpsoServer.__class__.getSimpleName(), e.getMessage())
-            sys.exit(cls.ERR_INIT_FAILED)
+
+#        try:
+#            #  specific handling for this request
+#            #  here: response received, output a pretty-print
+#            #  RD location
+#            if args[0].startsWith("coap://") and len(args):
+#                rd = args[0]
+#            else:
+#                logging.info("Hint: You can give the RD URI as first argument.")
+#                logging.info("Fallback to SensiNode RD")
+#            if args[1].matches("[A-Za-z0-9-_]+") and len(args):
+#                hostname = args[1]
+#            else:
+#                logging.info("Hint: You can give an alphanumeric (plus '-' and '_') string as second argument to specify a custom hostname.")
+#                logging.info("Fallback to hostname")
+#                try:
+#                    hostname = InetAddress.getLocalHost().getHostName()
+#                except UnknownHostException as e1:
+#                    print("Unable to retrieve hostname for registration")
+#                    print("Fallback to random")
+#            register.setURI("%s?h=Cf-%s" % (rd, hostname))
+#            register.setPayload(link.serialize(server.getRootResource(), None, True), mediaCodes.APPLICATION_LINK_FORMAT)
+#            try:
+#                print("Registering at %s as Cf-%s" % (rd, hostname))
+#                self.register.execute()
+#            except Exception as e:
+#                logging.critical("Failed to execute request: %s" % e.getMessage())
+#                sys.exit(cls.ERR_INIT_FAILED)
+#        except SocketException as e:
+#            logging.critical("Failed to create %s: %s\n" % IpsoServer.__class__.getSimpleName(), e.getMessage())
+#            sys.exit(cls.ERR_INIT_FAILED)
 
 if __name__ == '__main__':
     unittest.main()

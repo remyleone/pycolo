@@ -3,13 +3,13 @@ import unittest
 
 from pycolo.codes import codes
 from pycolo.codes import mediaCodes
-from pycolo import resource
 from pycolo.endpoint import Endpoint
 from pycolo.message import Response
 from pycolo.request import request
+from pycolo.resource import Resource
 
 
-class LongPathResource(resource):
+class LongPathResource(Resource):
     """
     Long path ressource
 
@@ -18,12 +18,12 @@ class LongPathResource(resource):
 
     TD_COAP_CORE_12
     """
+
     def __init__(self):
         self.title = "Long path resource"
         self.name = "/seg1/seg2/seg3 "
 
     def performGET(self, request):
-
         response = Response(codes.RESP_CONTENT)
         response.payload = str(request)
         response.contentType = mediaCodes.text
@@ -31,7 +31,6 @@ class LongPathResource(resource):
 
 
 class LongPathTest(unittest.TestCase):
-
     def setUp(self):
         """
         Initial set up of the resource.
