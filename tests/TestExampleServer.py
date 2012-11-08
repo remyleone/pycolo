@@ -4,6 +4,7 @@ import http
 import logging
 import unittest
 from pycolo.codes import options, codes, mediaCodes
+from pycolo.endpoint import Endpoint
 from pycolo.resource import Resource
 
 
@@ -25,7 +26,7 @@ class ToUpperResource(Resource):
         request.respond(codes.RESP_CONTENT, request.payload.upper(), mediaCodes.text)
 
 
-class ExampleServer(LocalEndpoint):
+class ExampleServer(Endpoint):
     """
     The class ExampleServer shows how to implement a server by extending
     {@link LocalEndpoint}. In the implementation class, use
