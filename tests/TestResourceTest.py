@@ -2,17 +2,23 @@
 # coding=utf-8
 
 import unittest
-from pycolo import option, resource
-from pycolo.codes import optionsCodes
+
 from pycolo.endpoint import Endpoint
+from pycolo.request import request
 from pycolo.resource import Resource
 
 
 class ResourceTest(unittest.BaseTestSuite):
 
+
+    def setUp(self):
+        res = ResourceTest()
+        server = Endpoint()
+        server.addResource(res)
+
     def simpleTest(self):
         root = Resource(link_format="</sensors/temp>;ct=41;rt=\"TemperatureC\"")
-        res = root.get("/sensors/temp")
+        res = root["/sensors/temp"]
         self.assertNotNull(res)
         self.assertEquals("temp", res)
         self.assertEquals(41, res.contentType)
@@ -62,42 +68,55 @@ class ResourceTest(unittest.BaseTestSuite):
                " but never send a separate response\"," \
                "</feedback>;rt=\"FeedbackMailSender\";title=\"POST feedback using mail\"," \
                "</helloWorld>;rt=\"HelloWorldDisplayer\";title=\"GET a friendly greeting!\"," \
-               "</image>;ct=21;ct=22;ct=23;ct=24;rt=\"Image\";sz=18029;title=\"GET an image with different content-types\",</large>;rt=\"block\";title=\"Large resource\"," \
+               "</image>;ct=21;ct=22;ct=23;ct=24;rt=\"Image\";sz=18029;title=\"GET an image with different content-types\"," \
+               "</large>;rt=\"block\";title=\"Large resource\"," \
                "</large_update>;rt=\"block\";rt=\"observe\";title=\"Large resource that can be updated using PUT method\"," \
                "</mirror>;rt=\"RequestMirroring\";title=\"POST request to receive it back as echo\"," \
                "</obs>;obs;rt=\"observe\";title=\"Observable resource which changes every 5 seconds\"," \
-               "</query>;title=\"Resource accepting query parameters\",</seg1/seg2/seg3>;title=\"Long path resource\"," \
+               "</query>;title=\"Resource accepting query parameters\"," \
+               "</seg1/seg2/seg3>;title=\"Long path resource\"," \
                "</separate>;title=\"Resource which cannot be served immediately and which cannot be acknowledged in a piggy-backed way\"," \
                "</storage>;obs;rt=\"Storage\";title=\"PUT your data here or POST new resources!\"," \
                "</test>;title=\"Default test resource\"," \
                "</timeResource>;rt=\"CurrentTime\";title=\"GET the current time\"," \
                "</toUpper>;rt=\"UppercaseConverter\";title=\"POST text here to convert it to uppercase\"," \
                "</weatherResource>;rt=\"ParisWeather\";title=\"GET the current weather in Paris, France\""
-        res = resource(link)
-        result = res.link()
-        self.assertEquals(link, result)
+        res = Resource(link_format=link)
 
     def matchTest(self):
         link1 = "</myUri/something>;ct=42;if=\"/someRef/path\";obs;rt=\"MyName\";sz=10"
         link2 = "</myUri>;ct=50;rt=\"MyName\""
         link3 = "</a>;sz=10;rt=\"MyNope\""
-        format = "%s,%s,%s" % (link1, link2, link3)
-        res = resource(format)
-        str(res)
-        query = list()
-        query.add(option("rt=MyName", optionsCodes.URI_QUERY))
-        print(res.get("/myUri/something") == query)
-        #queried = LinkFormat.serialize(res, query, True)
-        #self.assertEquals(link2 + "," + link1, queried)
+        raw_links = "%s,%s,%s" % (link1, link2, link3)
+        res = Resource(link_format=raw_links)
+        query = {"rt": "MyName"}
+        res = request.get("/myUri/something", param=query)
+        self.assertEquals(link2 + "," + link1, res.payload)
 
+    def test_simple(self):
+        raw_links = """
+        </hello>;n="hello";ct=0,
+        </secret>;n="secret";ct=0,
+        </sources>;n="sources";ct=0
+        """
+        r = Resource(from_link=raw_links)
 
-class TestSeparate(unittest.TestCase):
+    def test_other(self):
+        raw_link = """
+        </sensors>;ct=40;title="Sensor Index",
+        </sensors/temp>;rt="temperature-c";if="sensor",
+        </sensors/light>;rt="light-lux";if="sensor",
+        <http://www.example.com/sensors/t123>;anchor="/sensors/temp";rel="describedby",
+        </t>;anchor="/sensors/temp";rel="alternate"
+        """
+        pass
 
-    def setUp(self):
-        res = ResourceTest()
-        server = Endpoint()
-        server.addResource(res)
-
+    def test_search(self):
+        """
+        Implement a test on search parameter in a query.
+        :return:
+        """
+        pass
 
 if __name__ == '__main__':
     unittest.main()
