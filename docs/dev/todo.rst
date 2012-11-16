@@ -15,4 +15,7 @@ Pycolo is under active development, and contributions are more than welcome!
 What Needs to be Done
 ---------------------
 
-- Passing all tests
+- Passing all ETSI tests.
+- Passing all examples tests.
+- Add automatic testing support with IRISA website (`<http://senslab2.irisa.fr/coap/>`_)
+- Add support for DTLS.
