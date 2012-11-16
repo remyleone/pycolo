@@ -1,5 +1,21 @@
 # -*- coding:utf-8 -*-
 
+"""
+Registry of all constant status code
+
+:codes:
+    describes the CoAP Code Registry as defined in
+    draft-ietf-core-coap-08, section 11.1
+
+:mediaCodes:
+    describes the CoAP Media Type Registry as defined in
+    draft-ietf-core-coap-07, section 11.3
+
+:options:
+    describes the CoAP Option Number Registry as defined in
+    draft-ietf-core-coap-07, sections 11.2 and 5.4.5
+"""
+
 from pycolo.structures import LookupDict
 
 _codes = {
@@ -8,16 +24,10 @@ _codes = {
 
     #  CoAP method codes
     1: ("METHOD_GET", "get", "GET"),
-    2: ("METHOD_POST", "post", "POST"),
+    2: ("METHOD_POST", "post", "POST", "CLASS_SUCCESS", "ok"),
     3: ("METHOD_PUT", "put", "PUT"),
-    4: ("METHOD_DELETE", "delete", "DELETE"),
-
-    #  CoAP response codes
-
-
-#CLASS_SUCCESS = 2
-#CLASS_CLIENT_ERROR = 4
-#CLASS_SERVER_ERROR = 5
+    4: ("METHOD_DELETE", "delete", "DELETE", "CLASS_CLIENT_ERROR", "client_error"),
+    5: ("CLASS_SERVER_ERROR", "Server_Error"),
 
     #  class 2.xx
     65: ("RESP_CREATED", "2.01 Created", "created"),
@@ -108,10 +118,22 @@ _options = {
 
 
 def isCritical(optionNumber):
+    """
+    Test whether an option number is critical or not.
+
+    :param optionNumber: Option number to test.
+    :return: True if critical, False otherwise.
+    """
     return (optionNumber & 1) == 1
 
 
 def isFencepost(optionNumber):
+    """
+    Test whether an option number is fencepost or not.
+
+    :param optionNumber: Option number to test.
+    :return: True if fencepost, False otherwise.
+    """
     return optionNumber % options.FENCEPOST_DIVISOR == 0
 
 
@@ -120,6 +142,7 @@ def nextFencepost(optionNumber):
     Returns the next fencepost option number following a given option
     number, the smallest fencepost option number larger than the given
     option number
+
     :param optionNumber: The option number
     """
     return (optionNumber / options.FENCEPOST_DIVISOR + 1)\
@@ -138,22 +161,39 @@ def isRequest(code):
 
 def isValid(code):
     #return (code >= 0) && (code <= 31)) || ((code >= 64) && (code <= 191)
+    """
+    Checks whether a code indicates a valid.
+
+    :param code: Code to test.
+    :return: True if option number is valid, False otherwise.
+    """
     return 0 <= code <= 255
 
 
 def isResponse(code):
+    """
+    Checks whether a code indicates a response number.
+
+    :param code: Code to test
+    :return: True if option number is a valid response number, False otherwise.
+    """
     return 64 <= code <= 191
 
 
 def isElective(optionNumber):
-    """ generated source for method isElective """
+    """
+    Checks whether a code indicates an elective option number.
+
+    :param optionNumber: Code to test
+    :return: True if option number is a valid elective number, False otherwise.
+    """
     return (optionNumber & 1) == 0
 
 
 def responseClass(code):
     """
     Returns the response class of a code
-    TODO: Check
+
     :param code: the code to check
     :return: The response class of the code
     """
