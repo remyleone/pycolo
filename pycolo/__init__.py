@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 
+"""
+CoAP Protocol constants
+
+default CoAP port as defined in draft-ietf-core-coap-05, section 7.1:
+MUST be supported by a server for resource discovery and
+SHOULD be supported for providing access to other resources.
+"""
+
 __title__ = 'pycolo'
 __author__ = 'Rémy Léone'
 __version__ = '0.0.1'
 
-# CoAP Protocol constants
-
-# default CoAP port as defined in draft-ietf-core-coap-05, section 7.1:
-# MUST be supported by a server for resource discovery and
-# SHOULD be supported for providing access to other resources.
 
 DEFAULT_PORT = 5683
 
