@@ -9,5 +9,5 @@ Development Lead
 Inspiration (These guys inspired pycolo but aren't part of the dev process yet).
 ````````````````````````````````````````````````````````````````````````````````
 
-Requests (Kenneth Reitz)
-Californium (Matthias Kovatsch)
+- Requests (Kenneth Reitz)
+- Californium (Matthias Kovatsch)
