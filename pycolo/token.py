@@ -16,6 +16,7 @@ emptyToken = 0
 def nextToken():
     """
     Returns the next message ID to use out of the consecutive 16 - bit range.
+
     :return: the current message ID
     """
     global currentToken
@@ -28,8 +29,10 @@ def nextToken():
 def acquireToken(preferEmptyToken=False):
     """
     Returns an unique token.
-    :param preferEmptyToken: If set to true, the caller will receive
-    the empty token if it is available. This is useful for reducing
+
+    :param preferEmptyToken: If set to true, the caller will receive the empty token if it is available.
+
+    This is useful for reducing
     datagram sizes in transactions that are expected to complete
     in short time. On the other hand, empty tokens are not preferred
     in block - wise transfers, as the empty token is then not available
@@ -49,6 +52,7 @@ def acquireToken(preferEmptyToken=False):
 def releaseToken(token):
     """
     Releases an acquired token and makes it available for reuse.
+
     :param token: The token to release
     """
     if token in acquiredTokens:
@@ -60,6 +64,7 @@ def releaseToken(token):
 def isAcquired(token):
     """
     Checks if a token is acquired by this manager.
+
     :param token: The token to check
     :return: True iff the token is currently in use
     """
