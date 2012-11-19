@@ -1,10 +1,20 @@
 # coding=utf-8
 
+"""
+TODO
+"""
+
 import unittest
 
 
 class RequestTest(unittest.TestCase):
+    """
+    TODO
+    """
     class RespondTask():
+        """
+        TODO
+        """
         pass
     #        def __init__(self, request, response):
     #            super(self.RespondTask, self).__init__()
@@ -22,6 +32,9 @@ class RequestTest(unittest.TestCase):
     #    handledResponse = Response()
 
     def testRespond(self):
+        """
+        TODO
+        """
         pass
 
     #        #  Client Side ////////////////////////////////////////////////////////
@@ -40,6 +53,9 @@ class RequestTest(unittest.TestCase):
     #        self.assertSame(response, self.handledResponse)
 
     def testReceiveResponse(self):
+        """
+        TODO
+        """
         pass
 
     #        #  Client Side ////////////////////////////////////////////////////////
@@ -61,9 +77,12 @@ class RequestTest(unittest.TestCase):
     #        self.assertSame(response, receivedResponse)
 
     def testTokenManager(self):
+        """
+        TODO
+        """
         pass
 
-    #        acquiredTokens = dict()
+    #        acquiredTokens = {}
 #        emptyToken = [None] * 0
 #        acquiredTokens.add(emptyToken)
 #        print("Contains: %s" % acquiredTokens.contains(emptyToken))
@@ -72,10 +91,18 @@ class RequestTest(unittest.TestCase):
 
 
 class TestSeparate(unittest.TestCase):
+    """
+    TODO
+    """
+
     def setUp(self):
+        """
+        TODO
+        """
+        # sep = Separate()
         pass
 
-    #        sep = Separate()
+
 
 
 if __name__ == '__main__':

@@ -1,10 +1,19 @@
 # coding=utf-8
-from random import randint
+
+"""
+TODO
+"""
+
 
 import unittest
 import math
+from random import randint
+
 
 class TestBytes(unittest.TestCase):
+    """
+    TODO
+    """
 
     def test32BitInt(self):
         """
@@ -79,12 +88,18 @@ class TestBytes(unittest.TestCase):
         self.assertEquals(intIn, intOut)
 
     def testAlignedBytes(self):
+        """
+        TODO
+        """
         bytesIn = b"Some aligned Bytes"
         temp = int.from_bytes(bytesIn, byteorder='little')
         bytesOut = temp.to_bytes(math.ceil(temp.bit_length() / 8), byteorder='little').strip(b"\x00")
         self.assertEquals(bytesIn, bytesOut)
 
     def testUnalignedBytes1(self):
+        """
+        TODO
+        """
         bitsIn = 1
         bitCount = bitsIn.bit_length()
         bytesIn = b"Some unaligned Bytes"
@@ -95,6 +110,9 @@ class TestBytes(unittest.TestCase):
         self.assertEquals(bytesIn, bytesOut)
 
     def testUnalignedBytes3(self):
+        """
+        TODO
+        """
         bitsIn = 5
         bitCount = bitsIn.bit_length()
         bytesIn = b"Some unaligned Bytes"
@@ -105,6 +123,9 @@ class TestBytes(unittest.TestCase):
         self.assertEquals(bytesIn, bytesOut)
 
     def testUnalignedBytes7(self):
+        """
+        TODO
+        """
         bitsIn = 69
         bitCount = bitsIn.bit_length()
         bytesIn = b"Some unaligned Bytes"
@@ -115,6 +136,9 @@ class TestBytes(unittest.TestCase):
         self.assertEquals(bytesIn, bytesOut)
 
     def testBytesLeft(self):
+        """
+        TODO
+        """
         bitsIn = 0xaa
         bitCount = bitsIn.bit_length()
         bytesIn = b"Some unaligned Bytes"
@@ -125,6 +149,9 @@ class TestBytes(unittest.TestCase):
         self.assertEquals(bytesIn, bytesOut)
 
     def testBytesLeftUnaligned(self):
+        """
+        TODO
+        """
         bitsIn = 55
         bitCount = bitsIn.bit_length()
         bytesIn = b"Some unaligned Bytes"

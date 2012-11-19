@@ -1,5 +1,9 @@
 # coding=utf-8
 
+"""
+TODO
+"""
+
 import http
 import logging
 import unittest
@@ -19,6 +23,11 @@ class ToUpperResource(Resource):
 
     def performPOST(self, request):
 
+        """
+
+        :param request:
+        :return:
+        """
         if request.contentType != mediaCodes.text:
             request.respond(codes.RESP_UNSUPPORTED_MEDIA_TYPE, "Use text/plain")
             return

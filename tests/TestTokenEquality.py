@@ -1,8 +1,20 @@
 # coding=utf-8
+
+"""
+TODO
+"""
+
 import unittest
 
 class TokenEqualityTest(unittest.TestCase):
+    """
+    TODO
+    """
+
     def testEmptyToken(self):
+        """
+        TODO
+        """
         pass
 
     #        t1 = option([None] * 0, options.TOKEN)
@@ -13,6 +25,9 @@ class TokenEqualityTest(unittest.TestCase):
     #        self.assertNotEqual(t1, t3)
 
     def testOneByteToken(self):
+        """
+        TODO
+        """
         pass
 
     #        t1 = option(0xAB, options.TOKEN)
@@ -23,6 +38,9 @@ class TokenEqualityTest(unittest.TestCase):
     #        self.assertNotEqual(t1, t3)
 
     def testTwoByteToken(self):
+        """
+        TODO
+        """
         pass
 
     #        t1 = option(0xABCD, options.TOKEN)
@@ -33,6 +51,9 @@ class TokenEqualityTest(unittest.TestCase):
     #        self.assertNotEqual(t1, t3)
 
     def testFourByteToken(self):
+        """
+        TODO
+        """
         pass
 
     #        t1 = option(0xABCDEF01, options.TOKEN)

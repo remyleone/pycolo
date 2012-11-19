@@ -1,8 +1,15 @@
 # coding=utf-8
 
+"""
+TODO
+"""
+
 import unittest
 
 class PlugtestClient(unittest.TestCase):
+    """
+    TODO
+    """
     PLUGTEST_BLOCK_SIZE = 64
 
     serverURI = "coap://localhost"
@@ -46,7 +53,7 @@ class PlugtestClient(unittest.TestCase):
         @return True, if successful
         """
         #
-        success = True
+        #success = True
 
     #        if expextedOption.equals(new Option(TokenManager.emptyToken, options.TOKEN)):
     #            self.assertEqual(None, actualOption)
@@ -56,11 +63,11 @@ class PlugtestClient(unittest.TestCase):
     #
     #        # eval token length
     #        if not success:
-    #            logging.info("FAIL: Expected token %s, but %s has illeagal length" % expextedOption, actualOption)
+    #            logging.info("FAIL: Expected token %s, but %s has illegal length" % expextedOption, actualOption)
     #
     #        success &= expextedOption.toString().equals(actualOption.toString())
 
-    def test_checkDiscovery(expextedAttribute, actualDiscovery):
+    def test_checkDiscovery(self, expextedAttribute, actualDiscovery):
         """
         Check discovery.
         @param expextedAttribute the resource attribute to filter
@@ -568,9 +575,9 @@ class PlugtestClient(unittest.TestCase):
     def test_CO03_05(self):
         """
         TD_COAP_OBS_03:
-        Client detection of deregistration (Max - Age).
+        Client detection of de registration (Max - Age).
         TD_COAP_OBS_05:
-        Server detection of deregistration (explicit RST).
+        Server detection of de registration (explicit RST).
         """
 
     #        RESOURCE_URI = "/obs"
@@ -694,7 +701,7 @@ class PlugtestClient(unittest.TestCase):
     def test_CO04(self):
         """
         TD_COAP_OBS_04:
-        Server detection of deregistration (client OFF).
+        Server detection of de registration (client OFF).
         """
 
 #        RESOURCE_URI = "/obs"

@@ -1,5 +1,8 @@
-#!/usr/bin/env python
 # coding=utf-8
+
+"""
+TODO
+"""
 
 import unittest
 
@@ -9,14 +12,23 @@ from pycolo.resource import Resource
 
 
 class ResourceTest(unittest.BaseTestSuite):
+    """
+    TODO
+    """
 
 
     def setUp(self):
+        """
+        TODO
+        """
         res = ResourceTest()
         server = Endpoint()
         server.addResource(res)
 
     def simpleTest(self):
+        """
+        TODO
+        """
         root = Resource(link_format="</sensors/temp>;ct=41;rt=\"TemperatureC\"")
         res = root["/sensors/temp"]
         self.assertNotNull(res)
@@ -24,7 +36,10 @@ class ResourceTest(unittest.BaseTestSuite):
         self.assertEquals(41, res.contentType)
         self.assertEquals("TemperatureC", res.resourceType)
 
-    def extendedTest(self):
+    def testextended(self):
+        """
+        TODO
+        """
         input = "</my/Path>;rt=\"MyName\";if=\"/someRef/path\";ct=42;obs;sz=10"
         root = Resource(link_format=input)
         my = Resource("my")
@@ -52,6 +67,9 @@ class ResourceTest(unittest.BaseTestSuite):
         self.assertEquals("replacement", res.getResourceType().get(0))
 
     def conversionTest(self):
+        """
+        TODO
+        """
         link1 = "</myUri/something>;ct=42;if=\"/someRef/path\";obs;rt=\"MyName\";sz=10"
         link2 = "</myUri>;rt=\"NonDefault\""
         link3 = "</a>"
@@ -64,6 +82,9 @@ class ResourceTest(unittest.BaseTestSuite):
         self.assertEquals("%s,%s,%s" % (link3, link2, link1), result)
 
     def concreteTest(self):
+        """
+        TODO
+        """
         link = "</careless>;rt=\"SepararateResponseTester\";title=\"This resource will ACK anything," \
                " but never send a separate response\"," \
                "</feedback>;rt=\"FeedbackMailSender\";title=\"POST feedback using mail\"," \
@@ -84,6 +105,9 @@ class ResourceTest(unittest.BaseTestSuite):
         res = Resource(link_format=link)
 
     def matchTest(self):
+        """
+        TODO
+        """
         link1 = "</myUri/something>;ct=42;if=\"/someRef/path\";obs;rt=\"MyName\";sz=10"
         link2 = "</myUri>;ct=50;rt=\"MyName\""
         link3 = "</a>;sz=10;rt=\"MyNope\""
@@ -94,6 +118,9 @@ class ResourceTest(unittest.BaseTestSuite):
         self.assertEquals(link2 + "," + link1, res.payload)
 
     def test_simple(self):
+        """
+        TODO
+        """
         raw_links = """
         </hello>;n="hello";ct=0,
         </secret>;n="secret";ct=0,
@@ -102,6 +129,9 @@ class ResourceTest(unittest.BaseTestSuite):
         r = Resource(from_link=raw_links)
 
     def test_other(self):
+        """
+        TODO
+        """
         raw_link = """
         </sensors>;ct=40;title="Sensor Index",
         </sensors/temp>;rt="temperature-c";if="sensor",

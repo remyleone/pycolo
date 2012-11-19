@@ -1,4 +1,9 @@
 # coding=utf-8
+
+"""
+TODO
+"""
+
 import unittest
 
 from pycolo.codes import codes
@@ -11,7 +16,7 @@ from pycolo.resource import Resource
 
 class LongPathResource(Resource):
     """
-    Long path ressource
+    Long path resource
 
     This resource implements a test of specification for the ETSI IoT CoAP
     Plugtests, Paris, France, 24 - 25 March 2012.
@@ -24,6 +29,10 @@ class LongPathResource(Resource):
         self.name = "/seg1/seg2/seg3 "
 
     def performGET(self, request):
+        """
+
+        :param request:
+        """
         response = Response(codes.RESP_CONTENT)
         response.payload = str(request)
         response.contentType = mediaCodes.text
@@ -31,6 +40,10 @@ class LongPathResource(Resource):
 
 
 class LongPathTest(unittest.TestCase):
+    """
+    TODO
+    """
+
     def setUp(self):
         """
         Initial set up of the resource.

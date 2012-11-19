@@ -1,5 +1,9 @@
 # coding=utf-8
 
+"""
+TODO
+"""
+
 import unittest
 
 from datetime import datetime
@@ -33,11 +37,17 @@ class TimeResource(Resource):
         timer.start()
 
     def performGET(self, request):
+        """
 
+                :param request:
+                """
         request.respond(codes.RESP_CONTENT, self.time, mediaCodes.txt)
 
 
 class TestSeparate(unittest.TestCase):
+    """
+    TODO
+    """
 
     def setUp(self):
         """

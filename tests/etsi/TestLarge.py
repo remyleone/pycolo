@@ -1,4 +1,9 @@
 # coding=utf-8
+
+"""
+TODO
+"""
+
 import unittest
 
 from pycolo import codes
@@ -8,10 +13,13 @@ from pycolo.message import Response
 from pycolo.resource import Resource
 
 class LargeResource(Resource):
+    """
+    TODO
+    """
+
     def performGET(self, request):
         """
-        :param request:
-        TODO: Cleaning this text
+        TODO
         """
         builder = "7" * 8 * 3
 
@@ -68,7 +76,7 @@ class LargeCreate(Resource):
         self.resourceType = "block"
 
     def performGET(self, request):
-        """ generated source for method performGET
+        """
         :param request:
         """
 
@@ -218,7 +226,7 @@ class LargeUpdate(Resource):
     #        #  complete the request
     #        request.respond(codes.RESP_CHANGED)
 
-    def storeData(request):
+    def storeData(self, request):
         """
         Convenience function to store data contained in a
         PUT/POST-Request. Notifies observing endpoints about
@@ -237,7 +245,14 @@ class LargeUpdate(Resource):
 
 
 class TestLarge(unittest.TestCase):
+    """
+    TODO
+    """
+
     def setUp(self):
+        """
+        TODO
+        """
         server = Endpoint()
         res = Large()
         server.register(res)

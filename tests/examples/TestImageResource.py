@@ -1,4 +1,9 @@
 # coding=utf-8
+
+"""
+TODO
+"""
+
 import unittest
 
 from pycolo.codes import mediaCodes, codes
@@ -46,7 +51,14 @@ class ImageResource(Resource):
 
 
 class TestImageResource(unittest.TestCase):
+    """
+    TODO
+    """
+
     def setUp(self):
+        """
+        TODO
+        """
         server = Endpoint()
         res = ImageResource()
         server.register(res)

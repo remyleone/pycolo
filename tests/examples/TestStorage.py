@@ -1,4 +1,10 @@
 # coding=utf-8
+
+"""
+TODO
+"""
+import logging
+
 from pycolo.codes import codes, mediaCodes, options
 from pycolo.message import Response
 from pycolo.resource import Resource
@@ -15,9 +21,9 @@ class StorageResource(Resource):
     def __init__(self):
         """
         Constructs a new storage resource with the given resourceIdentifier.
+
         :return:
         """
-        super(StorageResource, self).__init__()
         self.__init__("storage")
         self.title = "PUT your data here or POST new resources!"
         self.setResourceType("Storage")
@@ -30,6 +36,7 @@ class StorageResource(Resource):
         If the content-type of the request is set to application/link-format
         or if the resource does not store any data, the contained sub-resources
         are returned in link format.
+
         :param request:
         """
         #  create response
@@ -50,6 +57,7 @@ class StorageResource(Resource):
     def performPUT(self, request):
         """
         PUTs content to this resource.
+
         :param request:
         """
         #  store payload
@@ -62,6 +70,7 @@ class StorageResource(Resource):
         POSTs a new sub-resource to this resource.
         The name of the new sub-resource is retrieved from the request
         payload.
+
         :param request:
         """
         #  get request payload as a string
@@ -77,6 +86,7 @@ class StorageResource(Resource):
         """
         Creates a new sub-resource with the given identifier in this resource.
         Added checks for resource creation.
+
         :param newIdentifier:
         :param request:
         """
@@ -119,6 +129,10 @@ class StorageResource(Resource):
             logging.critical("Cannot create sub resource: {:s}/[{:s}] already exists".format(self.getPath(), newIdentifier))
 
     def performDELETE(self, request):
+        """
+
+        :param request:
+        """
         if isinstance(self.parent, (StorageResource,)):
             self.remove()
             request.respond(codes.RESP_DELETED)

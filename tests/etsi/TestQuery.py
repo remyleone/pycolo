@@ -1,11 +1,16 @@
 # coding=utf-8
+
+"""
+TODO
+"""
+
 import unittest
 from pycolo.endpoint import Endpoint
 from pycolo.resource import Resource
 
 class Query(Resource):
     """
-    Ressource accepting query parameters
+    Resource accepting query parameters
 
     This resource implements a test of specification for the
     ETSI IoT CoAP Plugtests, Paris, France, 24 - 25 March 2012.
@@ -18,6 +23,10 @@ class Query(Resource):
         self.name = "/query"
 
     def performGET(self, request):
+        """
+
+        :param request:
+        """
         pass
 
     #
@@ -48,7 +57,14 @@ class Query(Resource):
 
 
 class TestQuery(unittest.TestCase):
+    """
+    TODO
+    """
+
     def setUp(self):
+        """
+        TODO
+        """
         res = Query()
         server = Endpoint()
         server.addResource(res)

@@ -1,4 +1,9 @@
 # coding=utf-8
+
+"""
+TODO
+"""
+
 import unittest
 from pycolo.resource import Resource
 
@@ -7,7 +12,9 @@ class CarelessResource(Resource):
     This class implements a 'separate' resource for demonstration purposes.
     Defines a resource that returns a response in a separate CoAP Message
     """
-    def __init__(self, title="This resource will ACK anything, but never send a separate response", resourceType="SepararateResponseTester"):
+    def __init__(self,
+                 title="This resource will ACK anything, but never send a separate response",
+                 resourceType="SeparateResponseTester"):
         """
         :type title: title of the resource
         """

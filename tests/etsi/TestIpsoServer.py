@@ -1,5 +1,9 @@
 # coding=utf-8
 
+"""
+TODO
+"""
+
 import random
 from pycolo.endpoint import Endpoint
 from pycolo.codes import mediaCodes
@@ -22,7 +26,7 @@ class DeviceManufacturer(Resource):
         :param request:
         """
         #  complete the request
-        request.respond(codes.RESP_CONTENT,\
+        request.respond(codes.RESP_CONTENT,
             "Pycolo", mediaCodes.text)
 
 
@@ -41,7 +45,7 @@ class DeviceModel(Resource):
         :param request:
         """
         #  complete the request
-        request.respond(codes.RESP_CONTENT,\
+        request.respond(codes.RESP_CONTENT,
             "Pycolo", mediaCodes.text)
 
 
@@ -61,8 +65,8 @@ class DeviceName(Resource):
         :param request:
         """
         #  complete the request
-        request.respond(codes.RESP_CONTENT,\
-            self.name,\
+        request.respond(codes.RESP_CONTENT,
+            self.name,
             mediaCodes.text)
 
     def performPUT(self, request):
@@ -126,8 +130,8 @@ class DeviceBattery(Resource):
         :TODO: Strange call
         """
         #  complete the request
-        request.respond(codes.RESP_CONTENT,\
-            self.power * 1000 / 1000,\
+        request.respond(codes.RESP_CONTENT,
+            self.power * 1000 / 1000,
             mediaCodes.text)
 
 
@@ -183,8 +187,8 @@ class PowerDimmer(Resource):
         :param request:
         """
         #  complete the request
-        request.respond(codes.RESP_CONTENT,\
-            int(self.percent),\
+        request.respond(codes.RESP_CONTENT,
+            int(self.percent),
             mediaCodes.text)
 
     def performPUT(self, request):
@@ -223,6 +227,9 @@ class PowerInstantaneous(Resource):
 
     #class TimeTask:
         def run(self):
+            """
+            TODO
+            """
             pass
 
         #            """ generated source for method run """
@@ -241,8 +248,8 @@ class PowerInstantaneous(Resource):
         :param request:
         """
         #  complete the request
-        request.respond(codes.RESP_CONTENT,\
-            str(self.power),\
+        request.respond(codes.RESP_CONTENT,
+            str(self.power),
             mediaCodes.text)
 
 
@@ -250,25 +257,27 @@ class PowerRelay(Resource):
     """ This resource implements a part of the IPSO profile. """
     on = True
 
-    def getRelay(cls):
-        """ generated source for method getRelay """
+    def getRelay(self, cls):
+        """ generated source for method getRelay
+        :param cls:
+        """
         return cls.on
 
     def __init__(self):
         """ generated source for method __init__ """
         super(PowerRelay, self).__init__("pwr/rel")
-        self.setTitle("Load Relay")
+        self.title = "Load Relay"
         self.setResourceType("ipso:pwr-rel")
         self.setInterfaceDescription("core#a")
-        self.isObservable(True)
+        self.observable = True
 
     def performGET(self, request):
         """ generated source for method performGET
         :param request:
         """
         #  complete the request
-        request.respond(codes.RESP_CONTENT,\
-            "1" if self.on else "0",\
+        request.respond(codes.RESP_CONTENT,
+            "1" if self.on else "0",
             mediaCodes.text)
 
     def performPUT(self, request):
@@ -288,7 +297,7 @@ class PowerRelay(Resource):
                 return
             self.on = False
         else:
-            request.respond(codes.RESP_BAD_REQUEST,\
+            request.respond(codes.RESP_BAD_REQUEST,
                 "use true/false or 1/0")
             return
             #  complete the request
@@ -333,8 +342,9 @@ class IpsoServer(Endpoint):
 
     #  Application entry point /////////////////////////////////////////////////
 
-    def main(cls, args):
+    def main(self, cls, args):
         """ generated source for method main
+        :param cls:
         :param args:
         """
         #  create server

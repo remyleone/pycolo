@@ -1,4 +1,9 @@
 # coding=utf-8
+
+"""
+TODO
+"""
+
 import unittest
 from pycolo import codes
 from pycolo.codes import mediaCodes
@@ -19,6 +24,11 @@ class HelloWorldResource(Resource):
 
     def performGET(self, request):
         # create response
+        """
+
+        :param request:
+        :return:
+        """
         response = Response(code=codes.RESP_CONTENT)
 
         payload = "Hello World! My name is Rémy Léone look @ the funny € from UTF-8 (•‿•)"
@@ -28,13 +38,22 @@ class HelloWorldResource(Resource):
 
 
 class HelloWorldTest(unittest.TestCase):
+    """
+    Testsuite
+    """
 
     def setUp(self):
+        """
+        Setup a simple server with an hello world resource.
+        """
         server = Endpoint()
         res = HelloWorldResource()
         server.register(res)
 
     def test_GET(self):
+        """
+        Test a simple GET
+        """
         r = request.get("coap://localhost:5683/.well-known/core")
         self.assertEqual(codes.ok, r.code)
         self.assertEqual(r.payload, "Hello World! My name is Rémy Léone look @ the funny €")

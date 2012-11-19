@@ -1,9 +1,10 @@
 # coding=utf-8
 
-import logging
-import socket
+"""
+TODO
+"""
+
 import unittest
-import sys
 from .TestQuery import Query
 from .TestSeparate import Separate
 from .TestObserve import Observe
@@ -41,9 +42,17 @@ class PlugtestServer(Endpoint):
 
 
 class TestSeparate(unittest.TestCase):
+    """
+    TODO
+    """
 
     def setUp(self):
+        """
+        TODO
+        """
         sep = Separate()
+        server = Endpoint()
+        server.register(sep)
 
 
 

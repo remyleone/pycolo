@@ -1,24 +1,33 @@
 # coding=utf-8
+
+"""
+TODO
+"""
+
 import unittest
 import logging
 from pycolo import message
 from pycolo import codes
+from pycolo.message import Message
 
 
 class MessageTest(unittest.TestCase):
+    """
+    TODO
+    """
 
     def testMessage(self):
         """
         Basic message serialization/deserialization
         """
-        msg = message()
+        msg = Message("localhost")
         msg.code = codes.get
         msg.type = "CON"
         msg.MID = 12345
         msg.payload = b"Hello"
         logging.info(str(msg))
         data = msg.dump()
-        convMsg = message()
+        convMsg = Message("localhost")
         convMsg.load(data)
         self.assertEquals(msg.code, convMsg.code)
         self.assertEquals(msg.type, convMsg.type)
@@ -30,15 +39,15 @@ class MessageTest(unittest.TestCase):
         """
         Basic options test messages.
         """
-        msg = message()
+        msg = Message("localhost")
         msg.code = codes.get
         msg.type = "CON"
         msg.MID = 12345
-        msg.payload = b"Bonjour"
+        msg.payload = b"Hello"
         msg.option["a"] = 1
         msg.option["b"] = 2
         data = msg.dump()
-        newMsg = message()
+        newMsg = Message("localhost")
         newMsg.load(data)
         self.assertEquals(msg.code, newMsg.code)
         self.assertEquals(msg.type, newMsg.type)
@@ -48,14 +57,17 @@ class MessageTest(unittest.TestCase):
 
 
     def testExtendedOptionMessage(self):
-        msg = message()
+        """
+        TODO
+        """
+        msg = Message("localhost")
         msg.code = codes.get
         msg.type = codes.confirmable
         msg.MID = 12345
         msg.option["a"] = 1
         msg.option["ab"] = 197  # will fail as limit of max 15 options would be exceeded
         data = msg.dump()
-        newMsg = message()
+        newMsg = Message("localhost")
         newMsg.load(data)
         self.assertEquals(msg.code, newMsg.code)
         self.assertEquals(msg.type, newMsg.type)
