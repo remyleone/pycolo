@@ -20,4 +20,4 @@ All contributions to Pycolo should keep these important rules in mind.
 Pycolo License
 ----------------
 
-    .. include:: ../../LICENSE
+  .. literalinclude:: ../../LICENSE
