@@ -70,14 +70,6 @@ Pycolo
     :undoc-members:
     :show-inheritance:
 
-:mod:`structures` Module
-------------------------
-
-.. automodule:: pycolo.structures
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`token` Module
 -------------------
 
@@ -85,11 +77,3 @@ Pycolo
     :members:
     :undoc-members:
     :show-inheritance:
-
-tests
-=====
-
-.. toctree::
-   :maxdepth: 4
-
-   tests
