@@ -19,3 +19,4 @@ What Needs to be Done
 - Passing all examples tests.
 - Add automatic testing support with IRISA website (`<http://senslab2.irisa.fr/coap/>`_)
 - Add support for DTLS.
+- Check working state in IPv4/IPv6
