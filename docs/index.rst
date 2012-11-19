@@ -11,7 +11,6 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-
 User Guide
 ----------
 
@@ -37,6 +36,28 @@ this part of the documentation is for you.
    :maxdepth: 2
 
    api
+   pycolo
+
+Testing Guide
+-------------
+
+Pycolo aims to be very well tested. Test can also be good to provide working snippets.
+
+.. toctree::
+   :maxdepth: 2
+
+   tests/index.rst
+
+Community Guide
+---------------
+
+This part of the documentation, which is mostly prose, details the Pycolo ecosystem and community.
+
+.. toctree::
+   :maxdepth: 1
+
+   community/support
+
 
 Developer Guide
 ---------------
@@ -49,7 +70,6 @@ you.
 
    dev/todo
    dev/authors
-   pycolo
 
 
 Indices and tables
