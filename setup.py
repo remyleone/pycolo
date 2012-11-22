@@ -12,4 +12,10 @@ setup(
     author_email='remy.leone@gmail.com',
     long_description='%s\n\n' % open('README.md').read(),
     url="http://pycolo.sieben.fr",
+    classifiers=(
+        'Intended Audience :: Developers',
+        'Natural Language :: English',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        )
 )
