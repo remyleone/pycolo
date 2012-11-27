@@ -18,6 +18,13 @@ Registry of all constant status code
 
 from pycolo.structures import LookupDict
 
+_msgType = {
+    0: ("confirmable", "CON", "default"),
+    1: ("NON", "non", "NonConfirmable"),
+    2: ("ACK", "ack", "acknowledgment"),
+    3: ("RST", "rst", "reset"),
+}
+
 _codes = {
     #  Constants
     0: ("EMPTY_MESSAGE", "Empty Message"),
@@ -210,7 +217,9 @@ def _init(d, status):
 codes = LookupDict(name="status_code")
 mediaCodes = LookupDict(name="media_code")
 options = LookupDict(name="options_code")
+msgType = LookupDict(name="msgType")
 
 _init(codes, _codes)
 _init(mediaCodes, _mediaCode)
 _init(options, _options)
+_init(msgType, _msgType)
