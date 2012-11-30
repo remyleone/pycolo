@@ -65,7 +65,7 @@ class LinkTest(unittest.TestCase):
             on Server
         """
 
-        r = request.get("coap://localhost:5683/.well-known/core",
+        r = request.get(self.server.url + "/.well-known/core",
             confirmable=True)
         self.assertEqual(r.contentType, mediaCodes.link)
         self.assertEqual(r.code, codes.content)
@@ -101,7 +101,7 @@ class LinkTest(unittest.TestCase):
             Server and shall be extracted from Server’s /.well-known/core
             resource
         """
-        r = request.get("coap://localhost:5683/.well-known/core",
+        r = request.get(self.server.url + "/.well-known/core",
             confirmable=True, query={"rt": "Type1"})
         self.assertEqual(r.contentType, mediaCodes.link)
         self.assertEqual(r.msgType, msgType.ack)
@@ -139,7 +139,7 @@ class LinkTest(unittest.TestCase):
             Server and shall be extracted from Server’s /.well-known/core
             resource
         """
-        r = request.get("coap://localhost:5683/.well-known/core",
+        r = request.get(self.server.url + "/.well-known/core",
             query={"rt": ""})
         self.assertEqual(r.contentType, mediaCodes.link)
         for i in r.payload:
@@ -172,7 +172,7 @@ class LinkTest(unittest.TestCase):
             - Content-format option indicating 40 (application/link-format)
             - Payload indicating only the links of groups 1 and 2
         """
-        r = request.get("coap://localhost/.well-known/core",
+        r = request.get(self.server.url + "/.well-known/core",
             query={"rt": "Type2"})
         self.assertEqual(r.contentType, mediaCodes.link)
         for i in r.payload:
@@ -192,7 +192,7 @@ class LinkTest(unittest.TestCase):
                 1. Resources with if=“If1”
                 2. Resources with if=“If2”
                 3. Resources with if=“foo”
-                4. Resources with if=“”
+                4. Resources with no if attribute
 
         - Step 1 (stimulus) Client is requested to retrieve Server’s list of
             resources matching the interface description pattern “If*”
@@ -207,7 +207,7 @@ class LinkTest(unittest.TestCase):
 
         - Step 4 (verify) Client displays the retrieved list of resources
         """
-        r = request.get("coap://localhost/.well-known/core",
+        r = request.get(self.server.url + "/.well-known/core",
             query={"if": "If*"})
         self.assertEqual(r.contentType, mediaCodes.link)
         for i in r.payload:
@@ -239,7 +239,8 @@ class LinkTest(unittest.TestCase):
 
         - Step 4 (verify) Client displays the retrieved list of resources
         """
-        r = request.get("coap://localhost/.well-known/core", query={"sz": "*"})
+        r = request.get(self.server.url + "/.well-known/core",
+            query={"sz": "*"})
         self.assertEqual(r.contentType, mediaCodes.link)
         for i in r.payload:
             self.assertIn("sz", i)
@@ -270,7 +271,7 @@ class LinkTest(unittest.TestCase):
 
         - Step 4 (verify) Client displays the retrieved list of resources
         """
-        r1 = request.get("coap://localhost/.well-known/core",
+        r1 = request.get(self.server.url + "/.well-known/core",
             query={"href": "/link1"})
         self.assertEqual(r1.contentType, mediaCodes.link)
         r2 = request.get("coap://localhost/link1")
@@ -303,7 +304,7 @@ class LinkTest(unittest.TestCase):
 
         - Step 4 (verify) Client displays the retrieved list of resources
         """
-        r = request.get("coap://localhost/.well-known/core",
+        r = request.get(self.server.url + "/.well-known/core",
             query={"href": "/link*"})
         self.assertEqual(r.contentType, mediaCodes.link)
         for i in r.payload:
@@ -351,13 +352,13 @@ class LinkTest(unittest.TestCase):
             Server and shall be extracted from Server’s /.well-known/core
             resource
         """
-        r = request.get("coap://localhost/.well-known/core")
+        r = request.get(self.server.url + "/.well-known/core")
         self.assertEqual(r.contentType, mediaCodes.link)
-        r = request.get("coap://localhost/" + r.payload)
+        r = request.get(self.server.url + r.payload)
         self.assertEqual(r.contentType, mediaCodes.link)
         self.assertIn(["/path/sub1", "/path/sub2"], r.payload)
         for sub_resource in r.payload:
-            sub = request.get("coap://localhost/" + sub_resource)
+            sub = request.get(self.server.url + sub_resource)
             logging.info(sub.payload)
 
     def test_TD_COAP_LINK_10(self):
@@ -386,8 +387,8 @@ class LinkTest(unittest.TestCase):
             available on Server and shall be extracted from Server’s
             /.well-known/core resource
         """
-        r1 = request.get("coap://localhost/alternate")
-        r2 = request.get("coap://localhost/test")
+        r1 = request.get(self.server.url + "/alternate")
+        r2 = request.get(self.server.url + "/test")
         self.assertEqual(r1.payload, r2.payload)
 
 if __name__ == '__main__':
