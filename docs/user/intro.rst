@@ -18,6 +18,6 @@ Pycolo was developed with a few :pep:`20` idioms in mind.
 All contributions to Pycolo should keep these important rules in mind.
 
 Pycolo License
-----------------
+--------------
 
-  .. literalinclude:: ../../LICENSE
+    .. include:: ../../LICENSE
