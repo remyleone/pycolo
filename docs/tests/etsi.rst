@@ -11,56 +11,50 @@ The test descriptions are provided in proforma tables. The following different t
     - A *configure* corresponds to an action to modify the EUT configuration
     - A *check* ensures the correctness of protocol messages on reference points, with valid content according to the specific interoperability test purpose to be verified.
 
-:mod:`TestIpsoServer` Module
-----------------------------
 
-.. automodule:: tests.etsi.TestIpsoServer
+etsi Package
+============
+
+:mod:`etsi` Package
+-------------------
+
+.. automodule:: tests.etsi.__init__
     :members:
     :undoc-members:
     :show-inheritance:
 
 
-:mod:`TestPlugtestServer` Module
---------------------------------
+Mandatory Tests
+---------------
 
-.. automodule:: tests.etsi.TestPlugtestServer
-    :members:
-    :undoc-members:
-    :show-inheritance:
+:mod:`TestCore` Module
+----------------------
 
-:mod:`TestPlugtestClient` Module
---------------------------------
-
-.. automodule:: tests.etsi.TestPlugtestClient
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`TestDefault` Module
--------------------------
-
-.. automodule:: tests.etsi.TestDefault
+.. automodule:: tests.etsi.TestCore
     :members:
     :undoc-members:
     :show-inheritance:
 
 
-:mod:`TestSeparate` Module
---------------------------
+Optional Tests
+--------------
 
-.. automodule:: tests.etsi.TestSeparate
+:mod:`TestBlock` Module
+-----------------------
+
+.. automodule:: tests.etsi.TestBlock
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`TestDiscoveryResource` Module
------------------------------------
 
-.. automodule:: tests.etsi.TestDiscoveryResource
+:mod:`TestLink` Module
+----------------------
+
+.. automodule:: tests.etsi.TestLink
     :members:
     :undoc-members:
     :show-inheritance:
-
 
 :mod:`TestObserve` Module
 -------------------------
@@ -71,38 +65,18 @@ The test descriptions are provided in proforma tables. The following different t
     :show-inheritance:
 
 
-:mod:`TestQuery` Module
------------------------
-
-.. automodule:: tests.etsi.TestQuery
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-Mandatory Tests
----------------
-
-:mod:`TestLongPath` Module
---------------------------
-
-.. automodule:: tests.etsi.TestLongPath
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Optional Tests
---------------
-
-:mod:`TestLarge` Module
------------------------
-
-.. automodule:: tests.etsi.TestLarge
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
 CoAP Binding for M2M REST Resources
 -----------------------------------
 
+TODO
+
+Automatic testing
+-----------------
+
+:mod:`irisa` Module
+-------------------
+
+.. automodule:: tests.etsi.irisa
+    :members:
+    :undoc-members:
+    :show-inheritance:
