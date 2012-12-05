@@ -7,41 +7,10 @@ TODO
 import unittest
 
 from datetime import datetime
-from threading import Timer
 from pycolo.endpoint import Endpoint
 
 from pycolo.request import request
-from pycolo.resource import Resource
-from pycolo.codes import mediaCodes, codes
-
-
-class TimeResource(Resource):
-    """
-    Defines a resource that returns the current time on a GET request.
-    It also Supports observing.
-    """
-
-    def __init__(self):
-
-        def update(self):
-            """ generated source for method run """
-            self.time = datetime.datetime.now()
-            #  Call changed to notify subscribers
-            self.changed()
-
-        self.title = "GET the current time"
-        self.resourceType = "CurrentTime"
-        self.isObservable = True
-        #  Set timer task scheduling
-        timer = Timer(2, update)
-        timer.start()
-
-    def performGET(self, request):
-        """
-
-                :param request:
-                """
-        request.respond(codes.RESP_CONTENT, self.time, mediaCodes.txt)
+from pycolo.codes import codes
 
 
 class TestSeparate(unittest.TestCase):
@@ -53,9 +22,20 @@ class TestSeparate(unittest.TestCase):
         """
         Setup a CoAP server and assign a TimeResource to it
         """
-        res = TimeResource()
-        server = Endpoint()
-        server.addResource(res)
+        server = Endpoint(__name__)
+
+        @server.route("/time", obs=True, repeat=2,
+                      title="CurrentTime",
+                      methods=["GET", "POST"])
+        def update(self):
+            """
+            Defines a resource that returns the current time on a GET request.
+            It also Supports observing.
+            """
+            self.time = datetime.datetime.now()
+            #  Call changed to notify subscribers
+            self.changed()
+            return self.time
 
     def test_get(self):
         """
@@ -63,6 +43,12 @@ class TestSeparate(unittest.TestCase):
         """
         r = request.get("coap://localhost:5683/time")
         self.assertEqual(r.status, codes.ok)
+
+    def test_observe(self):
+        """
+        Implement a simple observe process
+        """
+        pass
 
 if __name__ == '__main__':
     unittest.main()
