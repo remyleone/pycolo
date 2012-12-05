@@ -274,7 +274,7 @@ class LinkTest(unittest.TestCase):
         r1 = request.get(self.server.url + "/.well-known/core",
             query={"href": "/link1"})
         self.assertEqual(r1.contentType, mediaCodes.link)
-        r2 = request.get("coap://localhost/link1")
+        r2 = request.get(self.server.url + "/link1")
         self.assertIn(r1.payload, r2.payload)
         logging.info(r1.payload)
 
