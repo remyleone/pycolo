@@ -1,1 +1,1 @@
-__author__ = 'sieben'
+# coding=utf-8
