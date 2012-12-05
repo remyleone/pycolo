@@ -63,5 +63,29 @@ class TokenEqualityTest(unittest.TestCase):
 #        t3 = option(0xABCDEF02, options.TOKEN)
 #        self.assertNotEqual(t1, t3)
 
+    def test_token(self):
+        """
+        Check token.
+
+        :param expectedToken the expected token
+        :param actualToken the actual token
+        :return True, if successful
+        """
+        #
+        #success = True
+
+        #        if expextedOption.equals(new Option(TokenManager.emptyToken, options.TOKEN)):
+        #            self.assertEqual(None, actualOption)
+        #        else:
+        #            success = actualOption.getRawValue().length <= 8
+        #            success &= actualOption.getRawValue().length >= 1
+        #
+        #        # eval token length
+        #        if not success:
+        #            logging.info("FAIL: Expected token %s, but %s has illegal length" % expextedOption, actualOption)
+        #
+        #        success &= expextedOption.toString().equals(actualOption.toString())
+
+
 if __name__ == '__main__':
     unittest.main()
