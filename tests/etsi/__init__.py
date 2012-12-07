@@ -37,6 +37,7 @@ from pycolo import codes
 from pycolo.codes import mediaCodes
 from pycolo.endpoint import Endpoint
 from pycolo.message import Response
+from pycolo.request import request
 from pycolo.resource import Resource
 
 server = Endpoint("PlugTestServer", PLUGTEST_BLOCK_SIZE=64)
