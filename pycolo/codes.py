@@ -4,22 +4,22 @@
 Registry of all constant status code
 
 :codes:
-    describes the CoAP Code Registry as defined in
-    draft-ietf-core-coap-08, section 11.1
+    describes the CoAP Code Registry
 
 :mediaCodes:
-    describes the CoAP Media Type Registry as defined in
-    draft-ietf-core-coap-07, section 11.3
+    describes the CoAP Media Type Registry
 
 :options:
-    describes the CoAP Option Number Registry as defined in
-    draft-ietf-core-coap-07, sections 11.2 and 5.4.5
+    describes the CoAP Option Number Registry
 """
 
+import math
+from struct import pack, unpack
+from pycolo import DEFAULT_PORT
 from pycolo.structures import LookupDict
 
 _msgType = {
-    0: ("confirmable", "CON", "default"),
+    0: ("CON", "con", "confirmable",  "default"),
     1: ("NON", "non", "NonConfirmable"),
     2: ("ACK", "ack", "acknowledgment"),
     3: ("RST", "rst", "reset"),
@@ -27,7 +27,7 @@ _msgType = {
 
 _codes = {
     #  Constants
-    0: ("EMPTY_MESSAGE", "Empty Message"),
+    0: ("EMPTY_MESSAGE", "empty"),
 
     #  CoAP method codes
     1: ("METHOD_GET", "get", "GET"),
@@ -67,6 +67,8 @@ _codes = {
     136: ("RESP_REQUEST_ENTITY_INCOMPLETE", "incomplete"),
 }
 
+refCodes = _codes
+
 _mediaCode = {
     0: ("TEXT_PLAIN", "plain", "txt", "text"),
     1: ("TEXT_XML", "xml"),
@@ -92,69 +94,79 @@ _mediaCode = {
     51: ("APPLICATION_X_OBIX_BINARY", "xObixBin"),
 }
 
-_options = {
-    0: ("RESERVED", "Reserved (0)", "reserved"),
-    1: ("CONTENT_TYPE", "content", "Content-Type"),
-    2: ("MAX_AGE", "Max-Age"),
-    3: ("PROXY_URI", "Proxy-Uri"),
-    4: ("ETAG", "ETag"),
-    5: ("URI_HOST", "Uri-Host"),
-    6: ("LOCATION_PATH", "Location-Path"),
-    7: ("URI_PORT", "Uri-Port"),
-    8: ("LOCATION_QUERY", "Location-Query",
-        "TOKEN_LEN", "token_len", "tokenLen"),
-    # Token len and location query are not related semantically but
-    # they share the same value.
-    9: ("URI_PATH", "Uri-Path"),
-    10: ("OBSERVE", "Observe", "observe"),
+# Encoders
 
-    #  draft-IETF-core-observe
+def string_once(min_size, max_size, default=None):
+    return {
+        "range": range(min_size, max_size),
+        "repeat": False,
+        "format": "str",
+        "encoder": lambda x: b"" if x == default else x.encode("utf-8"),
+        "decoder": lambda raw: raw.decode("utf-8")
+    }
 
-    11: ("TOKEN", "Token", "token"),
-    12: ("ACCEPT", "Accept", "accept"),
-    13: ("IF_MATCH", "If-Match"),
-    14: ("FENCEPOST_DIVISOR", "fenceport_divisor", "divisor"),
-    15: ("URI_QUERY", "Uri-Query"),
-    17: ("BLOCK2", "Block2"),
+def string_many(min_size, max_size, default=None):
+    return {
+        "range": range(min_size, max_size),
+        "repeat": True,
+        "encoder": lambda x: b"" if x == default else x.encode("utf-8"),
+        "decoder": lambda raw: raw.decode("utf-8")
+    }
 
-    #  draft-IETF-core-block
-    19: ("BLOCK1", "Block1"),
-    21: ("IF_NONE_MATCH", "If-None-Match"),
+def opaque_256_many(min_size, max_size, default=None):
+    return {
+        "range": range(min_size, max_size),
+        "repeat": True,
+        "format": "opaque",
+        "encoder": lambda x: b"" if x == default else pack("!H", x),
+        "decoder": lambda  raw: raw
+    }
 
+def presence_once():
+    return {
+        "repeat": False,
+        "format": None,
+        "encoder": lambda x: b"",
+        "decoder": lambda raw: True
+    }
+
+def uint_once(min_size, max_size, default=None):
+    return {
+        "range": range(min_size, max_size),
+        "repeat": False,
+        "encoder": lambda x: b"" if x == default else pack("!H", x),
+        "decoder": lambda raw: unpack("!H", raw)
+    }
+
+def uint_many(min_size, max_size, default=None):
+    return {
+        "range": range(min_size, max_size),
+        "repeat": True,
+        "encoder": lambda x: b"" if x == default else pack("!H", x),
+        "decoder": lambda raw: unpack("!H", raw)
+    }
+
+options = {
+    1: opaque_256_many(0, 8).update(name="If-Match"),  # core-coap-12
+    3: string_once(1, 255).update(name="Uri-Host"),  # core-coap-12
+    4: opaque_256_many(1, 8).update(name="etag"),  # core-coap-12 !! once in rp
+    5: presence_once().update(name="if_none_match"),  # core-coap-12
+    6: uint_once(0, 3).update(name="observe"),  # core-observe-07
+    7: uint_once(0, 2, DEFAULT_PORT).update(name="uri_port"),  # core-coap-12
+    8: string_many(0, 255).update(name="location_path"), # core-coap-12
+    11: string_many(0, 255).update(name="uri_path"),  # core-coap-12
+    12: uint_once(0, 2).update(name="content_format"),  # core-coap-12
+    14: uint_once(0, 4, 60).update(name="max_age"),  # core-coap-12
+    15: string_many(0, 255).update(name="uri_query"),  # core-coap-12
+    16: uint_many(0, 2).update(name="accept"), # core-coap-12
+    20: string_many(0, 255).update(name="location_query"),  # core-coap-12
+    23: uint_once(0, 3).update(name="block2"),  # core-block-10
+    27: uint_once(0, 3).update(name="block1"),  # core-block-10
+    28: uint_once(0, 4).update(name="size"),  # core-block-10
+    35: string_many(1, 1034).update(name="proxy_uri")  # core-coap-12
 }
 
-
-def isCritical(optionNumber):
-    """
-    Test whether an option number is critical or not.
-
-    :param optionNumber: Option number to test.
-    :return: True if critical, False otherwise.
-    """
-    return (optionNumber & 1) == 1
-
-
-def isFencepost(optionNumber):
-    """
-    Test whether an option number is fencepost or not.
-
-    :param optionNumber: Option number to test.
-    :return: True if fencepost, False otherwise.
-    """
-    return optionNumber % options.FENCEPOST_DIVISOR == 0
-
-
-def nextFencepost(optionNumber):
-    """
-    Returns the next fencepost option number following a given option
-    number, the smallest fencepost option number larger than the given
-    option number
-
-    :param optionNumber: The option number
-    """
-    return (optionNumber / options.FENCEPOST_DIVISOR + 1)\
-           * options.FENCEPOST_DIVISOR
-
+opt_i = dict([v, k] for k, v in options.items())
 
 def isRequest(code):
     """
@@ -216,10 +228,8 @@ def _init(d, status):
 
 codes = LookupDict(name="status_code")
 mediaCodes = LookupDict(name="media_code")
-options = LookupDict(name="options_code")
 msgType = LookupDict(name="msgType")
 
 _init(codes, _codes)
 _init(mediaCodes, _mediaCode)
-_init(options, _options)
 _init(msgType, _msgType)

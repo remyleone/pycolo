@@ -6,7 +6,6 @@ TODO
 
 import unittest
 import logging
-from pycolo import message
 from pycolo.codes import codes, options
 from pycolo.codes import msgType as refType
 from pycolo.message import Message
@@ -23,19 +22,19 @@ class MessageTest(unittest.TestCase):
         """
         original = Message(
             peerAddress="localhost",
-            code=codes.get,
-            msgType=refType.con,
-            messageID=12345,
-            payload=b"Hello"
+            status_code=codes.get,
+            msg_type=refType.con,
+            message_id=12345,
+            payload="Hello"
         )
         logging.info(original)
+        logging.info(original.to_raw())
         new_message = Message()
-        new_message.load(original.dump())
-        self.assertEquals(original.code, new_message.code)
-        self.assertEquals(original.type, new_message.type)
-        self.assertEquals(original.MID, new_message.MID)
-        self.assertEquals(len(original.option), len(new_message.option))
-        self.assertArrayEquals(original.payload, new_message.payload)
+        new_message.from_raw(original.to_raw())
+        self.assertEquals(original.status_code, new_message.status_code)
+        self.assertEquals(original.msg_type, new_message.msg_type)
+        self.assertEquals(original.message_id, new_message.message_id)
+        self.assertEquals(original.payload, new_message.payload)
 
     def test_OptionMessage(self):
         """
@@ -43,20 +42,18 @@ class MessageTest(unittest.TestCase):
         """
         msg = Message(
             peerAddress="localhost",
-            code=codes.get,
-            msgType=refType.con,
-            messageID=12345,
-            payload=b"Hello",
-            options={2: 42, 6: 42}
+            status_code=codes.get,
+            msg_type=refType.con,
+            message_id=12345,
+            payload="Hello",
         )
-        logging.info(msg)
+        logging.info(msg.to_raw())
         newMsg = Message()
-        newMsg.load(msg.dump())
-        self.assertEquals(msg.code, newMsg.code)
-        self.assertEquals(msg.type, newMsg.type)
-        self.assertEquals(msg.MID, newMsg.MID)
-        self.assertEquals(msg.options, newMsg.options)
-        self.assertArrayEquals(msg.payload, newMsg.payload)
+        newMsg.from_raw(msg.to_raw())
+        self.assertEquals(msg.status_code, newMsg.status_code)
+        self.assertEquals(msg.msg_type, newMsg.msg_type)
+        self.assertEquals(msg.message_id, newMsg.message_id)
+        self.assertEquals(msg.payload, newMsg.payload)
 
 
     def test_ExtendedOptionMessage(self):
@@ -65,19 +62,16 @@ class MessageTest(unittest.TestCase):
         """
         msg = Message(
             peerAddress="localhost",
-            code=codes.GET,
-            msgType=refType.con,
-            messageID=12345,
-            # will fail as limit of max 15 options would be exceeded
-            options={"a": 1, "ab": 197}
+            status_code=codes.GET,
+            msg_type=refType.con,
+            message_id=12345,
         )
         logging.info(msg)
         newMsg = Message()
-        newMsg.load(msg.dump())
-        self.assertEquals(msg.code, newMsg.code)
-        self.assertEquals(msg.type, newMsg.type)
-        self.assertEquals(msg.MID, newMsg.MID)
-        self.assertEquals(len(msg.option), len(newMsg.option))
+        newMsg.from_raw(msg.to_raw())
+        self.assertEquals(msg.status_code, newMsg.status_code)
+        self.assertEquals(msg.msg_type, newMsg.msg_type)
+        self.assertEquals(msg.message_id, newMsg.message_id)
 
 
 if __name__ == '__main__':

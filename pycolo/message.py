@@ -4,87 +4,62 @@ test
 """
 import logging
 import math
-from pycolo.codes import options, codes
+from struct import unpack, pack, calcsize
+from pycolo import PROTOCOL_VERSION as v
+from pycolo.codes import options as refOptions, opt_i, msgType
+from pycolo.codes import codes as refCodes
+from pycolo.codes import msgType as refType
+from pycolo.request import request
 
 
 class Message:
     """
     The Class Message provides the object representation of a CoAP message.
-    Besides providing the corresponding setters and getters, the class is
-    responsible for parsing and serializing the objects from/to byte arrays.
+    The class is responsible for parsing and serializing the objects from/to
+    byte arrays.
+
+    :param VERSION_BITS:
+        number of bits used for the encoding of the CoAP version field
+    :param TYPE_BITS:
+        number of bits used for the encoding of the message type field
+    :param OPTION_COUNT_BITS:
+        number of bits used for the encoding of the option count field
+    :param CODE_BITS:
+        number of bits used for the encoding of the request method/response code field
+    :param ID_BITS:
+        number of bits used for the encoding of the transaction ID
+    :param OPTION_DELTA_BITS:
+        number of bits used for the encoding of the option delta
+    :param OPTION_LENGTH_BASE_BITS:
+        number of bits used for the encoding of the base option length field
+        if all bits in this field are set to one, the extended option length
+        field is additionally used to encode the option length
+    :param OPTION_LENGTH_EXTENDED_BITS:
+        number of bits used for the encoding of the extended option length field
+        this field is used when all bits in the base option length field
+        are set to one
+    :param MAX_OPTION_DELTA:
+        maximum option delta that can be encoded without using fencepost
+        options
+    :param MAX_OPTION_LENGTH_BASE:
+        maximum option length that can be encoded using the base option
+        length field only
+    :param code: Message code
     """
 
-    # number of bits used for the encoding of the CoAP version field
     VERSION_BITS = 2
-
-    # number of bits used for the encoding of the message type field
     TYPE_BITS = 2
-
-    # number of bits used for the encoding of the option count field
-    OPTIONCOUNT_BITS = 4
-
-    # number of bits used for the encoding of the request method/
-    # response code field
+    OPTION_COUNT_BITS = 4
     CODE_BITS = 8
-
-    # number of bits used for the encoding of the transaction ID
     ID_BITS = 16
-
-    # number of bits used for the encoding of the option delta
-    OPTIONDELTA_BITS = 4
-
-    # number of bits used for the encoding of the base option length field
-    # if all bits in this field are set to one, the extended option length
-    # field is additionally used to encode the option length
-    OPTIONLENGTH_BASE_BITS = 4
-
-    # number of bits used for the encoding of the extended option length field
-    # this field is used when all bits in the base option length field
-    # are set to one
-    OPTIONLENGTH_EXTENDED_BITS = 8
-
-    # The message's type which can have the following values:
-    #
-    # 0: Confirmable (CON)
-    # 1: Non-Confirmable (NON)
-    # 2: Acknowledgment (ACK)
-    # 3: Reset (RST)
-
-    msgType = {
-        "CON" : 0,
-        "NON" : 1,
-        "ACK" : 2,
-        "RST" : 3,
-        "default" : 0
-    }
-
-    messageType = None
-
-    # maximum option delta that can be encoded without using fencepost options
-    MAX_OPTIONDELTA = (1 << OPTIONDELTA_BITS) - 1
-
-    # maximum option length that can be encoded using
-    # the base option length field only
-    MAX_OPTIONLENGTH_BASE = (1 << OPTIONLENGTH_BASE_BITS) - 2
+    OPTION_DELTA_BITS = 4
+    OPTION_LENGTH_BASE_BITS = 4
+    OPTION_LENGTH_EXTENDED_BITS = 8
+    MAX_OPTION_DELTA = (1 << OPTION_DELTA_BITS) - 1
+    MAX_OPTION_LENGTH_BASE = (1 << OPTION_LENGTH_BASE_BITS) - 2
 
     # The receiver for this message.
     peerAddress = None
-
-
-    # The message type (CON, NON, ACK, or RST).
-    type = None
-
-    # Message code :
-    # 0: Empty
-    # 1-31: Request
-    # 64-191: Response
-    code = 0
-
-    # The message ID. Set according to request or handled by
-    # {@link ch.ethz.inf.vs.californium.layers.TransactionLayer} when -1.
-    # 16-bit message ID of this CoAP message.
-    messageID = -1
-
 
     # URI
     uri = None
@@ -95,306 +70,254 @@ class Message:
     requiresBlockwise = False
 
 
-
-    def __init__(self, address, msgType=msgType, code=code,  payload=None, timestamp=0, version=1):
+    def __init__(self,
+                 msg_type=refType.con,
+                 status_code=refCodes.empty,
+                 payload=None,
+                 peerAddress=None,
+                 timestamp=0,
+                 message_id=None,
+                 options={},
+                 version=1):
         """
         Constructor for a new CoAP message
-        @param uri the URI of the CoAP message
-        @param type the type of the CoAP message
-        @param payload the payload of the CoAP message
-        @param code the code of the CoAP message (See class CodeRegistry)
+        :param uri: the URI of the CoAP message
+        :param type: the type of the CoAP message
+        :param payload: the payload of the CoAP message
+        :param code: the code of the CoAP message (See class CodeRegistry)
+        :param version: The CoAP version used. For now, this must be set to 1.
+        :param options: The list of header options set for the message.
         """
-        raise NotImplementedError
-#        self.URI = address
-#        self.msgType = msgType
-#        self.code = code
-#        self.messageID = mid
-#        self.token = None
-#        self.payload = payload
+        self.msg_type = msg_type
+        self.version = version
+        self.options = options
+        self.status_code = status_code
+        self.msg_type = msg_type
+        self.message_id = message_id
+        self.payload = payload
+        self.peerAddress= peerAddress
 #        self.retransmissioned = False
 #        self.retransmissioned = 0
-#        self.mid = mid
-#
+
 #        # A time stamp associated with the message.
 #        self.timestamp = timestamp  # TODO: Attention aux initialisations.
-#
-#        # The list of header options set for the message.
-#        self.options = dict()
-#
-#        # The CoAP version used. For now, this must be set to 1.
-#        self.version = version
 
+    def is_reply(self):
+        """
 
+        :return:
+        """
+        return self.msg_type == refType.ack or self.isReset()
 
-    def isConfirmable(self):
-        return self.type == self.messageType["CON"]
+    def is_emptyACK(self):
+        """
 
-    def isNonConfirmable(self):
-        return self.type == self.messageType["NON"]
+        :return:
+        """
+        return self.msg_type == refType.ack and self.status_code == refCodes.empty
 
-    def isAcknowledgement(self):
-        return self.type == self.messageType["ACK"]
-
-    def isReset(self):
-        return self.type == self.messageType["RST"]
-
-    def isReply(self):
-        return self.isAcknowledgement() or self.isReset()
-
-    def isEmptyACK(self):
-        return self.isAcknowledgement() and self.code == codes.EMPTY_MESSAGE
-
-    def hasOption(self, optionNumber):
-        return optionNumber in self.options
-
-    def newAccept(self):
+    def new_accept(self):
         """
         Creates a new ACK message with peer address and MID matching to this message.
-        @return A new ACK message
-        """
-        ack = Message(self.messageType.ACK, codes.EMPTY_MESSAGE)
-        ack.peerAddress = self.peerAddress
-        ack.MID = self.MID
-        return ack
 
-    def newReject(self):
+        :return: A new ACK message
+        """
+        return Message(
+            peerAddress=self.peerAddress,
+            msg_type=refType.ack,
+            status_code=refCodes.empty,
+            messageID=self.message_id)
+
+    def new_reject(self):
         """
         Creates a new RST message with peer address and MID matching to this
         message.
-        @return A new RST message
-        """
-        rst = Message(self.messageType.RST, codes.EMPTY_MESSAGE)
-        rst.peerAddress = self.peerAddress
-        rst.MID = self.MID
-        return rst
 
-    def newReply(self, ack):
+        :return: A new RST message
+        """
+        return Message(
+            msg_type=refType.rst,
+            status_code=refCodes.empty,
+            messageID=self.message_id,
+            peerAddress=self.peerAddress)
+
+    def new_reply(self, ack):
         """
         This method creates a matching reply for requests. It is addressed to
         the peer and has the same message ID and token.
-        @param ack set true to send ACK else RST
-        @return A new {@link Message}
-        TODO does not fit into Message class
+        :param ack set true to send ACK else RST
+        :param ack:
         """
-        raise NotImplementedError
 
-#        # TODO use this for Request.respond() or vice versa
-#
-#        reply = Message()
-#
-#        # set message type
-#        if type == self.messageType.CON:
-#            reply.type = ack ? messageType.ACK : messageType.RST
-#        else:
-#            reply.type = self.messageType.NON
-#
-#        # echo the message ID
-#        reply.messageID = self.messageID
-#
-#        # set the receiver URI of the reply to the sender of this message
-#        reply.peerAddress = self.peerAddress
-#
-#        # echo token
-#        reply.setOption(getFirstOption(options.TOKEN))
-#        reply.requiresToken = requiresToken
-#
-#        # create an empty reply by default
-#        reply.code = codes.EMPTY_MESSAGE
-#
-#        return reply
+        reply = Message(
+            messageID=self.message_id,
+            status_code=refCodes.empty,
+            peerAddress=self.peerAddress
+        )
 
-    def dump(self):
+        if self.msg_type == self.messageType.CON:
+            reply.msg_type = self.message_type.ACK  if msgType.ack  else msgType.RST
+        else:
+            reply.msg_type = self.messageType.NON
+
+        return reply
+
+
+    def _encode_header(self):
+        header_format = "!BBH"
+        token_format = ""
+        if hasattr(self, "token"):
+            tkl, token = len(self.token), self.token
+            token_format =  tkl * "B"
+        else:
+            tkl, token = 0, b""
+        msg_type = self.msg_type if hasattr(self, "msg_type") else 0
+        version_msgType_tkl = v << 6 & 192 | msg_type << 4 & 48 | tkl & 15
+        header = [pack(header_format, version_msgType_tkl, self.status_code, self.message_id)]
+        if token_format:
+            header.append(pack("!" + token_format, token))
+        return b"".join(header)
+
+    def _encode_options(self):
+        """
+        This function is used to dump byte array representation of
+        a options dictionary.
+
+        :return: Encoded bytes array representing options
+        """
+        lastOptionNumber = 0
+        list_encoded_options = []
+        for option_number in sorted(self.options):
+            delta = self.options[option_number]["num"] - lastOptionNumber
+            list_encoded_options.append(
+                self.options[option_number]["encoder"](delta, self.options[option_number]))
+            lastOptionNumber = self.options[option_number]["num"]
+
+        return b"".join(list_encoded_options)
+
+    def _encode_payload(self):
+        if hasattr(self, "payload"):
+            if hasattr(self.payload, "encode"):
+                return b"\xff" + self.payload.encode("utf-8")
+            else:
+                return b""
+        else:
+            return b""
+
+    def to_raw(self):
         """
         Encodes the message into its raw binary representation
-        as specified in draft-ietf-core-coap-05, section 3.1
-        @return A byte array containing the CoAP encoding of the message
+        as specified in draft from IETF
+
+        :return A byte array containing the CoAP encoding of the message
         """
-        raise NotImplementedError
+        return b"".join([self._encode_header(), self._encode_options(), self._encode_payload()])
 
-#        optionCount = 0
-#        lastOptionNumber = 0
-#        for opt in self.options:
-#
-#            # do not encode options with default values
-#            if opt.isDefaultValue():
-#                continue
-#
-#            # calculate option delta
-#            optionDelta = opt.optionNumber - lastOptionNumber
-#
-#            # ensure that option delta value can be encoded correctly
-#            while optionDelta > self.MAX_OPTIONDELTA:
-#
-#                # option delta is too large to be encoded:
-#                # add fencepost options in order to reduce the option delta
-#
-#                # get fencepost option that is next to the last option
-#                fencepostNumber = options.nextFencepost(lastOptionNumber)
-#
-#                # calculate fencepost delta
-#                fencepostDelta = fencepostNumber - lastOptionNumber
-#
-#                # correctness assertions
-#                # assert fencepostDelta > 0: "Fencepost liveness";
-#                #assert fencepostDelta <= MAX_OPTIONDELTA: "Fencepost safety";
-#
-#                if fencepostDelta <= 0:
-#                    logging.warning("Fencepost liveness violated: delta = %d" % fencepostDelta)
-#
-#                if fencepostDelta > options.MAX_OPTIONDELTA:
-#                    logging.warning("Fencepost safety violated: delta = %d" % fencepostDelta)
-#
-#                # write fencepost option delta
-#                optWriter.write(fencepostDelta, options.OPTIONDELTA_BITS)
-#
-#                # fencepost have an empty value
-#                optWriter.write(0, OPTIONLENGTH_BASE_BITS)
-#                logging.debug("DEBUG: %d\n", fencepostDelta)
-#
-#                # increment option count
-#                ++optionCount
-#
-#                # update last option number
-#                lastOptionNumber = fencepostNumber
-#
-#                # update option delta
-#                optionDelta -= fencepostDelta
-#
-#
-#            # write option delta
-#            optWriter.write(optionDelta, options.OPTIONDELTA_BITS)
-#
-#            # write option length
-#            length = opt.getLength()
-#            if length <= options.MAX_OPTIONLENGTH_BASE:
-#                # use option length base field only to encode
-#                # option lengths less or equal than MAX_OPTIONLENGTH_BASE
-#
-#                optWriter.write(length, options.OPTIONLENGTH_BASE_BITS)
-#
-#            else:
-#                # use both option length base and extended field
-#                # to encode option lengths greater than MAX_OPTIONLENGTH_BASE
-#
-#                baseLength = options.MAX_OPTIONLENGTH_BASE + 1
-#                optWriter.write(baseLength, options.OPTIONLENGTH_BASE_BITS)
-#
-#                extLength = length - baseLength
-#                optWriter.write(extLength, options.OPTIONLENGTH_EXTENDED_BITS)
-#
-#            # write option value
-#            optWriter.writeBytes(opt.getRawValue())
-#
-#            # increment option count
-#            optionCount += 1
-#
-#            # update last option number
-#            lastOptionNumber = opt.optionNumber
-#
-#        # create datagram writer to encode message data
-#        DatagramWriter writer = new DatagramWriter()
-#
-#        # write fixed-size CoAP header
-#        writer.write(version, options.VERSION_BITS)
-#            writer.write(type.ordinal(), options.TYPE_BITS)
-#            writer.write(optionCount, options.OPTIONCOUNT_BITS)
-#            writer.write(code, options.CODE_BITS)
-#            writer.write(messageID, options.ID_BITS)
-#
-#
-#            # write options
-#        writer.writeBytes(optWriter.toByteArray())
-#
-#        # write payload
-#        writer.writeBytes(payload)
-#
-#        # return encoded message
-#        return writer.toByteArray()
-
-    def load(byteArray):
+    def from_raw(self, raw):
         """
         Decodes the message from the its binary representation
-        as specified in draft-ietf-core-coap-05, section 3.1
 
-        @param byteArray A byte array containing the CoAP encoding of the
-        message
+        :param byteArray: CoAP binary form message
         """
-        raise NotImplementedError
+        PAYLOAD_MARKER = b"\xff"
+        pointer, last_option = 0, 0
 
-#        #Read current version
-#        version = datagram.read(codes.VERSION_BITS) # non-blocking
-#
-#        #Read current type
-#        messageType type = getTypeByValue(datagram.read(options.TYPE_BITS))
-#
-#        #Read number of options
-#        optionCount = datagram.read(codes.OPTIONCOUNT_BITS)
-#
-#        #Read code
-#        code = datagram.read(CODE_BITS)
-#        if not CodeRegistry.isValid(code):
-#            logging.info("Received invalid message code: %d", code))
-#            return None
-#
-#        # create new message with subtype according to code number
-#        Message msg
-#        try:
-#            msg = codes.getMessageClass(code).newInstance()
-#        except Exception, e:
-#            logging.severe("Cannot instantiate Message class %d", code, e.getMessage())
-#            return None
-#
-#        msg.version = version
-#        msg.type = type
-#        msg.code = code
-#
-#        #Read message ID
-#        msg.messageID = datagram.read(ID_BITS)
-#
-#        #Current option nr initialization
-#        currentOption = 0
-#
-#        #Loop over all options
-#        for i in range(optionCount):
-#
-#            #Read option delta bits
-#            optionDelta = datagram.read(codes.OPTIONDELTA_BITS)
-#
-#            currentOption += optionDelta
-#            logging.debug("DEBUG MSG: %d\n" % optionDelta)
-#            if OptionNumberRegistry.isFencepost(currentOption):
-#
-#                #Read number of options
-#                datagram.read(codes.OPTIONLENGTH_BASE_BITS)
-#
-#            else:
-#                #Read option length
-#                length = datagram.read(codes.OPTIONLENGTH_BASE_BITS)
-#
-#                if length > codes.MAX_OPTIONLENGTH_BASE:
-#                    #Read extended option length
-#                    #length = datagram.read(OPTIONLENGTH_EXTENDED_BITS)
-#                    #         - (MAX_OPTIONLENGTH_BASE + 1);
-#
-#                    length += datagram.read(codes.OPTIONLENGTH_EXTENDED_BITS)
-#
-#                #Read option
-#                #Option opt = new Option (datagram.readBytes(length), currentOption);
-#                Option opt = Option.fromNumber(currentOption)
-#                opt.setValue(datagram.readBytes(length))
-#
-#                #Add option to message
-#                msg.addOption(opt)
-#
-#        # Get payload
-#        msg.payload = datagram.readBytesLeft()
-#
-#        # incoming message already have a token, including implicit empty token
-#        msg.requiresToken = False
-#
-#        return msg
+        # Header decoding
+
+        ver_t_tkl_pattern = "!B"
+        ver_t_tkl = unpack(ver_t_tkl_pattern, raw[pointer: pointer + calcsize(ver_t_tkl_pattern)])
+        ver_t_tkl = ver_t_tkl[0]
+        self.version = ver_t_tkl & 192 >> 6
+        self.message_type = ver_t_tkl & 48 >> 4
+        tkl = ver_t_tkl & 15
+        pointer += calcsize(ver_t_tkl_pattern)
+
+        code_pattern = "!B"
+        code = unpack(code_pattern, raw[pointer: pointer + calcsize(code_pattern)])
+        self.status_code = code[0]
+        pointer += calcsize(code_pattern)
+
+        message_id_pattern = "!H"
+        message_id = unpack(message_id_pattern, raw[pointer: pointer + calcsize(message_id_pattern)])
+        self.message_id = message_id[0]
+        pointer += calcsize(message_id_pattern)
+
+        # Token decoding
+        if tkl:
+            token_pattern = "!" + (tkl * "B")
+            token = unpack(token_pattern, raw[pointer + calcsize(token_pattern)])
+            self.token = token[0]
+            pointer += calcsize(token_pattern)
+
+        # Options decoding
+
+        payload_marker_pattern = "!B"
+        while raw[pointer: pointer + calcsize(payload_marker_pattern)] != PAYLOAD_MARKER and len(raw[pointer:]):
+            common_option_pattern = "!B"
+            option_header = unpack(common_option_pattern, raw[pointer: pointer + calcsize(common_option_pattern)])
+            raw_delta, raw_length = option_header & 240, option_header & 15
+            pointer += calcsize(common_option_pattern)
+
+            # Delta decoding
+
+            if 0 <= raw_delta <= 12:
+                option_num = raw_delta + last_option
+                last_option = option_num
+            elif raw_delta == 13:
+                delta_pattern_1byte = "!B"
+                option_num = unpack(delta_pattern_1byte, raw[pointer:pointer + calcsize(delta_pattern_1byte)])  - 13
+                last_option = option_num
+                pointer += calcsize(delta_pattern_1byte)
+            elif raw_delta == 14:
+                delta_pattern_2bytes = "!2B"
+                option_num = unpack(delta_pattern_2bytes, raw[pointer:pointer + calcsize(delta_pattern_2bytes)]) - 269
+                last_option = option_num
+                pointer += calcsize(delta_pattern_2bytes)
+            elif raw_delta == 15:
+                logging.error("Message delta encoding : 15. Reserved for future use.")
+                return None
+
+            # Length decoding
+
+            if 0 <= raw_length <= 12:
+                length = raw_length
+            elif raw_length == 13:
+                length_pattern_1byte = "!B"
+                length = unpack(length_pattern_1byte, raw[pointer:pointer + calcsize(length_pattern_1byte)]) - 13
+                pointer += calcsize(length_pattern_1byte)
+            elif raw_length == 14:
+                length_pattern_2bytes = "!2B"
+                length = unpack(length_pattern_2bytes, raw[pointer:pointer + calcsize(length_pattern_2bytes)]) - 269
+                pointer += calcsize(length_pattern_2bytes)
+            elif raw_length == 15:
+                logging.error("Message Length encoding : 15. Reserved for future use.")
+                return None
+
+            if length not in opt_i[option_num]["range"]:
+                logging.error("Option too big. Encoding error")
+                return None
+
+            if not opt_i[option_num]["repeat"]:
+                self.options[opt_i[option_num]] = opt_i[option_num]["decoder"](raw[pointer:pointer + length])
+            else:
+                self.options.setdefault(opt_i[option_num], [])\
+                .append(opt_i[option_num]["decoder"](raw[pointer:pointer + length]))
+
+            pointer += length
+
+        # Payload decoding
+
+        if len(raw[pointer:]) and raw[pointer] == b"\xff"[0]:
+            self.payload = raw[pointer + 1:].decode("utf-8")
+        else:
+            self.payload = None
+        return self
 
     def send(self):
+        """
+
+        :raise:
+        """
         raise NotImplementedError
 #        try:
 #            Communicator.getInstance().sendMessage(self)
@@ -414,47 +337,29 @@ class Message:
 #            ack.send()
 
 
-    def appendPayload(self, block):
-        """
-        Appends data to this message's payload.
-        :param block: the byte array containing the data to append
-        :return:
-        """
-        raise NotImplementedError
-
-#        if block:
-#            if self.payload:
-#                oldPayload = self.payload
-#                payload = new byte[oldPayload.length + block.length]
-#                System.arraycopy(oldPayload, 0, payload, 0, oldPayload.length)
-#                System.arraycopy(block, 0, payload, oldPayload.length, block.length)
-#            else:
-#                payload = block.clone()
-#            # wake up threads waiting in readPayload()
-#            self.notifyAll()
-#            # call notification method
-#            payloadAppended(block);
-
-
     def key(self):
         """
         Returns a string that is assumed to uniquely identify a message.
-        @return A string identifying the message
+
+        :return: A string identifying the message
         """
-        raise NotImplementedError
-        # return str.format("%s|%d|%s", peerAddress != null ? peerAddress.toString() : "local", messageID, typeString())
+        return "%s|%d|%s" % (
+            self.peerAddress if self.peerAddress else "local",
+            self.message_id,
+            self.msg_type)
 
     def transactionKey(self):
         """
         Returns a string that is assumed to uniquely identify a transaction.
         A transaction matches two buddies that have the same message ID between
         one this and the peer endpoint.
-        @return A string identifying the transaction
+
+        :return: A string identifying the transaction
         """
-        raise NotImplementedError
-#        return str.format("%s|%d", peerAddress != None\
-#                         ? peerAddress.toString()\
-#                         : "local", messageID)
+        return "%s|%d" % (
+            self.peerAddress if self.peerAddress else "local",
+            self.message_id
+        )
 
     def sequenceKey(self):
         """
@@ -463,167 +368,31 @@ class Message:
         involved, e.g., for separate responses or blockwise transfers.
         The transfer matching is done using the token (including the empty
         default token.
-        @return A string identifying the transfer
+
+        :return: A string identifying the transfer
         """
-        raise NotImplementedError
-#        return str.format("%s#%s", peerAddress != null\
-#                             ? peerAddress.toString()\
-#                             : "local", getTokenString())
-
-
-    def requiresToken(self):
-        raise NotImplementedError
-        # return requiresToken and self.code != codes.EMPTY_MESSAGE
+        return "%s#%s" % (
+            self.peerAddress if self.peerAddress else "local",
+            self.token)
 
     def __str__(self):
-        raise NotImplementedError
-#        kind = "MESSAGE"
-#        if (this instanceof Request):
-#            kind = "REQUEST "
-#        elif (this instanceof Response):
-#            kind = "RESPONSE"
-#
-#        logging.info("==[ CoAP %s ]=================================", kind)
-#
-#        info = dict()
-#        info["address"] = self.peerAddress
-#        info["id"] = self.messageID
-#        info["type"] = self.type
-#        info["code"] = self.code
-#        info["Options Size"] = self.options.size()
-#        logging.info(str(info))
-#        for opt in self.options:
-#            logging.info("%s: %s (%d Bytes)", opt.name, str(opt), len(opt))
-#
-#        logging.info("Payload: %d Bytes", self.payloadSize)
-#        if payload and isPrintable(self.contentType):
-#              logging.info(getPayloadString())
-#        logging.info("=======================================================")
 
+        header = "==[ CoAP Message ]================================="
+        info = {
+            "address": self.peerAddress,
+            "message ID": self.message_id,
+            "msg type": self.msg_type,
+            "status code": self.status_code,
+        }
+        # options pprint.pformat(options) <= from pprint import pformat
+        # Known options will be displayed with their common name attributes.
+        #        for opt in self.options:
+        #            logging.info("%s: %s (%d Bytes)", opt.name, str(opt), len(opt))
+        #
+        #        logging.info("Payload: %d Bytes", self.payloadSize)
+        #        if payload and isPrintable(self.contentType):
+        #              logging.info(getPayloadString())
 
-class Response(Message):
+        footer = "======================================================="
 
-    def __init__(self, contentType=None, status=codes.RESP_VALID):
-        """
-        Instantiates a new response.
-        @param method the status code of the message
-        """
-        raise NotImplementedError
-        # self.code = status
-
-
-    def getRTT(self):
-        """
-        Returns the round trip time in milliseconds (nano precision).
-        @return RTT in ms
-        """
-        raise NotImplementedError
-#        if request:
-#            return float((self.getTimestamp() - request.getTimestamp())) / 1000000
-#        else:
-#            return -1
-
-    def isPiggyBacked(self):
-        raise NotImplementedError
-        # return self.isAcknowledgement() and self.code != codes.EMPTY_MESSAGE
-
-
-class Option:
-    """
-    This class describes the functionality of the CoAP header options.
-    """
-    DEFAULT_MAX_AGE = 60
-    optionNr = int()   # The option number defining the option type.
-
-    def fromNumber(cls, nr):
-        """
-        This method creates a new Option object with dynamic type corresponding
-        to its option number.
-        @param nr the option number
-        @return A new option whose type matches the given number
-        """
-        raise NotImplementedError
-#        if nr == options.BLOCK1:
-#            pass
-#        elif nr == options.BLOCK2:
-#            return BlockOption(nr)
-#        else:
-#            return Option(nr)
-
-    def __str__(self):
-        """
-        Returns a human-readable string representation of the option's value
-        @Return The option value represented as a string
-        """
-        raise NotImplementedError
-
-    def encode(cls, num, szx, m):
-        value = 0
-        value |= (szx & 0x7)
-        value |= (1 if m else 0) << 3
-        value |= num << 4
-        return value
-
-    def setValue(self, num, szx, m):
-        self.setIntValue(self.encode(num, szx, m))
-
-    def getNUM(self):
-        return self.getIntValue() >> 4
-
-    def setNUM(self, num):
-        self.setValue(num, self.getSZX(), self.getM())
-
-    def getSZX(self):
-        return self.getIntValue() & 0x7
-
-    def setSZX(self, szx):
-        self.setValue(self.getNUM(), szx, self.getM())
-
-    def getSize(self):
-        return self.decodeSZX(self.getIntValue() & 0x7)
-
-    def setSize(self, size):
-        self.setValue(self.getNUM(), self.encodeSZX(size), self.getM())
-
-    def getM(self):
-        return (self.getIntValue() >> 3 & 0x1) != 0
-
-    def setM(self, m):
-        self.setValue(self.getNUM(), self.getSZX(), m)
-
-    def decodeSZX(cls, szx):
-        """
-        Decodes a 3-bit SZX value into a block size as specified by
-        draft-IETF-core-block-03, section-2.1:
-        0 --> 2^4 = 16 bytes
-        ...
-        6 --> 2^10 = 1024 bytes
-        """
-        return 1 << (szx + 4)
-
-    def encodeSZX(cls, blockSize):
-        """
-        Encodes a block size into a 3-bit SZX value as specified by
-        draft-ietf-core-block-03, section-2.1:
-        16 bytes = 2^4 --> 0
-        ...
-        1024 bytes = 2^10 -> 6
-        """
-        return int((math.log(blockSize) / math.log(2))) - 4
-
-    def validSZX(cls, szx):
-        return 0 <= szx <= 6
-
-    def __str__(self):
-        # TODO: Ne pas oublier de parser les options pour les rendre compréhensibles.
-        # les options reconnues auront leur titre standard et les inconnues seront recopiées tel quel.
-        """
-        Serializer
-        :return:
-        """
-        s = dict()
-        s["NUM"] = self.getNUM()
-        s["SZX"] = self.SZX
-        s["bytes"] = self.size
-        s["Message ID"] = self.MID
-        return str(s)
+        return "".join([header, "\n", str(info), "\n", footer])
