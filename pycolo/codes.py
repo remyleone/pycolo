@@ -13,7 +13,6 @@ Registry of all constant status code
     describes the CoAP Option Number Registry
 """
 
-import math
 from struct import pack, unpack
 from pycolo import DEFAULT_PORT
 from pycolo.structures import LookupDict
@@ -33,7 +32,7 @@ _codes = {
     1: ("METHOD_GET", "get", "GET"),
     2: ("METHOD_POST", "post", "POST", "CLASS_SUCCESS", "ok"),
     3: ("METHOD_PUT", "put", "PUT"),
-    4: ("METHOD_DELETE", "delete", "DELETE", "CLASS_CLIENT_ERROR", "client_error"),
+    4: ("METHOD_DELETE", "delete", "client_error"),
     5: ("CLASS_SERVER_ERROR", "Server_Error"),
 
     #  class 2.xx
@@ -96,7 +95,16 @@ _mediaCode = {
 
 # Encoders
 
+
 def string_once(min_size, max_size, default=None):
+    """
+    TODO
+
+    :param min_size:
+    :param max_size:
+    :param default:
+    :return:
+    """
     return {
         "range": range(min_size, max_size),
         "repeat": False,
@@ -105,7 +113,16 @@ def string_once(min_size, max_size, default=None):
         "decoder": lambda raw: raw.decode("utf-8")
     }
 
+
 def string_many(min_size, max_size, default=None):
+    """
+    Repeatable string option.
+
+    :param min_size:
+    :param max_size:
+    :param default:
+    :return:
+    """
     return {
         "range": range(min_size, max_size),
         "repeat": True,
@@ -113,16 +130,31 @@ def string_many(min_size, max_size, default=None):
         "decoder": lambda raw: raw.decode("utf-8")
     }
 
+
 def opaque_256_many(min_size, max_size, default=None):
+    """
+    TODO
+
+    :param min_size:
+    :param max_size:
+    :param default:
+    :return:
+    """
     return {
         "range": range(min_size, max_size),
         "repeat": True,
         "format": "opaque",
         "encoder": lambda x: b"" if x == default else pack("!H", x),
-        "decoder": lambda  raw: raw
+        "decoder": lambda raw: raw
     }
 
+
 def presence_once():
+    """
+    TODO
+
+    :return:
+    """
     return {
         "repeat": False,
         "format": None,
@@ -130,7 +162,16 @@ def presence_once():
         "decoder": lambda raw: True
     }
 
+
 def uint_once(min_size, max_size, default=None):
+    """
+    TODO
+
+    :param min_size:
+    :param max_size:
+    :param default:
+    :return:
+    """
     return {
         "range": range(min_size, max_size),
         "repeat": False,
@@ -138,7 +179,16 @@ def uint_once(min_size, max_size, default=None):
         "decoder": lambda raw: unpack("!H", raw)
     }
 
+
 def uint_many(min_size, max_size, default=None):
+    """
+    TODO
+
+    :param min_size:
+    :param max_size:
+    :param default:
+    :return:
+    """
     return {
         "range": range(min_size, max_size),
         "repeat": True,
@@ -153,12 +203,12 @@ options = {
     5: presence_once().update(name="if_none_match"),  # core-coap-12
     6: uint_once(0, 3).update(name="observe"),  # core-observe-07
     7: uint_once(0, 2, DEFAULT_PORT).update(name="uri_port"),  # core-coap-12
-    8: string_many(0, 255).update(name="location_path"), # core-coap-12
+    8: string_many(0, 255).update(name="location_path"),  # core-coap-12
     11: string_many(0, 255).update(name="uri_path"),  # core-coap-12
     12: uint_once(0, 2).update(name="content_format"),  # core-coap-12
     14: uint_once(0, 4, 60).update(name="max_age"),  # core-coap-12
     15: string_many(0, 255).update(name="uri_query"),  # core-coap-12
-    16: uint_many(0, 2).update(name="accept"), # core-coap-12
+    16: uint_many(0, 2).update(name="accept"),  # core-coap-12
     20: string_many(0, 255).update(name="location_query"),  # core-coap-12
     23: uint_once(0, 3).update(name="block2"),  # core-block-10
     27: uint_once(0, 3).update(name="block1"),  # core-block-10
@@ -167,6 +217,7 @@ options = {
 }
 
 opt_i = dict([v, k] for k, v in options.items())
+
 
 def isRequest(code):
     """
