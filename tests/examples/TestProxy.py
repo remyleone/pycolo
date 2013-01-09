@@ -40,6 +40,12 @@ import unittest
 
 from pycolo.endpoint import Proxy
 
+
+class BaseProxyTest(unittest.BaseTestSuite):
+
+    def setUp(self):
+        self.proxy = Proxy
+
+
 if __name__ == '__main__':
     unittest.main()
-
