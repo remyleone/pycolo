@@ -5,7 +5,7 @@ pycolo.api
 
 This module implements the "requests" Pycolo API
 """
-from requests import sessions
+from . import sessions
 
 def request(method, url, **kwargs):
     """
@@ -26,18 +26,15 @@ def request(method, url, **kwargs):
     :param session: (optional) A :class:`Session` object to be used for the request.
     :param config: (optional) A configuration dictionary. See ``request.defaults`` for allowed keys and their default values.
     :param prefetch: (optional) if ``True``, the response content will be immediately downloaded.
-    :return:
-    """
-    session = kwargs.pop('session', None)
-    if session is None:
-        session = sessions.session(config=kwargs.get('config', None))
-    adhoc_session = True
 
-    try:
-        return session.request(method=method, url=url, **kwargs)
-    finally:
-        if adhoc_session:
-            session.close()
+    Usage::
+
+      >>> import requests
+      >>> req = requests.request('GET', 'http://httpbin.org/get')
+      <Response [200]>
+    """
+    session = sessions.Session()
+    return session.request(method=method, url=url, **kwargs)
 
 
 def get(url, **kwargs):
@@ -49,18 +46,6 @@ def get(url, **kwargs):
 
     kwargs.setdefault('allow_redirects', True)
     return request('get', url, **kwargs)
-
-
-def options(url, **kwargs):
-    """
-    Sends a OPTIONS request.
-    Returns :class:`Response` object.
-
-    :param url: URL for the new :class:`Request` object.
-    :param \*\*kwargs: Optional arguments that ``request`` takes.
-    """
-    kwargs.setdefault('allow_redirects', True)
-    return request('options', url, **kwargs)
 
 def observe(url, **kwargs):
     """
