@@ -1,62 +1,43 @@
 # coding=utf-8
 
 """
-TODO
+Simple Hello World example
 """
 
 import unittest
 from pycolo import codes
-from pycolo.codes import mediaCodes
 from pycolo.endpoint import Endpoint
-from pycolo.message import Response
-from pycolo.request import request
-from pycolo.resource import Resource
-
-class HelloWorldResource(Resource):
-    """
-    This class implements a 'hello world' resource for demonstration purposes.
-    Defines a resource that returns text with special characters on GET.
-    """
-
-    def __init__(self, title="Hello-World Resource", rt="HelloWorldDisplayer"):
-        self.title = title
-        self.resourceType = rt
-
-    def performGET(self, request):
-        # create response
-        """
-
-        :param request:
-        :return:
-        """
-        response = Response(code=codes.RESP_CONTENT)
-
-        payload = "Hello World! My name is Rémy Léone look @ the funny € from UTF-8 (•‿•)"
-        response.contentType(mediaCodes.text)
-        response.payload = payload
-        return response
+from pycolo.api import request
 
 
 class HelloWorldTest(unittest.TestCase):
     """
-    Testsuite
+    Testsuite for unicode
     """
+    message = "Hello World! My name is Rémy Léone look @ the funny € from UTF-8 (•‿•)"
 
     def setUp(self):
         """
         Setup a simple server with an hello world resource.
-        """
-        server = Endpoint()
-        res = HelloWorldResource()
-        server.register(res)
 
-    def test_GET(self):
+        Defines a resource that returns text with special characters on GET.
+        """
+        self.server = Endpoint(__name__)
+
+        @self.server.route("/hello",
+            title="Hello-World Resource",
+            rt="HelloWorld")
+        def hello():
+            return self.message
+
+
+    def test_simple_get(self):
         """
         Test a simple GET
         """
-        r = request.get("coap://localhost:5683/.well-known/core")
+        r = request.get(self.server.url + "/.well-known/core")
         self.assertEqual(codes.ok, r.code)
-        self.assertEqual(r.payload, "Hello World! My name is Rémy Léone look @ the funny €")
+        self.assertEqual(r.payload, self.message)
 
 
 if __name__ == '__main__':
