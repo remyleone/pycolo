@@ -14,7 +14,7 @@ class HelloWorldTest(unittest.TestCase):
     """
     Testsuite for unicode
     """
-    message = "Hello World! My name is Rémy Léone look @ the funny € from UTF-8 (•‿•)"
+    message = "Hello World look @ the funny € from UTF-8 (•‿•)"
 
     def setUp(self):
         """
@@ -29,7 +29,6 @@ class HelloWorldTest(unittest.TestCase):
             rt="HelloWorld")
         def hello():
             return self.message
-
 
     def test_simple_get(self):
         """
