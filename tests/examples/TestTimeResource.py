@@ -1,7 +1,7 @@
 # coding=utf-8
 
 """
-TODO
+Testing a typical observed resource.
 """
 
 import unittest
@@ -9,46 +9,55 @@ import unittest
 from datetime import datetime
 from pycolo.endpoint import Endpoint
 
-from pycolo.request import request
+import pycolo as coap
 from pycolo.codes import codes
+from pycolo.resource import Resource
 
 
-class TestSeparate(unittest.TestCase):
+class TestTimeResource(unittest.TestCase):
     """
-    TODO
+    Observing time resource
     """
 
     def setUp(self):
         """
         Setup a CoAP server and assign a TimeResource to it
         """
-        server = Endpoint(__name__)
+        self.server = Endpoint(__name__)
 
-        @server.route("/time", obs=True, repeat=2,
-                      title="CurrentTime",
-                      methods=["GET", "POST"])
-        def update(self):
+        class TimeResource(Resource):
             """
-            Defines a resource that returns the current time on a GET request.
-            It also Supports observing.
+            Simple Time Resource that give the time and support observation.
+
+            :return:
             """
-            self.time = datetime.datetime.now()
-            #  Call changed to notify subscribers
-            self.changed()
-            return self.time
+
+            def __call__(self):
+                """
+                Resource that returns the current time on a GET request.
+                It also Supports observing.
+                """
+                self.time = datetime.datetime.now()
+                self.changed()  # Call changed to notify subscribers
+                return self.time
+
+        self.server.add_url_rule("/time", obs=True,
+                      methods=["GET", "POST"],
+                      resource=TimeResource(title="CurrentTime"))
 
     def test_get(self):
         """
         Simple get test
         """
-        r = request.get("coap://localhost:5683/time")
+        r = coap.get(self.server.url + "/time")
         self.assertEqual(r.status, codes.ok)
 
     def test_observe(self):
         """
         Implement a simple observe process
         """
-        pass
+        r = coap.observe(self.server.url + "/time")
+        self.assertEqual(codes.ok, r.code)
 
 if __name__ == '__main__':
     unittest.main()
