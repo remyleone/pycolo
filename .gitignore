@@ -34,6 +34,11 @@ pip-log.txt
 .pydevproject
 __pycache__
 
+# Sublime Text
+
+*.sublime-project
+*.sublime-workspace
+
 #Mr Developer
 .mr.developer.cfg
 
